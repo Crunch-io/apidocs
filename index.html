@@ -134,7 +134,7 @@ Replace &ldquo;fake.user@example.com&rdquo; and &ldquo;password&rdquo; with your
 <span class="c1"># All three steps are handled within newDatasetFromFile
 </span></code></pre>
 
-<p>POST a Dataset Entity to the datasets catalog.</p>
+<p>POST a Dataset Entity to the datasets catalog. See the documentation for <a href="#post">POST /datasets/</a> for details on valid attributes to include in the POST.</p>
 
 <h4 id="2-upload-the-file">2. Upload the file</h4>
 <pre class="highlight http"><code><span class="nf">POST</span> <span class="nn">/sources/</span> <span class="k">HTTP</span><span class="o">/</span><span class="m">1.1</span>
@@ -151,7 +151,7 @@ Replace &ldquo;fake.user@example.com&rdquo; and &ldquo;password&rdquo; with your
 <span class="na">Location</span><span class="p">:</span> <span class="s">/sources/{source_id}/</span>
 </code></pre>
 
-<p>POST the file to the sources catalog. </p>
+<p>POST the file to the sources catalog.</p>
 
 <h4 id="3-add-the-source-to-the-dataset">3. Add the Source to the Dataset</h4>
 <pre class="highlight http"><code><span class="nf">POST</span> <span class="nn">/datasets/{dataset_id}/batches/</span> <span class="k">HTTP</span><span class="o">/</span><span class="m">1.1</span>
@@ -163,18 +163,23 @@ Replace &ldquo;fake.user@example.com&rdquo; and &ldquo;password&rdquo; with your
 <span class="s">    }</span>
 <span class="s">}</span>
 <span class="s">--------</span>
-<span class="s">201 Created</span>
+<span class="s">202 Continue</span>
 <span class="na">Location</span><span class="p">:</span> <span class="s">/datasets/{dataset_id}/batches/{batch_id}/</span>
+<span class="s">...</span>
+<span class="s">{</span>
+<span class="s">    "element": "shoji:view",</span>
+<span class="s">    "value": "/progress/{progress_id}/"</span>
+<span class="s">}</span>
 </code></pre>
 
-<p>POST the URL of the just-created source entity (the Location in the 201 response from the previous step) to the batches catalog of the dataset entity created in step 1. </p>
+<p>POST the URL of the just-created source entity (the Location in the 201 response from the previous step) to the batches catalog of the dataset entity created in step 1.</p>
 
-<aside class="notice">If your file is large, you may wish to have this import job be completed asynchronously in order to avoid hitting a server timeout. To do so, include `&ldquo;async&rdquo;: true` in the &ldquo;body&rdquo; key of the payload. This will change the response status from 201 to 202, and you&rsquo;ll need to poll the server to learn when the import job has been completed. See batches for details.</aside>
+<p>The POST to the batches catalog will return 202 Continue status, and the response body contains a progress URL. Poll that URL to monitor the completion of the batch addition. See &ldquo;<a href="#progress">Progress</a>&rdquo; for more. The 202 response will also contain a Location header with the URL of the newly created batch.</p>
 
 <h3 id="metadata-document-csv">Metadata document + CSV</h3>
 
-<p>This approach may be most natural for importing data from databases that store 
-data by rows. You can dump or export your database to Crunch&rsquo;s JSON metadata 
+<p>This approach may be most natural for importing data from databases that store
+data by rows. You can dump or export your database to Crunch&rsquo;s JSON metadata
 format, plus a CSV of data, and upload those to Crunch, without requiring much
  back-and-forth with the API.</p>
 
@@ -203,19 +208,19 @@ format, plus a CSV of data, and upload those to Crunch, without requiring much
 <span class="na">Location</span><span class="p">:</span> <span class="s">/datasets/{dataset_id}/</span>
 </code></pre>
 
-<p>POST a Dataset Entity to the datasets catalog, and in the &ldquo;body&rdquo;, include a 
+<p>POST a Dataset Entity to the datasets catalog, and in the &ldquo;body&rdquo;, include a
 Crunch Table object with variable definitions and order.</p>
 
-<p>The &ldquo;metadata&rdquo; member in the table is an object containing all variable 
-definitions, keyed by variable alias. See the Object Reference: Variable 
-Definitions discussion for specific requirements for defining variables of 
+<p>The &ldquo;metadata&rdquo; member in the table is an object containing all variable
+definitions, keyed by variable alias. See the Object Reference: Variable
+Definitions discussion for specific requirements for defining variables of
 various types, as well as the example below.</p>
 
-<p>The &ldquo;order&rdquo; member is a Shoji Order object specifying the order, potentially 
-hierarchically nested, of the variables in the dataset. The example below 
+<p>The &ldquo;order&rdquo; member is a Shoji Order object specifying the order, potentially
+hierarchically nested, of the variables in the dataset. The example below
 illustrates how this can be used. Shoji is JSON, which means the &ldquo;metadata&rdquo;
-object is explicitly unordered. If you wish the variables to have an order, 
-you must supply an order object rather than relying on any order of the 
+object is explicitly unordered. If you wish the variables to have an order,
+you must supply an order object rather than relying on any order of the
 &ldquo;metadata&rdquo; object.</p>
 
 <h5 id="validation-rules">Validation rules</h5>
@@ -245,8 +250,13 @@ default value instead.</p>
 <span class="s">2,"yellow"</span>
 <span class="s">...</span>
 <span class="s">--------</span>
-<span class="s">201 Created</span>
+<span class="s">202 Continue</span>
 <span class="na">Location</span><span class="p">:</span> <span class="s">/datasets/{dataset_id}/batches/{batch_id}/</span>
+<span class="s">...</span>
+<span class="s">{</span>
+<span class="s">    "element": "shoji:view",</span>
+<span class="s">    "value": "/progress/{progress_id}/"</span>
+<span class="s">}</span>
 </code></pre>
 
 <blockquote>
@@ -259,13 +269,17 @@ default value instead.</p>
 <span class="s">{</span>
 <span class="s">    "element": "shoji:entity",</span>
 <span class="s">    "body": {</span>
-<span class="s">        "url": "s3://bucket_name/dir/subdir/?accessKey=ASILC6CBA&amp;secretKey=KdJy7ZRK8fDIBQ&amp;token=AQoDYXdzECAa%3D%3D",</span>
-<span class="s">        "async": false</span>
+<span class="s">        "url": "s3://bucket_name/dir/subdir/?accessKey=ASILC6CBA&amp;secretKey=KdJy7ZRK8fDIBQ&amp;token=AQoDYXdzECAa%3D%3D"</span>
 <span class="s">    }</span>
 <span class="s">}</span>
 <span class="s">--------</span>
-<span class="s">201 Created</span>
+<span class="s">202 Continue</span>
 <span class="na">Location</span><span class="p">:</span> <span class="s">/datasets/{dataset_id}/batches/{batch_id}/</span>
+<span class="s">...</span>
+<span class="s">{</span>
+<span class="s">    "element": "shoji:view",</span>
+<span class="s">    "value": "/progress/{progress_id}/"</span>
+<span class="s">}</span>
 </code></pre>
 
 <p>POST a CSV file or URL to the new dataset&rsquo;s batches catalog. The CSV must include a header row of variable identifiers, which should be the aliases of the variables (and array subvariables) defined in step (1).</p>
@@ -293,14 +307,14 @@ default value instead.</p>
 <li>And more things to come</li>
 </ul>
 
-<p>In either case, a 201 response to the POST request indicates success. All rows added in a single request become part of a new Batch, whose URL is returned in the response Location. You may inspect the new rows in isolation by following its batch/ link.</p>
-
 <p>The CSV can be sent in one of two ways:</p>
 
 <ol>
 <li>Upload a file by POSTing a multipart form</li>
-<li>POST a Shoji entity with a &ldquo;url&rdquo; in the body, containing all necessary auth keys as query parameters. If the URL points to a single file, it should be a CSV or gzipped CSV, as described above. If the URL points to a directory, the contents will be assumed to be (potentially zipped) batches of a CSV and will be concatenated for appending. In the latter case, only the first CSV in the directory listing should contain a header row. For large import jobs, you may set the (optional) &ldquo;async&rdquo; body parameter to &ldquo;true&rdquo;. In this case, the request will respond 202 Continue status, and work will proceed outside the request cycle. As described <a href="#3.-add-the-source-to-the-dataset">above</a>, poll the batch entity to learn when the import job has been completed or if an error occurred. See batches for details.</li>
+<li>POST a Shoji entity with a &ldquo;url&rdquo; in the body, containing all necessary auth keys as query parameters. If the URL points to a single file, it should be a CSV or gzipped CSV, as described above. If the URL points to a directory, the contents will be assumed to be (potentially zipped) batches of a CSV and will be concatenated for appending. In the latter case, only the first CSV in the directory listing should contain a header row.</li>
 </ol>
+
+<p>A 201 response to the POST request indicates success. All rows added in a single request become part of a new Batch, whose URL is returned in the response Location. You may inspect the new rows in isolation by following its batch/ link.</p>
 
 <h4 id="example">Example</h4>
 
@@ -311,9 +325,9 @@ default value instead.</p>
 <ul>
 <li>Everything–metadata, order, and data–is keyed by variable &ldquo;alias&rdquo;, not &ldquo;name&rdquo;, because Crunch believes that names are for people, not computers, to understand. Aliases must be unique across the whole dataset, while variable &ldquo;names&rdquo; must only be unique within their group or array variable.</li>
 <li>For categorical variables, all values in the CSV correspond to category ids, not category names, and also not &ldquo;numeric_values&rdquo;, which need not be unique or present for all categories in a variable.</li>
-<li>The array variables defined in the metadata (&ldquo;allpets&rdquo; and &ldquo;petloc&rdquo;) don&rsquo;t themselves have columns in the CSV, but all of their &ldquo;subvariables&rdquo; do, keyed by their aliases. </li>
+<li>The array variables defined in the metadata (&ldquo;allpets&rdquo; and &ldquo;petloc&rdquo;) don&rsquo;t themselves have columns in the CSV, but all of their &ldquo;subvariables&rdquo; do, keyed by their aliases.</li>
 <li>With the exception of those array variable definitions, all variables and subvariables defined in the metadata have columns in the CSV, and there are no columns in the CSV that are not defined in the metadata.</li>
-<li>For internal variables, such as a case identifier in this example, that you don&rsquo;t want to be visible in the UI, you can add them as &ldquo;hidden&rdquo; from the beginning by including <code class="prettyprint">&quot;discarded&quot;: &quot;true&quot;</code> in their definition, as in the example of &ldquo;caseid&rdquo;. </li>
+<li>For internal variables, such as a case identifier in this example, that you don&rsquo;t want to be visible in the UI, you can add them as &ldquo;hidden&rdquo; from the beginning by including <code class="prettyprint">&quot;discarded&quot;: &quot;true&quot;</code> in their definition, as in the example of &ldquo;caseid&rdquo;.</li>
 <li>Missing values
 
 <ul>
@@ -393,7 +407,7 @@ default value instead.</p>
 <span class="s">201 Created</span>
 <span class="na">Location</span><span class="p">:</span> <span class="s">/datasets/{dataset_id}/variables/{variable_id}/</span>
 </code></pre>
-<pre class="highlight r"><code><span class="c1"># Here's a similar example. R's factor type becomes "categorical". 
+<pre class="highlight r"><code><span class="c1"># Here's a similar example. R's factor type becomes "categorical".
 </span><span class="n">gender.names</span> <span class="o">&lt;-</span> <span class="n">c</span><span class="p">(</span><span class="s2">"Male"</span><span class="p">,</span> <span class="s2">"Female"</span><span class="p">,</span> <span class="s2">"Skipped"</span><span class="p">)</span>
 <span class="n">gen</span> <span class="o">&lt;-</span> <span class="n">factor</span><span class="p">(</span><span class="n">gender.names</span><span class="p">[</span><span class="n">c</span><span class="p">(</span><span class="m">1</span><span class="p">,</span> <span class="m">3</span><span class="p">,</span> <span class="m">1</span><span class="p">,</span> <span class="m">2</span><span class="p">,</span> <span class="m">2</span><span class="p">,</span> <span class="m">1</span><span class="p">,</span> <span class="m">1</span><span class="p">,</span> <span class="m">1</span><span class="p">,</span> <span class="m">1</span><span class="p">,</span> <span class="m">2</span><span class="p">,</span> <span class="m">3</span><span class="p">,</span> <span class="m">1</span><span class="p">)],</span>
     <span class="n">levels</span><span class="o">=</span><span class="n">gender.names</span><span class="p">)</span>
@@ -401,7 +415,7 @@ default value instead.</p>
 </span><span class="n">ds</span><span class="o">$</span><span class="n">gender</span> <span class="o">&lt;-</span> <span class="n">gen</span>
 </code></pre>
 
-<p>POST a Variable Entity to the newly created dataset&rsquo;s variables catalog, and include with that Entity definition a &ldquo;values&rdquo; key that contains the column of data. Do this for all columns in your dataset. </p>
+<p>POST a Variable Entity to the newly created dataset&rsquo;s variables catalog, and include with that Entity definition a &ldquo;values&rdquo; key that contains the column of data. Do this for all columns in your dataset.</p>
 
 <aside class="notice">Note that the lengths of the columns of data you include in the &ldquo;values&rdquo; key must be the same for all variables, though if you&rsquo;re importing from a normal, rectangular data store, this should already be the case.</aside>
 
@@ -2013,9 +2027,67 @@ on such project.</p>
 <p>POST a JSON object to create a new Dataset; a 201 indicates success, and the
 returned Location header refers to the new Dataset resource.</p>
 
-<p>The body must contain a &ldquo;name&rdquo;, and additional parameters &ldquo;description&rdquo; and
-&ldquo;archived&rdquo; are allowed. You can also include a Crunch Table in a &ldquo;table&rdquo; key,
-as discussed in the Feature Guide. Sending any other attribute will return a 400 response.</p>
+<p>The body must contain a &ldquo;name&rdquo;. You can also include a Crunch Table in a &ldquo;table&rdquo; key,
+as discussed in the <a href="#metadata-document-csv">Feature Guide</a>. The full set of possible attributes to include when POSTing to create a new dataset entity are:</p>
+
+<table><thead>
+<tr>
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>name</td>
+<td>string</td>
+<td>Human-friendly string identifier.</td>
+</tr>
+<tr>
+<td>description</td>
+<td>string</td>
+<td>Optional longer string.</td>
+</tr>
+<tr>
+<td>archived</td>
+<td>boolean</td>
+<td>Whether the variable should be hidden from most views; default: false.</td>
+</tr>
+<tr>
+<td>owner</td>
+<td>URL</td>
+<td>Provide a team URL to set the owner to that team. If omitted, the authenticated user will be the owner.</td>
+</tr>
+<tr>
+<td>notes</td>
+<td>sting</td>
+<td>Blank if omitted. Optional notes for the dataset.</td>
+</tr>
+<tr>
+<td>start_date</td>
+<td>date</td>
+<td>ISO-8601 formatted date with day resolution.</td>
+</tr>
+<tr>
+<td>end_date</td>
+<td>date</td>
+<td>ISO-8601 formatted date with day resolution.</td>
+</tr>
+<tr>
+<td>is_published</td>
+<td>boolean</td>
+<td>If false, only project editors will have access to this dataset.</td>
+</tr>
+<tr>
+<td>weight_variables</td>
+<td>array</td>
+<td>Contains aliases of weight variables to start this dataset with. Variables must be numeric type.</td>
+</tr>
+<tr>
+<td>table</td>
+<td>object</td>
+<td>Metadata definition for the variables in the dataset.</td>
+</tr>
+</tbody></table>
 
 <h3 id="other-catalogs">Other catalogs</h3>
 
@@ -2027,6 +2099,13 @@ as discussed in the Feature Guide. Sending any other attribute will return a 400
 
 <p>A Shoji Catalog of datasets that have been shared with this team. These datasets
 are not included in the primary dataset catalog. See <a href="#teams">teams</a> for more.</p>
+
+<h4 id="project-datasets">Project datasets</h4>
+
+<p><code class="prettyprint">/projects/{project_id}/datasets/</code></p>
+
+<p>A Shoji Catalog of datasets that belong to this project. These datasets
+are not included in the primary dataset catalog. See <a href="#projects">projects</a> for more.</p>
 
 <h4 id="filter-datasets-by-name">Filter datasets by name</h4>
 
@@ -2203,6 +2282,88 @@ the API will return a 400 response.</p>
 </tr>
 </tbody></table>
 
+<h5 id="dataset-catalogs">Dataset catalogs</h5>
+
+<p>A dataset contains a number of catalog resources that contain collections of
+related objects. They are available under the <code class="prettyprint">catalogs</code> attribute of the
+dataset Shoji entity.</p>
+<pre class="highlight json"><code><span class="p">{</span><span class="w">
+  </span><span class="nt">"batches"</span><span class="p">:</span><span class="w"> </span><span class="s2">"http://beta.crunch.io/api/datasets/c5d751/batches/"</span><span class="p">,</span><span class="w">
+  </span><span class="nt">"joins"</span><span class="p">:</span><span class="w"> </span><span class="s2">"http://beta.crunch.io/api/datasets/c5d751/joins/"</span><span class="p">,</span><span class="w">
+  </span><span class="nt">"parent"</span><span class="p">:</span><span class="w"> </span><span class="s2">"http://beta.crunch.io/api/datasets/"</span><span class="p">,</span><span class="w">
+  </span><span class="nt">"variables"</span><span class="p">:</span><span class="w"> </span><span class="s2">"http://beta.crunch.io/api/datasets/c5d751/variables/"</span><span class="p">,</span><span class="w">
+  </span><span class="nt">"actions"</span><span class="p">:</span><span class="w"> </span><span class="s2">"http://beta.crunch.io/api/datasets/c5d751/actions/"</span><span class="p">,</span><span class="w">
+  </span><span class="nt">"savepoints"</span><span class="p">:</span><span class="w"> </span><span class="s2">"http://beta.crunch.io/api/datasets/c5d751/savepoints/"</span><span class="p">,</span><span class="w">
+  </span><span class="nt">"weight_variables"</span><span class="p">:</span><span class="w"> </span><span class="s2">"http://beta.crunch.io/api/datasets/c5d751/weight_variables/"</span><span class="p">,</span><span class="w">
+  </span><span class="nt">"filters"</span><span class="p">:</span><span class="w"> </span><span class="s2">"http://beta.crunch.io/api/datasets/c5d751/filters/"</span><span class="p">,</span><span class="w">
+  </span><span class="nt">"multitables"</span><span class="p">:</span><span class="w"> </span><span class="s2">"http://beta.crunch.io/api/datasets/c5d751/multitables/"</span><span class="p">,</span><span class="w">
+  </span><span class="nt">"comparisons"</span><span class="p">:</span><span class="w"> </span><span class="s2">"http://beta.crunch.io/api/datasets/c5d751/comparisons/"</span><span class="p">,</span><span class="w">
+  </span><span class="nt">"forks"</span><span class="p">:</span><span class="w"> </span><span class="s2">"http://beta.crunch.io/api/datasets/c5d751/forks/"</span><span class="p">,</span><span class="w">
+  </span><span class="nt">"decks"</span><span class="p">:</span><span class="w"> </span><span class="s2">"http://beta.crunch.io/api/datasets/c5d751/decks/"</span><span class="p">,</span><span class="w">
+  </span><span class="nt">"permissions"</span><span class="p">:</span><span class="w"> </span><span class="s2">"http://beta.crunch.io/api/datasets/c5d751/permissions/"</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre>
+
+<table><thead>
+<tr>
+<th>Catalog name</th>
+<th>Resource</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>batches</td>
+<td>Returns all the batches (successful and failed) used for this dataset</td>
+</tr>
+<tr>
+<td>joins</td>
+<td>Contains the list of all the joins available</td>
+</tr>
+<tr>
+<td>parent</td>
+<td>Indicates the catalog where this dataset is found (project or main dataset catalog)</td>
+</tr>
+<tr>
+<td>variables</td>
+<td>Catalog of all public variables of this dataset</td>
+</tr>
+<tr>
+<td>actions</td>
+<td>All actions executed for this dataset</td>
+</tr>
+<tr>
+<td>savepoints</td>
+<td>Lists the created versions for this dataset</td>
+</tr>
+<tr>
+<td>weight_variables</td>
+<td>Includes the available variables to be used as weight</td>
+</tr>
+<tr>
+<td>filters</td>
+<td>Makes available the public and user-created filters</td>
+</tr>
+<tr>
+<td>multitables</td>
+<td>Similar to filters, displays all available multitables</td>
+</tr>
+<tr>
+<td>comparisons</td>
+<td>Contains all user&rsquo;s created comparisons</td>
+</tr>
+<tr>
+<td>forks</td>
+<td>Returns all the forks created from the dataset in question</td>
+</tr>
+<tr>
+<td>decks</td>
+<td>The list of all decks on this dataset for the authenticated user</td>
+</tr>
+<tr>
+<td>permissions</td>
+<td>Returns the list of all users and teams with access to this dataset</td>
+</tr>
+</tbody></table>
+
 <h4 id="patch">PATCH</h4>
 
 <p><code class="prettyprint">PATCH /datasets/{dataset_id}/</code></p>
@@ -2295,6 +2456,11 @@ from the Crunch system and responds with 204 status.</p>
 <td>A Crunch expression defining which variables to export</td>
 <td><code class="prettyprint">{&quot;function&quot;: &quot;identify&quot;, &quot;args&quot;: [{&quot;id&quot;: [&quot;000000&quot;]}]}</code></td>
 </tr>
+<tr>
+<td>options</td>
+<td>An object of extra settings, which may be format-specific. See below.</td>
+<td><code class="prettyprint">{&quot;use_category_ids&quot;: true}</code></td>
+</tr>
 </tbody></table>
 
 <p>See <a href="#expressions">&ldquo;Expressions&rdquo;</a> for more on Crunch expressions.</p>
@@ -2309,7 +2475,7 @@ from the Crunch system and responds with 204 status.</p>
 <li>Derived variables will be exported with their values, without their functional links.</li>
 </ul>
 
-<p>Some format-specific properties:</p>
+<p>Some format-specific properties and options:</p>
 
 <h6 id="spss">SPSS</h6>
 
@@ -2317,7 +2483,7 @@ from the Crunch system and responds with 204 status.</p>
 
 <h6 id="csv">CSV</h6>
 
-<p>Categorical variable values will be exported with as the category name, not the category id.</p>
+<p>Categorical variable values will be exported as the category name by default. To use the category ids as data values, include <code class="prettyprint">&quot;use_category_ids&quot;: true</code> in the <code class="prettyprint">&quot;options&quot;</code> attribute of the POST body.</p>
 
 <h5 id="summary">Summary</h5>
 
@@ -2513,6 +2679,123 @@ displayed by an API client.</p>
 
 <p>Including invalid URLs or URLs to decks that are not present in the catalog will return a 400 response from the server.</p>
 
+<h6 id="slides">Slides</h6>
+
+<p><code class="prettyprint">/datasets/223fd4/decks/slides/</code></p>
+
+<p>Each deck will contain a list of slides for each of its saved analyses.</p>
+
+<h6 id="get"># GET</h6>
+
+<p>Returns a <code class="prettyprint">shoji:catalog</code> with the slides for this deck.</p>
+<pre class="highlight json"><code><span class="w">
+</span><span class="p">{</span><span class="w">
+    </span><span class="nt">"element"</span><span class="p">:</span><span class="w"> </span><span class="s2">"shoji:catalog"</span><span class="p">,</span><span class="w">
+    </span><span class="nt">"self"</span><span class="p">:</span><span class="w"> </span><span class="s2">"/api/datasets/123/decks/123/slides/"</span><span class="p">,</span><span class="w">
+    </span><span class="nt">"orders"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+        </span><span class="nt">"flat"</span><span class="p">:</span><span class="w"> </span><span class="s2">"/api/datasets/123/decks/123/slides/flat/"</span><span class="w">
+    </span><span class="p">},</span><span class="w">
+    </span><span class="nt">"specification"</span><span class="p">:</span><span class="w"> </span><span class="s2">"https://beta.crunch.io/api/specifications/slides/"</span><span class="p">,</span><span class="w">
+    </span><span class="nt">"description"</span><span class="p">:</span><span class="w"> </span><span class="s2">"A catalog of the Slides in this Deck"</span><span class="p">,</span><span class="w">
+    </span><span class="nt">"index"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+        </span><span class="nt">"/api/datasets/123/decks/123/slides/123/"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+            </span><span class="nt">"analysis_url"</span><span class="p">:</span><span class="w"> </span><span class="s2">"/api/datasets/123/decks/123/slides/123/analyses/123/"</span><span class="p">,</span><span class="w">
+            </span><span class="nt">"subtitle"</span><span class="p">:</span><span class="w"> </span><span class="s2">"z"</span><span class="p">,</span><span class="w">
+            </span><span class="nt">"display"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+                </span><span class="nt">"value"</span><span class="p">:</span><span class="w"> </span><span class="s2">"table"</span><span class="w">
+            </span><span class="p">},</span><span class="w">
+            </span><span class="nt">"title"</span><span class="p">:</span><span class="w"> </span><span class="s2">"slide 1"</span><span class="w">
+        </span><span class="p">},</span><span class="w">
+        </span><span class="nt">"/api/datasets/123/decks/123/slides/456/"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+            </span><span class="nt">"analysis_url"</span><span class="p">:</span><span class="w"> </span><span class="s2">"/api/datasets/123/decks/123/slides/456/"</span><span class="p">,</span><span class="w">
+            </span><span class="nt">"subtitle"</span><span class="p">:</span><span class="w"> </span><span class="s2">""</span><span class="p">,</span><span class="w">
+            </span><span class="nt">"display"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+                </span><span class="nt">"value"</span><span class="p">:</span><span class="w"> </span><span class="s2">"table"</span><span class="w">
+            </span><span class="p">},</span><span class="w">
+            </span><span class="nt">"title"</span><span class="p">:</span><span class="w"> </span><span class="s2">"slide 2"</span><span class="w">
+        </span><span class="p">}</span><span class="w">
+    </span><span class="p">},</span><span class="w">
+    </span><span class="nt">"template"</span><span class="p">:</span><span class="w"> </span><span class="s2">"{\"query\": {\"measures\": \"Object with keyed measures functions\", \"dimensions\": \"Array of variable references\", \"weight\": \"Optional weight variable URL\"}, \"display_settings\": {}, \"query_environment\": {\"filter\": \"Array of filter urls\"}}"</span><span class="w">
+</span><span class="p">}</span><span class="w">
+
+</span></code></pre>
+
+<h6 id="post"># POST</h6>
+
+<p>To create a new slide an analysis has to be posted to the catalog. The payload
+is described in the <a href="#saving-analyses">saved analyses</a> section.</p>
+
+<h6 id="slide-entity">Slide Entity</h6>
+
+<p><code class="prettyprint">/datasets/223fd4/decks/slides/a126ce/</code></p>
+
+<p>Each slide in the Slide Catalog contains reference to its analysis.</p>
+
+<h6 id="get"># GET</h6>
+<pre class="highlight json"><code><span class="p">{</span><span class="w">
+    </span><span class="nt">"element"</span><span class="p">:</span><span class="w"> </span><span class="s2">"shoji:entity"</span><span class="p">,</span><span class="w">
+    </span><span class="nt">"self"</span><span class="p">:</span><span class="w"> </span><span class="s2">"/api/datasets/123/decks/123/slides/123/"</span><span class="p">,</span><span class="w">
+    </span><span class="nt">"catalogs"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+        </span><span class="nt">"analyses"</span><span class="p">:</span><span class="w"> </span><span class="s2">"/api/datasets/123/decks/123/slides/123/analyses/"</span><span class="w">
+    </span><span class="p">},</span><span class="w">
+    </span><span class="nt">"description"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Returns the detail information for a given slide"</span><span class="p">,</span><span class="w">
+    </span><span class="nt">"body"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+        </span><span class="nt">"deck_id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"123"</span><span class="p">,</span><span class="w">
+        </span><span class="nt">"subtitle"</span><span class="p">:</span><span class="w"> </span><span class="s2">"z"</span><span class="p">,</span><span class="w">
+        </span><span class="nt">"title"</span><span class="p">:</span><span class="w"> </span><span class="s2">"slide 1"</span><span class="p">,</span><span class="w">
+        </span><span class="nt">"analysis_url"</span><span class="p">:</span><span class="w"> </span><span class="s2">"/api/datasets/123/decks/123/slides/123/analyses/123/"</span><span class="p">,</span><span class="w">
+        </span><span class="nt">"display"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+            </span><span class="nt">"value"</span><span class="p">:</span><span class="w"> </span><span class="s2">"table"</span><span class="w">
+        </span><span class="p">},</span><span class="w">
+        </span><span class="nt">"id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"123"</span><span class="w">
+    </span><span class="p">}</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre>
+
+<h6 id="delete"># DELETE</h6>
+
+<p>Call DELETE on the Slide entity endpoint to delete this slide and its analyses.</p>
+
+<h6 id="slides-order">Slides Order</h6>
+
+<p><code class="prettyprint">/datasets/223fd4/decks/slides/flat/</code></p>
+
+<p>The owner of the deck can pick the order of the slides on it. Unlike other
+<code class="prettyprint">shoji:order</code> resources, this order does not allow grouping or nesting so it
+will always be a flat list of slide URLs.</p>
+
+<h6 id="get"># GET</h6>
+
+<p>Will return the list of all the slides in the deck.</p>
+<pre class="highlight json"><code><span class="p">{</span><span class="w">
+    </span><span class="nt">"element"</span><span class="p">:</span><span class="w"> </span><span class="s2">"shoji:order"</span><span class="p">,</span><span class="w">
+    </span><span class="nt">"self"</span><span class="p">:</span><span class="w"> </span><span class="s2">"/api/datasets/123/decks/123/slides/flat/"</span><span class="p">,</span><span class="w">
+    </span><span class="nt">"description"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Order of the slides on this deck"</span><span class="p">,</span><span class="w">
+    </span><span class="nt">"graph"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
+        </span><span class="s2">"/api/datasets/123/decks/123/slides/123/"</span><span class="p">,</span><span class="w">
+        </span><span class="s2">"/api/datasets/123/decks/123/slides/456/"</span><span class="w">
+    </span><span class="p">]</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre>
+
+<h6 id="patch"># PATCH</h6>
+
+<p>To make changes to the order, a client should PATCH the full <code class="prettyprint">shoji:order</code>
+resource to the endpoint with the new order on its <code class="prettyprint">graph</code> attribute.</p>
+
+<p>Any slide not mentioned on the payload will be added at the end of the graph
+in arbitrary order.</p>
+<pre class="highlight json"><code><span class="p">{</span><span class="w">
+    </span><span class="nt">"element"</span><span class="p">:</span><span class="w"> </span><span class="s2">"shoji:order"</span><span class="p">,</span><span class="w">
+    </span><span class="nt">"self"</span><span class="p">:</span><span class="w"> </span><span class="s2">"/api/datasets/123/decks/123/slides/flat/"</span><span class="p">,</span><span class="w">
+    </span><span class="nt">"description"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Order of the slides on this deck"</span><span class="p">,</span><span class="w">
+    </span><span class="nt">"graph"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
+        </span><span class="s2">"/api/datasets/123/decks/123/slides/123/"</span><span class="p">,</span><span class="w">
+        </span><span class="s2">"/api/datasets/123/decks/123/slides/456/"</span><span class="w">
+    </span><span class="p">]</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre>
+
 <h5 id="preferences">Preferences</h5>
 
 <p><code class="prettyprint">/datasets/{id}/preferences/</code></p>
@@ -2670,7 +2953,7 @@ values. It provides granular control over the rows and columns for each dataset.
 <h4 id="get">GET</h4>
 
 <p>When authenticated, GET returns a 200 status with a Shoji Table of the 
-dataset&rsquo;s data. It will expose all the variables that are visible by the logged
+dataset&rsquo;s data. It will expose all the variables that are visible by the authenticated
 user (Public + privates created by them) as well as the exclusion filter 
 applied (if any).</p>
 
@@ -4568,7 +4851,7 @@ the <em>current</em> dataset and may be referenced by alias in <em>incoming</em>
 
           <h2 id="progress">Progress</h2>
 
-<p>Progress resources provide information about the current state of a long-running server process in Crunch. Some requests at certain endpoints may return 202 status and include a Location header pointing to a Progress resource, at which one can monitor the progress of the request that was accepted and not yet completed (i.e. 202 status).</p>
+<p>Progress resources provide information about the current state of a long-running server process in Crunch. Some requests at certain endpoints may return 202 status containing a progress URL in the body, at which one can monitor the progress of the request that was accepted and not yet completed.</p>
 
 <h4 id="get">GET</h4>
 <pre class="highlight http"><code><span class="nf">GET</span> <span class="nn">/progress/{id}/</span> <span class="k">HTTP</span><span class="o">/</span><span class="m">1.1</span>
@@ -4577,14 +4860,13 @@ the <em>current</em> dataset and may be referenced by alias in <em>incoming</em>
     </span><span class="nt">"element"</span><span class="p">:</span><span class="w"> </span><span class="s2">"shoji:view"</span><span class="p">,</span><span class="w">
     </span><span class="nt">"self"</span><span class="p">:</span><span class="w"> </span><span class="s2">"https:/beta.crunch.io/api/progress/{id}/"</span><span class="p">,</span><span class="w">
     </span><span class="nt">"value"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
-        </span><span class="nt">"progress"</span><span class="p">:</span><span class="w"> </span><span class="s2">"22.5"</span><span class="p">,</span><span class="w">
-        </span><span class="nt">"message"</span><span class="p">:</span><span class="w"> </span><span class="s2">"exported 2 variables"</span><span class="p">,</span><span class="w">
-        </span><span class="nt">"dataset_id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"{id}"</span><span class="w">
+        </span><span class="nt">"progress"</span><span class="p">:</span><span class="w"> </span><span class="mi">22</span><span class="p">,</span><span class="w">
+        </span><span class="nt">"message"</span><span class="p">:</span><span class="w"> </span><span class="s2">"exported 2 variables"</span><span class="w">
     </span><span class="p">}</span><span class="w">
 </span><span class="p">}</span><span class="w">
 </span></code></pre>
 
-<p><code class="prettyprint">GET</code> on a Progress view returns a Shoji View containing information about the status of the indicated process. The &ldquo;progress&rdquo; attribute contains a value between 0.0 and 100.0, stringified. If the <code class="prettyprint">id</code> from the request URL does not exist, <code class="prettyprint">GET</code> will nevertheless return 200 status and indicate <code class="prettyprint">&quot;progress&quot;: &quot;100&quot;</code>.</p>
+<p><code class="prettyprint">GET</code> on a Progress view returns a Shoji View containing information about the status of the indicated process. The &ldquo;progress&rdquo; attribute contains a integer between -1 and 100. Positive progress values indicate that the job is being processed, while a negative value indicates that an error occurred in processing. Zero entails that the job has not been started, while 100 indicated completion. Additionally, if the <code class="prettyprint">id</code> from the request URL does not exist, <code class="prettyprint">GET</code> will nevertheless return 200 status and indicate <code class="prettyprint">&quot;progress&quot;: 100</code>.</p>
 
 <p>Optionally, the View will provide a message regarding current status.</p>
 
