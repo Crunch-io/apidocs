@@ -300,6 +300,7 @@ start_date | date | ISO-8601 formatted date with day resolution.
 end_date | date | ISO-8601 formatted date with day resolution.
 is_published | boolean | If false, only project editors will have access to this dataset.
 weight_variables | array | Contains aliases of weight variables to start this dataset with. Variables must be numeric type.
+geodata | object | Metadata definition for any geodata associations.  The keys are the variable alias's and the values are tuples with the form: {'location': '<url of the existing geodata in our repository>', 'category_field': 'field within the geodata to use to match the category id', 'poly_field': 'currently unused, this is intended to allow rendering clients variablity of geodata rendering', 'rendering_type': 'defaults to polyfill (or filled polygon) no known clients currently utilize this'}
 table | object | Metadata definition for the variables in the dataset.
 
 
