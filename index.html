@@ -1814,7 +1814,7 @@ attributes:</p>
 <td>permissions</td>
 <td>object</td>
 <td><code class="prettyprint">{&quot;edit&quot;: false}</code></td>
-<td>Authorizations on this dataset. See <a href="#permissions">Permissions</a>.</td>
+<td>Authorizations on this dataset; see <a href="#permissions">Permissions</a></td>
 </tr>
 <tr>
 <td>owner_id</td>
@@ -2040,52 +2040,52 @@ as discussed in the <a href="#metadata-document-csv">Feature Guide</a>. The full
 <tr>
 <td>name</td>
 <td>string</td>
-<td>Human-friendly string identifier.</td>
+<td>Human-friendly string identifier</td>
 </tr>
 <tr>
 <td>description</td>
 <td>string</td>
-<td>Optional longer string.</td>
+<td>Optional longer string</td>
 </tr>
 <tr>
 <td>archived</td>
 <td>boolean</td>
-<td>Whether the variable should be hidden from most views; default: false.</td>
+<td>Whether the variable should be hidden from most views; default: false</td>
 </tr>
 <tr>
 <td>owner</td>
 <td>URL</td>
-<td>Provide a team URL to set the owner to that team. If omitted, the authenticated user will be the owner.</td>
+<td>Provide a team URL to set the owner to that team; if omitted, the authenticated user will be the owner</td>
 </tr>
 <tr>
 <td>notes</td>
-<td>sting</td>
-<td>Blank if omitted. Optional notes for the dataset.</td>
+<td>string</td>
+<td>Blank if omitted. Optional notes for the dataset</td>
 </tr>
 <tr>
 <td>start_date</td>
 <td>date</td>
-<td>ISO-8601 formatted date with day resolution.</td>
+<td>ISO-8601 formatted date with day resolution</td>
 </tr>
 <tr>
 <td>end_date</td>
 <td>date</td>
-<td>ISO-8601 formatted date with day resolution.</td>
+<td>ISO-8601 formatted date with day resolution</td>
 </tr>
 <tr>
 <td>is_published</td>
 <td>boolean</td>
-<td>If false, only project editors will have access to this dataset.</td>
+<td>If false, only project editors will have access to this dataset</td>
 </tr>
 <tr>
 <td>weight_variables</td>
 <td>array</td>
-<td>Contains aliases of weight variables to start this dataset with. Variables must be numeric type.</td>
+<td>Contains aliases of weight variables to start this dataset with; variables must be numeric type</td>
 </tr>
 <tr>
 <td>table</td>
 <td>object</td>
-<td>Metadata definition for the variables in the dataset.</td>
+<td>Metadata definition for the variables in the dataset</td>
 </tr>
 </tbody></table>
 
@@ -2224,7 +2224,7 @@ the API will return a 400 response.</p>
 <td>permissions</td>
 <td>object</td>
 <td><code class="prettyprint">{&quot;edit&quot;: false}</code></td>
-<td>Authorizations on this dataset. See <a href="#permissions">Permissions</a>.</td>
+<td>Authorizations on this dataset; see <a href="#permissions">Permissions</a></td>
 </tr>
 <tr>
 <td>owner_id</td>
@@ -2566,7 +2566,8 @@ only need a name.</p>
 <h6 id="get">GET</h6>
 
 <p>A GET request on the catalog endpoint will return all the decks available for
-this dataset for the authenticated user.</p>
+this dataset for the authenticated user, this includes decks created by
+the user and public decks shared for this dataset.</p>
 <pre class="highlight json"><code><span class="p">{</span><span class="w">
     </span><span class="nt">"element"</span><span class="p">:</span><span class="w"> </span><span class="s2">"shoji:catalog"</span><span class="p">,</span><span class="w">
     </span><span class="nt">"self"</span><span class="p">:</span><span class="w"> </span><span class="s2">"https://beta.crunch.io/api/datasets/223fd4/decks/"</span><span class="p">,</span><span class="w">
@@ -2574,11 +2575,19 @@ this dataset for the authenticated user.</p>
         </span><span class="nt">"https://beta.crunch.io/api/datasets/cc9161/decks/4fa25/"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
           </span><span class="nt">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"my new deck"</span><span class="p">,</span><span class="w">
           </span><span class="nt">"creation_time"</span><span class="p">:</span><span class="w"> </span><span class="s2">"1986-11-26T12:05:00"</span><span class="p">,</span><span class="w">
-        </span><span class="err">}</span><span class="p">,</span><span class="w">
+          </span><span class="nt">"id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"4fa25"</span><span class="p">,</span><span class="w">
+          </span><span class="nt">"is_public"</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="p">,</span><span class="w">
+          </span><span class="nt">"owner_id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"https://beta.crunch.io/api/users/abcd3/"</span><span class="p">,</span><span class="w">
+          </span><span class="nt">"owner_name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Real Person"</span><span class="w">
+        </span><span class="p">},</span><span class="w">
         </span><span class="nt">"https://beta.crunch.io/api/datasets/cc9161/decks/2b53e/"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
           </span><span class="nt">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Default deck"</span><span class="p">,</span><span class="w">
           </span><span class="nt">"creation_time"</span><span class="p">:</span><span class="w"> </span><span class="s2">"1987-10-15T11:45:00"</span><span class="p">,</span><span class="w">
-        </span><span class="err">}</span><span class="p">,</span><span class="w">
+          </span><span class="nt">"id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2b53e"</span><span class="p">,</span><span class="w">
+          </span><span class="nt">"is_public"</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span><span class="w">
+          </span><span class="nt">"owner_id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"https://beta.crunch.io/api/users/4cba5/"</span><span class="p">,</span><span class="w">
+          </span><span class="nt">"owner_name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Other Person"</span><span class="w">
+        </span><span class="p">},</span><span class="w">
     </span><span class="err">}</span><span class="p">,</span><span class="w">
     </span><span class="nt">"order"</span><span class="p">:</span><span class="w"> </span><span class="s2">"https://beta.crunch.io/api/datasets/223fd4/decks/order/"</span><span class="w">
 </span><span class="p">}</span><span class="w">
@@ -2616,14 +2625,19 @@ identifiable name.</p>
         </span><span class="nt">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Presentation deck"</span><span class="p">,</span><span class="w">
         </span><span class="nt">"id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"223fd4"</span><span class="p">,</span><span class="w">
         </span><span class="nt">"creation_time"</span><span class="p">:</span><span class="w"> </span><span class="s2">"1987-10-15T11:45:00"</span><span class="p">,</span><span class="w">
-        </span><span class="nt">"description"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Explanation about the deck"</span><span class="w">
+        </span><span class="nt">"description"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Explanation about the deck"</span><span class="p">,</span><span class="w">
+        </span><span class="nt">"id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"223fd4"</span><span class="p">,</span><span class="w">
+        </span><span class="nt">"is_public"</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="p">,</span><span class="w">
+        </span><span class="nt">"owner_id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"https://beta.crunch.io/api/users/abcd3/"</span><span class="p">,</span><span class="w">
+        </span><span class="nt">"owner_name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Real Person"</span><span class="w">
     </span><span class="p">}</span><span class="w">
 </span><span class="p">}</span><span class="w">
 </span></code></pre>
 
 <h6 id="patch"># PATCH</h6>
 
-<p>In order to change the name or description of a deck you can PATCH a shoji:entity to it. The server will return a 204 response.</p>
+<p>In order to change the name or description of a deck you can PATCH a
+shoji:entity to it. The server will return a 204 response.</p>
 <pre class="highlight json"><code><span class="p">{</span><span class="w">
     </span><span class="nt">"element"</span><span class="p">:</span><span class="w"> </span><span class="s2">"shoji:entity"</span><span class="p">,</span><span class="w">
     </span><span class="nt">"self"</span><span class="p">:</span><span class="w"> </span><span class="s2">"https://beta.crunch.io/api/datasets/223fd4/decks/223fd4/"</span><span class="p">,</span><span class="w">
@@ -2638,6 +2652,17 @@ identifiable name.</p>
 <pre class="highlight http"><code><span class="k">HTTP</span><span class="o">/</span><span class="m">1.1</span> <span class="m">204</span> <span class="ne">No Content</span>
 </code></pre>
 
+<p>Only the following attributes are editable:</p>
+
+<ul>
+<li>name</li>
+<li>description</li>
+<li>is_public</li>
+</ul>
+
+<p>The <code class="prettyprint">is_public</code> attribute is only editable if the authenticated user is the
+owner of the deck.</p>
+
 <h6 id="decks-order">Decks order</h6>
 
 <p><code class="prettyprint">/datasets/{id}/decks/order/</code></p>
@@ -2645,7 +2670,8 @@ identifiable name.</p>
 <p>The Deck order allows to the user to customize the order in which they will be
 displayed by an API client.</p>
 
-<p>The deck order will always contain all existing decks.</p>
+<p>The deck order will always contain all existing decks that are visible to the
+authenticated user, private and public decks.</p>
 
 <h6 id="get"># GET</h6>
 
@@ -3143,6 +3169,11 @@ index of those.</p>
 <td>Immutable internal identifier</td>
 </tr>
 <tr>
+<td>notes</td>
+<td>string</td>
+<td>Optional annotations for a variable</td>
+</tr>
+<tr>
 <td>discarded</td>
 <td>boolean</td>
 <td>Whether the variable should be hidden from most views; default: false</td>
@@ -3170,22 +3201,22 @@ index of those.</p>
 <tr>
 <td>resolution</td>
 <td>string</td>
-<td>Present in datetime variables. Current resolution of data</td>
+<td>Present in datetime variables; current resolution of data</td>
 </tr>
 <tr>
 <td>rollup_resolution</td>
 <td>string</td>
-<td>Present in datetime variables. Resolution used for rolled up summaries</td>
+<td>Present in datetime variables; resolution used for rolled up summaries</td>
 </tr>
 <tr>
 <td>geodata</td>
 <td>URL</td>
-<td>Present only in variables that have geodata associated. Points to the catalog of geodata related to this variable.</td>
+<td>Present only in variables that have geodata associated; points to the catalog of geodata related to this variable</td>
 </tr>
 <tr>
 <td>uniform_basis</td>
 <td>boolean</td>
-<td>Whether each subvariable should be considered the same length as the total array. Only on <code class="prettyprint">multiple_response</code>.</td>
+<td>Whether each subvariable should be considered the same length as the total array. Only on <code class="prettyprint">multiple_response</code></td>
 </tr>
 </tbody></table>
 
@@ -3227,6 +3258,7 @@ index of those.</p>
             </span><span class="nt">"alias"</span><span class="p">:</span><span class="w"> </span><span class="s2">"birthyear"</span><span class="p">,</span><span class="w">
             </span><span class="nt">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"numeric"</span><span class="p">,</span><span class="w">
             </span><span class="nt">"id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"a77d9f"</span><span class="p">,</span><span class="w">
+            </span><span class="nt">"notes"</span><span class="p">:</span><span class="w"> </span><span class="s2">""</span><span class="p">,</span><span class="w">
             </span><span class="nt">"description"</span><span class="p">:</span><span class="w"> </span><span class="s2">"In what year were you born?"</span><span class="w">
         </span><span class="p">},</span><span class="w">
         </span><span class="nt">"9e4c84/"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
@@ -3236,6 +3268,7 @@ index of those.</p>
             </span><span class="nt">"alias"</span><span class="p">:</span><span class="w"> </span><span class="s2">"qccomments"</span><span class="p">,</span><span class="w">
             </span><span class="nt">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"text"</span><span class="p">,</span><span class="w">
             </span><span class="nt">"id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"9e4c84"</span><span class="p">,</span><span class="w">
+            </span><span class="nt">"notes"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Global notes about this variable."</span><span class="p">,</span><span class="w">
             </span><span class="nt">"description"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Do you have any comments on your experience of taking this survey (optional)?"</span><span class="w">
         </span><span class="p">},</span><span class="w">
         </span><span class="nt">"aad4ad/"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
@@ -3248,6 +3281,7 @@ index of those.</p>
                 </span><span class="s2">"439dcf/"</span><span class="p">,</span><span class="w">
                 </span><span class="s2">"1c99ea/"</span><span class="w">
             </span><span class="p">],</span><span class="w">
+            </span><span class="nt">"notes"</span><span class="p">:</span><span class="w"> </span><span class="s2">"All variable types can have notes"</span><span class="p">,</span><span class="w">
             </span><span class="nt">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"categorical_array"</span><span class="p">,</span><span class="w">
             </span><span class="nt">"id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"aad4ad"</span><span class="p">,</span><span class="w">
             </span><span class="nt">"description"</span><span class="p">:</span><span class="w"> </span><span class="s2">""</span><span class="w">
@@ -3320,6 +3354,7 @@ line 24.</p>
             </span><span class="nt">"alias"</span><span class="p">:</span><span class="w"> </span><span class="s2">"birthyear"</span><span class="p">,</span><span class="w">
             </span><span class="nt">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"numeric"</span><span class="p">,</span><span class="w">
             </span><span class="nt">"id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"a77d9f"</span><span class="p">,</span><span class="w">
+            </span><span class="nt">"notes"</span><span class="p">:</span><span class="w"> </span><span class="s2">""</span><span class="p">,</span><span class="w">
             </span><span class="nt">"description"</span><span class="p">:</span><span class="w"> </span><span class="s2">"In what year were you born?"</span><span class="w">
         </span><span class="p">},</span><span class="w">
         </span><span class="nt">"9e4c84/"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
@@ -3329,6 +3364,7 @@ line 24.</p>
             </span><span class="nt">"alias"</span><span class="p">:</span><span class="w"> </span><span class="s2">"qccomments"</span><span class="p">,</span><span class="w">
             </span><span class="nt">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"text"</span><span class="p">,</span><span class="w">
             </span><span class="nt">"id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"9e4c84"</span><span class="p">,</span><span class="w">
+            </span><span class="nt">"notes"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Global notes about this variable."</span><span class="p">,</span><span class="w">
             </span><span class="nt">"description"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Do you have any comments on your experience of taking this survey (optional)?"</span><span class="w">
         </span><span class="p">},</span><span class="w">
         </span><span class="nt">"aad4ad/"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
@@ -3341,6 +3377,7 @@ line 24.</p>
                 </span><span class="s2">"439dcf/"</span><span class="p">,</span><span class="w">
                 </span><span class="s2">"1c99ea/"</span><span class="w">
             </span><span class="p">],</span><span class="w">
+            </span><span class="nt">"notes"</span><span class="p">:</span><span class="w"> </span><span class="s2">"All variable types can have notes"</span><span class="p">,</span><span class="w">
             </span><span class="nt">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"categorical_array"</span><span class="p">,</span><span class="w">
             </span><span class="nt">"id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"aad4ad"</span><span class="p">,</span><span class="w">
             </span><span class="nt">"description"</span><span class="p">:</span><span class="w"> </span><span class="s2">""</span><span class="w">
@@ -3356,7 +3393,7 @@ line 24.</p>
 <ul>
 <li><strong>name</strong></li>
 <li><strong>type</strong></li>
-<li>(If &ldquo;type&rdquo; is &ldquo;categorical&rdquo;, &ldquo;multiple_response&rdquo;, or &ldquo;categorical_array&rdquo;): <strong>categories</strong>: an array of category definitions</li>
+<li>If &ldquo;type&rdquo; is &ldquo;categorical&rdquo;, &ldquo;multiple_response&rdquo;, or &ldquo;categorical_array&rdquo;: <strong>categories</strong>: an array of category definitions</li>
 <li>If &ldquo;type&rdquo; is &ldquo;multiple_response&rdquo; or &ldquo;categorical_array&rdquo;: <strong>subvariables</strong>: an array of either URLs of variables to be &ldquo;bound&rdquo; together to form the array variable, or partial variable definitions, which will be created as categorical variables and then bound to form the array. If including partial variable definitions, the array definition must include &ldquo;categories&rdquo;, which are shared among the subvariables</li>
 <li>If type is &ldquo;multiple_response&rdquo;, the definition may include <strong>selected_categories</strong>: an array of category names present in the subvariables. This will mark the specified category or categories as the &ldquo;selected&rdquo; response in the multiple response variable. If no &ldquo;selected_categories&rdquo; array is provided, the new variable will use any categories already flagged as &ldquo;selected&rdquo;: true. If no such category exists, the response will return a 400 status.</li>
 <li>If &ldquo;type&rdquo; is &ldquo;datetime&rdquo;: <strong>resolution</strong>: a string, such as &ldquo;Y&rdquo;, &ldquo;M&rdquo;, &ldquo;D&rdquo;, &ldquo;h&rdquo;, &ldquo;m&rdquo;, &ldquo;s&rdquo;, &ldquo;ms&rdquo;, that indicates the unit size of the datetime data.</li>
@@ -3372,7 +3409,7 @@ omitted, one will be generated from the required &ldquo;name&rdquo;.</p>
 <p>You may also include &ldquo;values&rdquo;, which will create the column of data
 corresponding to this variable definition. See <a href="#column-by-column">Importing Data: Column-by-column</a> for details and examples.</p>
 
-<p>You may instead also include an &ldquo;expr&rdquo; to derive a variable as a function of
+<p>You may instead also include an &ldquo;derivation&rdquo; to derive a variable as a function of
 other variables. In this case, &ldquo;type&rdquo; is not required because it depends on the
 output of the specified derivation function. For details and examples, see
 <a href="#deriving-variables">Deriving Variables</a>.</p>
@@ -3537,6 +3574,11 @@ urls for the matching variables.</p>
 <td>Immutable internal identifier</td>
 </tr>
 <tr>
+<td>notes</td>
+<td>string</td>
+<td>Optional annotations for the variable</td>
+</tr>
+<tr>
 <td>discarded</td>
 <td>boolean</td>
 <td>Whether the variable should be hidden from most views; default: false</td>
@@ -3544,12 +3586,12 @@ urls for the matching variables.</p>
 <tr>
 <td>private</td>
 <td>boolean</td>
-<td>If true, the Variable is only visible to the owner and is only included in the private variables catalog, not the common catalog.</td>
+<td>If true, the variable is only visible to the owner and is only included in the private variables catalog, not the common catalog</td>
 </tr>
 <tr>
 <td>owner</td>
 <td>url</td>
-<td>If the variable is private it will point to the url of its owner. Null for non private variables.</td>
+<td>If the variable is private it will point to the url of its owner; null for non private variables</td>
 </tr>
 <tr>
 <td>derived</td>
@@ -3564,7 +3606,7 @@ urls for the matching variables.</p>
 <tr>
 <td>categories</td>
 <td>array</td>
-<td>If &ldquo;type&rdquo; is &ldquo;categorical&rdquo;, &ldquo;multiple_response&rdquo;, or &ldquo;categorical_array&rdquo;, an array of category definitions (see below). Other types have an empty array.</td>
+<td>If &ldquo;type&rdquo; is &ldquo;categorical&rdquo;, &ldquo;multiple_response&rdquo;, or &ldquo;categorical_array&rdquo;, an array of category definitions (see below). Other types have an empty array</td>
 </tr>
 <tr>
 <td>subvariables</td>
@@ -3574,7 +3616,7 @@ urls for the matching variables.</p>
 <tr>
 <td>derivation</td>
 <td>object</td>
-<td>For derived variables, a Crunch expression which was used to derive this variable; or null.</td>
+<td>For derived variables, a Crunch expression which was used to derive this variable; or null</td>
 </tr>
 <tr>
 <td>format</td>
@@ -3589,12 +3631,12 @@ urls for the matching variables.</p>
 <tr>
 <td>dataset_id</td>
 <td>string</td>
-<td>The id of the Dataset to which this Variable belongs.</td>
+<td>The id of the Dataset to which this Variable belongs</td>
 </tr>
 <tr>
 <td>missing_reasons</td>
 <td>object</td>
-<td>An object whose keys are reason phrases and whose values are missing codes. Missing entries in Variable data are represented by a {&ldquo;?&rdquo;: code} missing marker; clients may look up the corresponding reason phrase for each code in this one-to-one map.</td>
+<td>An object whose keys are reason phrases and whose values are missing codes; missing entries in Variable data are represented by a {&ldquo;?&rdquo;: code} missing marker; clients may look up the corresponding reason phrase for each code in this one-to-one map</td>
 </tr>
 </tbody></table>
 
@@ -3651,12 +3693,12 @@ category definitions. You don&rsquo;t need the &ldquo;missing_reasons&rdquo; bod
 <tr>
 <td>data</td>
 <td>object</td>
-<td>An object with an integer &ldquo;digits&rdquo; member, stating how many digits to display after the decimal point when showing data values.</td>
+<td>An object with an integer &ldquo;digits&rdquo; member, stating how many digits to display after the decimal point when showing data values</td>
 </tr>
 <tr>
 <td>summary</td>
 <td>object</td>
-<td>An object with an integer &ldquo;digits&rdquo; member, stating how many digits to display after the decimal point when showing aggregates values.</td>
+<td>An object with an integer &ldquo;digits&rdquo; member, stating how many digits to display after the decimal point when showing aggregates values</td>
 </tr>
 </tbody></table>
 
@@ -3672,22 +3714,22 @@ category definitions. You don&rsquo;t need the &ldquo;missing_reasons&rdquo; bod
 <tr>
 <td>show_codes</td>
 <td>boolean</td>
-<td>For categorical types only. If true, numeric values are shown.</td>
+<td>For categorical types only; if true, numeric values are shown</td>
 </tr>
 <tr>
 <td>show_counts</td>
 <td>boolean</td>
-<td>If true, show counts; if false, show percents.</td>
+<td>If true, show counts; if false, show percents</td>
 </tr>
 <tr>
 <td>include_missing</td>
 <td>boolean</td>
-<td>For categorical types only. If true, include missing categories.</td>
+<td>For categorical types only; if true, include missing categories</td>
 </tr>
 <tr>
 <td>include_noneoftheabove</td>
 <td>boolean</td>
-<td>For multiple response types only. If true, display a &ldquo;none of the above&rdquo; category in the requested summary or analysis.</td>
+<td>For multiple response types only; if true, display a &ldquo;none of the above&rdquo; category in the requested summary or analysis</td>
 </tr>
 </tbody></table>
 
@@ -4320,7 +4362,7 @@ generated regardless of the status of any other pending exports.</p>
 <td>revert</td>
 <td>url</td>
 <td></td>
-<td>URL to POST to in order to roll back to this version. See below.</td>
+<td>URL to POST to in order to roll back to this version; see below</td>
 </tr>
 </tbody></table>
 
@@ -4425,6 +4467,8 @@ generated regardless of the status of any other pending exports.</p>
 <p><code class="prettyprint">POST /datasets/{dataset_id}/savepoints/{version_id}/revert/</code></p>
 
 <p>To roll back to a saved version, POST an empty body to the version&rsquo;s &ldquo;revert&rdquo; URL, found both inside the catalog tuple and in the &ldquo;views&rdquo; attribute of the entity. A successful request will return 204 status.</p>
+
+<p>Reverting a dataset will not change its current ownership.</p>
 
           <h2 id="batches">Batches</h2>
 
@@ -4632,6 +4676,10 @@ the <em>current</em> dataset and may be referenced by alias in <em>incoming</em>
 
           <h2 id="joins">Joins</h2>
 
+<aside class="warning">
+Joins are an experimental feature. Beware when using it, and expect significant future changes. To instead add a snapshot of columns to a dataset, see the &ldquo;Extend&rdquo; feature guide. This feature is more stable than the dynamic join described here.
+</aside>
+
 <h3 id="catalog">Catalog</h3>
 
 <p><code class="prettyprint">/datasets/{id}/joins/</code></p>
@@ -4639,11 +4687,12 @@ the <em>current</em> dataset and may be referenced by alias in <em>incoming</em>
 <p>A GET on this resource returns a Shoji Catalog enumerating the joins present in the Dataset. Each tuple in the index includes a &ldquo;left_key&rdquo; and a &ldquo;right_key&rdquo; member, each of which MUST be a variable URI. The left_key MUST be a variable in the current dataset, and the right_key SHOULD be a variable in another dataset. Both variables MUST be unique, and should be values taken from the same domain. For example, you might have a principal dataset which is a survey, with a respondent_id variable as a unique key. If you join a separate demographic dataset that has a unique column of the same respondent ids, you might see:</p>
 <pre class="highlight json"><code><span class="p">{</span><span class="w">
     </span><span class="nt">"element"</span><span class="p">:</span><span class="w"> </span><span class="s2">"shoji:catalog"</span><span class="p">,</span><span class="w">
-    </span><span class="nt">"self"</span><span class="p">:</span><span class="w"> </span><span class="s2">"...datasets/837498a/joins/"</span><span class="p">,</span><span class="w">
+    </span><span class="nt">"self"</span><span class="p">:</span><span class="w"> </span><span class="s2">"https://beta.crunch.io/api/datasets/837498a/joins/"</span><span class="p">,</span><span class="w">
     </span><span class="nt">"index"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
-        </span><span class="nt">"...datasets/837498a/joins/demo/"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
-            </span><span class="nt">"left_key"</span><span class="p">:</span><span class="w"> </span><span class="s2">"...datasets/837498a/variables/1ef71d/"</span><span class="p">,</span><span class="w">
-            </span><span class="nt">"right_key"</span><span class="p">:</span><span class="w"> </span><span class="s2">"...datasets/de3095/variables/19471d/"</span><span class="w">
+        </span><span class="nt">"https://beta.crunch.io/api/datasets/837498a/joins/demo/"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+            </span><span class="nt">"left_key"</span><span class="p">:</span><span class="w"> </span><span class="s2">"https://beta.crunch.io/api/datasets/837498a/variables/1ef71d/"</span><span class="p">,</span><span class="w">
+            </span><span class="nt">"right_key"</span><span class="p">:</span><span class="w"> </span><span class="s2">"https://beta.crunch.io/api/datasets/de3095/variables/19471d/"</span><span class="w">
+        </span><span class="p">}</span><span class="w">
     </span><span class="p">}</span><span class="w">
 </span><span class="p">}</span><span class="w">
 </span></code></pre>
@@ -4666,7 +4715,7 @@ the <em>current</em> dataset and may be referenced by alias in <em>incoming</em>
 
 <p><code class="prettyprint">/datasets/{id}/joins/{id}/variables/</code></p>
 
-<p>A variables catalog which describes variables in the subordinate dataset. See Variables for more details.</p>
+<p>A variables catalog which describes variables in the subordinate dataset. See <a href="#variables">Variables</a> for more details.</p>
 
           <h2 id="permissions">Permissions</h2>
 
@@ -4726,7 +4775,7 @@ the <em>current</em> dataset and may be referenced by alias in <em>incoming</em>
 <tr>
 <td>dataset_permissions</td>
 <td>object</td>
-<td>Attributes governing the user&rsquo;s authorization. See below.</td>
+<td>Attributes governing the user&rsquo;s authorization; see below</td>
 </tr>
 </tbody></table>
 
@@ -5093,7 +5142,7 @@ id_provider (optional, and only if id_method == &lsquo;oauth&rsquo;)</p>
 <tr>
 <td>permissions</td>
 <td>object</td>
-<td>Attributes governing the user&rsquo;s authorization on the team.</td>
+<td>Attributes governing the user&rsquo;s authorization on the team</td>
 </tr>
 </tbody></table>
 
@@ -5421,7 +5470,7 @@ to pick.</p>
 <td>icon</td>
 <td>url</td>
 <td>&ldquo;&rdquo;</td>
-<td>Url for the icon file for the project. Empty string if not set</td>
+<td>Url for the icon file for the project; empty string if not set</td>
 </tr>
 <tr>
 <td>user_icon</td>
@@ -5452,7 +5501,8 @@ for this project.</p>
 <h4 id="delete">DELETE</h4>
 
 <p>Deleting a project will <em>NOT</em> delete its datasets. It will change their 
-ownership to the authenticated user. Only project editors can delete a project.</p>
+ownership to the authenticated user. Only the project current owner can delete 
+a project.</p>
 <pre class="highlight http"><code><span class="nf">DELETE</span> <span class="nn">/projects/6c01/</span> <span class="k">HTTP</span><span class="o">/</span><span class="m">1.1</span>
 </code></pre>
 
