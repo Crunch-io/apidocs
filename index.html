@@ -1712,9 +1712,17 @@ exposed in a catalog. This catalog can be organized and ordered.</p>
 <pre class="highlight json"><code><span class="p">{</span><span class="w">
     </span><span class="nt">"element"</span><span class="p">:</span><span class="w"> </span><span class="s2">"shoji:catalog"</span><span class="p">,</span><span class="w">
     </span><span class="nt">"self"</span><span class="p">:</span><span class="w"> </span><span class="s2">"https://beta.crunch.io/api/datasets/"</span><span class="p">,</span><span class="w">
+    </span><span class="nt">"catalogs"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+        </span><span class="nt">"by_name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"https://beta.crunch.io/api/datasets/by_name/{name}/"</span><span class="w">
+    </span><span class="p">},</span><span class="w">
+    </span><span class="nt">"views"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+        </span><span class="nt">"search"</span><span class="p">:</span><span class="w"> </span><span class="s2">"https://beta.crunch.io/api/datasets/search/"</span><span class="w">
+    </span><span class="p">},</span><span class="w">
     </span><span class="nt">"orders"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
         </span><span class="nt">"order"</span><span class="p">:</span><span class="w"> </span><span class="s2">"https://beta.crunch.io/api/datasets/order/"</span><span class="w">
     </span><span class="p">},</span><span class="w">
+    </span><span class="nt">"specification"</span><span class="p">:</span><span class="w"> </span><span class="s2">"https://beta.crunch.io/api/specifications/datasets/"</span><span class="p">,</span><span class="w">
+    </span><span class="nt">"description"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Catalog of Datasets that belong to this user. POST a Dataset representation (serialized JSON) here to create a new one; a 201 response indicates success and returns the location of the new object. GET that URL to retrieve the object."</span><span class="p">,</span><span class="w">
     </span><span class="nt">"index"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
         </span><span class="nt">"https://beta.crunch.io/api/datasets/cc9161/"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
             </span><span class="nt">"owner_name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"James T. Kirk"</span><span class="p">,</span><span class="w">
@@ -1768,8 +1776,9 @@ exposed in a catalog. This catalog can be organized and ordered.</p>
             </span><span class="nt">"current_editor"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span><span class="w">
             </span><span class="nt">"current_editor_name"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="w">
         </span><span class="p">}</span><span class="w">
-    </span><span class="p">}</span><span class="w">
-</span><span class="p">}</span><span class="w">
+    </span><span class="p">},</span><span class="w">
+    </span><span class="nt">"template"</span><span class="p">:</span><span class="w"> </span><span class="s2">"{"</span><span class="err">name</span><span class="s2">": "</span><span class="err">Awesome</span><span class="w"> </span><span class="err">Dataset</span><span class="s2">", "</span><span class="err">description</span><span class="s2">": "</span><span class="err">(optional)</span><span class="w"> </span><span class="err">This</span><span class="w"> </span><span class="err">dataset</span><span class="w"> </span><span class="err">is</span><span class="w"> </span><span class="err">awesome</span><span class="w"> </span><span class="err">because</span><span class="w"> </span><span class="err">I</span><span class="w"> </span><span class="err">made</span><span class="w"> </span><span class="err">it</span><span class="p">,</span><span class="w"> </span><span class="err">and</span><span class="w"> </span><span class="err">you</span><span class="w"> </span><span class="err">can</span><span class="w"> </span><span class="err">do</span><span class="w"> </span><span class="err">it</span><span class="w"> </span><span class="err">too.</span><span class="nt">"}"</span><span class="w">
+</span><span class="err">}</span><span class="w">
 </span></code></pre>
 
 <p><code class="prettyprint">GET /datasets/</code></p>
@@ -1885,6 +1894,325 @@ attributes:</p>
     multiple teams or by direct sharing, the final permissions they have on the
     dataset will be the maximum of all the permissions granted.
 </aside>
+
+<h4 id="search">Search</h4>
+
+<p>You can perform a cross-dataset search of dataset metadata (including variables) via the search endpoint.
+This search will return associated variables, groups, and dataset metadata.  A query string, along with filtering
+properties can be provided to the search endpoint in order to refine the results.  The query string provided is only
+used in plain-text format, any non-text or numeric characters are ignored at this time.</p>
+
+<p>Results are limited only to those
+datasets the user has access to.  Offset and limit parameters are also provided in order to provide performance-chunking
+options.  Variable metadata is returned with these limits based on crunch&rsquo;s internal index (pre-filter), but are filtered to include
+only variable results that match the given search term (post-index-filter).
+This means that there may be less variable search results provided than the limit provided by the user.</p>
+
+<p>Here are the parameters that can be passed to the search endpoint.</p>
+
+<table><thead>
+<tr>
+<th>Parameter</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>q</td>
+<td>string</td>
+<td>query string</td>
+</tr>
+<tr>
+<td>f</td>
+<td>json Object</td>
+<td>used to filter the output of the search (see below)</td>
+</tr>
+<tr>
+<td>limit</td>
+<td>integer</td>
+<td>limit the number of results returned by the api to less than this amount (default 1000)</td>
+</tr>
+<tr>
+<td>offset</td>
+<td>integer</td>
+<td>offset into the search index to start gathering results from pre-filter</td>
+</tr>
+<tr>
+<td>group_variables_limit</td>
+<td>integer</td>
+<td>number of non-matching variable results inside matching group names to return (default 10)</td>
+</tr>
+</tbody></table>
+
+<p>Allowable filter parameters:</p>
+
+<table><thead>
+<tr>
+<th>Parameter</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>dataset_ids</td>
+<td>array of strings</td>
+<td>limit results to particular dataset_ids or urls (user must have read access to that dataset)</td>
+</tr>
+<tr>
+<td>team</td>
+<td>string</td>
+<td>url or id  of the team to limit results (user must have read access to the team)</td>
+</tr>
+<tr>
+<td>project</td>
+<td>strint</td>
+<td>url or id of the project to limit results (user must have access to the project)</td>
+</tr>
+</tbody></table>
+
+<aside class="notice">
+The query string can only be alpha-numeric characters (including underscores) logical operators are not allowed at this time.
+</aside>
+
+<h5 id="fields-searched">Fields Searched</h5>
+
+<p>Here is a list of the fields that are searched by the Crunch search endpoint</p>
+
+<table><thead>
+<tr>
+<th>Field</th>
+<th>Type</th>
+<th>Description</th>
+<th>Post-Filter?</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>category_names</td>
+<td>List of Strings</td>
+<td>Category names (associated with categorical variables)</td>
+<td>yes</td>
+</tr>
+<tr>
+<td>dataset_id</td>
+<td>String</td>
+<td>ID of the dataset</td>
+<td>no</td>
+</tr>
+<tr>
+<td>description</td>
+<td>String</td>
+<td>description of the variable</td>
+<td>yes</td>
+</tr>
+<tr>
+<td>id</td>
+<td>String</td>
+<td>ID of the variable</td>
+<td>no</td>
+</tr>
+<tr>
+<td>name</td>
+<td>String</td>
+<td>name of the variable</td>
+<td>yes</td>
+</tr>
+<tr>
+<td>owner</td>
+<td>String</td>
+<td>owner&rsquo;s ID of the variable</td>
+<td>no</td>
+</tr>
+<tr>
+<td>subvar_names</td>
+<td>List of Strings</td>
+<td>Names of the subvariables associated with the variable</td>
+<td>yes</td>
+</tr>
+<tr>
+<td>users</td>
+<td>List of Strings</td>
+<td>User IDs having read-access to the variable</td>
+<td>no</td>
+</tr>
+<tr>
+<td>group_names</td>
+<td>List of Strings</td>
+<td>group names (from the variable ordering) associated with the variable</td>
+<td>yes</td>
+</tr>
+<tr>
+<td>dataset_labels</td>
+<td>List of Objects</td>
+<td>dataset_labels associated with the user associated with the variable</td>
+<td>no</td>
+</tr>
+<tr>
+<td>dataset_name</td>
+<td>String</td>
+<td>dataset_name associated with this variable</td>
+<td>no</td>
+</tr>
+<tr>
+<td>dataset_owner</td>
+<td>String</td>
+<td>ID of the owner of the dataset associated with the variable</td>
+<td>no</td>
+</tr>
+<tr>
+<td>dataset_users</td>
+<td>List of Strings</td>
+<td>User IDs having read-access to the dataset associated with the variable</td>
+<td>no</td>
+</tr>
+<tr>
+<td>dataset_teams</td>
+<td>List of Strings</td>
+<td>Team IDs having read-access to the dataset associated with the variable</td>
+<td>no</td>
+</tr>
+<tr>
+<td>dataset_projects</td>
+<td>List of Strings</td>
+<td>Project IDs having read-access to the dataset associated with the variable</td>
+<td>no</td>
+</tr>
+</tbody></table>
+
+<aside class="notice">
+Post-filter indicates whether post-index results are filtered by the field noted.  If the given query string does not
+match at least one of the Post-filter fields, then it will be eliminated from the results, which limits the results to a
+reasonable number when the dataset attributes match but no variable attributes match.
+</aside>
+<pre class="highlight http"><code><span class="nf">GET</span> <span class="nn">/datasets/search/?q={query}&amp;f={filter}&amp;limit={limit}&amp;offset={offset}&amp;group_variables_list={group_variables_list}</span>  <span class="k">HTTP</span><span class="o">/</span><span class="m">1.1</span>
+</code></pre>
+<pre class="highlight json"><code><span class="p">{</span><span class="w">
+   </span><span class="nt">"element"</span><span class="p">:</span><span class="w"> </span><span class="s2">"shoji:view"</span><span class="p">,</span><span class="w">
+    </span><span class="nt">"self"</span><span class="p">:</span><span class="w"> </span><span class="s2">"https://beta.crunch.io/api/datasets/search/?q=blue"</span><span class="p">,</span><span class="w">
+    </span><span class="nt">"description"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Returns a view with relevant search information"</span><span class="p">,</span><span class="w">
+    </span><span class="nt">"value"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+        </span><span class="nt">"groups"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
+            </span><span class="p">{</span><span class="w">
+                </span><span class="nt">"group"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Search Results"</span><span class="p">,</span><span class="w">
+                </span><span class="nt">"datasets"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+                    </span><span class="nt">"https://beta.crunch.io/api/datasets/173b4eec13f542588b9b0a9cbcd764c9/"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+                        </span><span class="nt">"labels"</span><span class="p">:</span><span class="w"> </span><span class="p">[],</span><span class="w">
+                        </span><span class="nt">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"econ_few_columns_0"</span><span class="p">,</span><span class="w">
+                        </span><span class="nt">"groups"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+                            </span><span class="nt">"blue"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+                                </span><span class="nt">"https://beta.crunch.io/api/datasets/173b4eec13f542588b9b0a9cbcd764c9/variables/000004/"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+                                    </span><span class="nt">"dataset_labels"</span><span class="p">:</span><span class="w"> </span><span class="p">[],</span><span class="w">
+                                    </span><span class="nt">"users"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
+                                        </span><span class="s2">"00004"</span><span class="p">,</span><span class="w">
+                                        </span><span class="s2">"00002"</span><span class="w">
+                                    </span><span class="p">],</span><span class="w">
+                                    </span><span class="nt">"alias"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Gender"</span><span class="p">,</span><span class="w">
+                                    </span><span class="nt">"dataset_end_date"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span><span class="w">
+                                    </span><span class="nt">"category_names"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
+                                        </span><span class="s2">"Male"</span><span class="p">,</span><span class="w">
+                                        </span><span class="s2">"Female"</span><span class="p">,</span><span class="w">
+                                        </span><span class="s2">"Skipped"</span><span class="p">,</span><span class="w">
+                                        </span><span class="s2">"Not Asked"</span><span class="p">,</span><span class="w">
+                                        </span><span class="s2">"No Data"</span><span class="w">
+                                    </span><span class="p">],</span><span class="w">
+                                    </span><span class="nt">"dataset_start_date"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span><span class="w">
+                                    </span><span class="nt">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Gender"</span><span class="p">,</span><span class="w">
+                                    </span><span class="nt">"dataset_description"</span><span class="p">:</span><span class="w"> </span><span class="s2">""</span><span class="p">,</span><span class="w">
+                                    </span><span class="nt">"dataset_archived"</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="p">,</span><span class="w">
+                                    </span><span class="nt">"group_names"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
+                                        </span><span class="s2">"blue"</span><span class="w">
+                                    </span><span class="p">],</span><span class="w">
+                                    </span><span class="nt">"dataset"</span><span class="p">:</span><span class="w"> </span><span class="s2">"https://beta.crunch.io/api/datasets/173b4eec13f542588b9b0a9cbcd764c9/"</span><span class="p">,</span><span class="w">
+                                    </span><span class="nt">"dataset_id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"173b4eec13f542588b9b0a9cbcd764c9"</span><span class="p">,</span><span class="w">
+                                    </span><span class="nt">"dataset_created_time"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span><span class="w">
+                                    </span><span class="nt">"subvar_names"</span><span class="p">:</span><span class="w"> </span><span class="p">[],</span><span class="w">
+                                    </span><span class="nt">"dataset_name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"econ_few_columns_0"</span><span class="p">,</span><span class="w">
+                                    </span><span class="nt">"description"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Are you male or female?"</span><span class="w">
+                                </span><span class="p">},</span><span class="w">
+                                </span><span class="nt">"https://beta.crunch.io/api/datasets/173b4eec13f542588b9b0a9cbcd764c9/variables/000003/"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+                                    </span><span class="nt">"dataset_labels"</span><span class="p">:</span><span class="w"> </span><span class="p">[],</span><span class="w">
+                                    </span><span class="nt">"users"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
+                                        </span><span class="s2">"00004"</span><span class="p">,</span><span class="w">
+                                        </span><span class="s2">"00002"</span><span class="w">
+                                    </span><span class="p">],</span><span class="w">
+                                    </span><span class="nt">"alias"</span><span class="p">:</span><span class="w"> </span><span class="s2">"BirthYear"</span><span class="p">,</span><span class="w">
+                                    </span><span class="nt">"dataset_end_date"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span><span class="w">
+                                    </span><span class="nt">"category_names"</span><span class="p">:</span><span class="w"> </span><span class="p">[],</span><span class="w">
+                                    </span><span class="nt">"dataset_start_date"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span><span class="w">
+                                    </span><span class="nt">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"BirthYear"</span><span class="p">,</span><span class="w">
+                                    </span><span class="nt">"dataset_description"</span><span class="p">:</span><span class="w"> </span><span class="s2">""</span><span class="p">,</span><span class="w">
+                                    </span><span class="nt">"dataset_archived"</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="p">,</span><span class="w">
+                                    </span><span class="nt">"group_names"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
+                                        </span><span class="s2">"blue"</span><span class="w">
+                                    </span><span class="p">],</span><span class="w">
+                                    </span><span class="nt">"dataset"</span><span class="p">:</span><span class="w"> </span><span class="s2">"https://beta.crunch.io/api/datasets/173b4eec13f542588b9b0a9cbcd764c9/"</span><span class="p">,</span><span class="w">
+                                    </span><span class="nt">"dataset_id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"173b4eec13f542588b9b0a9cbcd764c9"</span><span class="p">,</span><span class="w">
+                                    </span><span class="nt">"dataset_created_time"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span><span class="w">
+                                    </span><span class="nt">"subvar_names"</span><span class="p">:</span><span class="w"> </span><span class="p">[],</span><span class="w">
+                                    </span><span class="nt">"dataset_name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"econ_few_columns_0"</span><span class="p">,</span><span class="w">
+                                    </span><span class="nt">"description"</span><span class="p">:</span><span class="w"> </span><span class="s2">"In what year were you born?"</span><span class="w">
+                                </span><span class="p">}</span><span class="w">
+                            </span><span class="p">}</span><span class="w">
+                        </span><span class="p">},</span><span class="w">
+                        </span><span class="nt">"description"</span><span class="p">:</span><span class="w"> </span><span class="s2">""</span><span class="w">
+                    </span><span class="p">},</span><span class="w">
+                    </span><span class="nt">"https://beta.crunch.io/api/datasets/4473ab4ee84b40b2a7cd5cab4548d584/"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+                        </span><span class="nt">"labels"</span><span class="p">:</span><span class="w"> </span><span class="p">[],</span><span class="w">
+                        </span><span class="nt">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"simple_alltypes"</span><span class="p">,</span><span class="w">
+                        </span><span class="nt">"description"</span><span class="p">:</span><span class="w"> </span><span class="s2">""</span><span class="w">
+                    </span><span class="p">}</span><span class="w">
+                </span><span class="p">},</span><span class="w">
+                </span><span class="nt">"variables"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+                    </span><span class="nt">"https://beta.crunch.io/api/datasets/4473ab4ee84b40b2a7cd5cab4548d584/variables/000000/"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+                        </span><span class="nt">"dataset_labels"</span><span class="p">:</span><span class="w"> </span><span class="p">[],</span><span class="w">
+                        </span><span class="nt">"users"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
+                            </span><span class="s2">"00002"</span><span class="w">
+                        </span><span class="p">],</span><span class="w">
+                        </span><span class="nt">"alias"</span><span class="p">:</span><span class="w"> </span><span class="s2">"x"</span><span class="p">,</span><span class="w">
+                        </span><span class="nt">"dataset_end_date"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span><span class="w">
+                        </span><span class="nt">"category_names"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
+                            </span><span class="s2">"red"</span><span class="p">,</span><span class="w">
+                            </span><span class="s2">"green"</span><span class="p">,</span><span class="w">
+                            </span><span class="s2">"blue"</span><span class="p">,</span><span class="w">
+                            </span><span class="s2">"4"</span><span class="p">,</span><span class="w">
+                            </span><span class="s2">"8"</span><span class="p">,</span><span class="w">
+                            </span><span class="s2">"9"</span><span class="p">,</span><span class="w">
+                            </span><span class="s2">"No Data"</span><span class="w">
+                        </span><span class="p">],</span><span class="w">
+                        </span><span class="nt">"dataset_start_date"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span><span class="w">
+                        </span><span class="nt">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"x"</span><span class="p">,</span><span class="w">
+                        </span><span class="nt">"dataset_description"</span><span class="p">:</span><span class="w"> </span><span class="s2">""</span><span class="p">,</span><span class="w">
+                        </span><span class="nt">"dataset_archived"</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="p">,</span><span class="w">
+                        </span><span class="nt">"group_names"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span><span class="w">
+                        </span><span class="nt">"dataset"</span><span class="p">:</span><span class="w"> </span><span class="s2">"https://beta.crunch.io/api/datasets/4473ab4ee84b40b2a7cd5cab4548d584/"</span><span class="p">,</span><span class="w">
+                        </span><span class="nt">"dataset_id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"bb987b45a5b04caba10dec4dad7b37a8"</span><span class="p">,</span><span class="w">
+                        </span><span class="nt">"dataset_created_time"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span><span class="w">
+                        </span><span class="nt">"subvar_names"</span><span class="p">:</span><span class="w"> </span><span class="p">[],</span><span class="w">
+                        </span><span class="nt">"dataset_name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"export test 94"</span><span class="p">,</span><span class="w">
+                        </span><span class="nt">"description"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Numeric variable with value labels"</span><span class="w">
+                    </span><span class="p">}</span><span class="w">
+                </span><span class="p">},</span><span class="w">
+                </span><span class="nt">"variable_count"</span><span class="p">:</span><span class="w"> </span><span class="mi">14</span><span class="p">,</span><span class="w">
+                </span><span class="nt">"totals"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+                    </span><span class="nt">"variables"</span><span class="p">:</span><span class="w"> </span><span class="mi">4</span><span class="p">,</span><span class="w">
+                    </span><span class="nt">"datasets"</span><span class="p">:</span><span class="w"> </span><span class="mi">2</span><span class="w">
+                </span><span class="p">}</span><span class="w">
+            </span><span class="p">}</span><span class="w">
+        </span><span class="p">]</span><span class="w">
+    </span><span class="p">}</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre>
+
+<p>The variables grouping displays metadata for all of the variables that matched.
+The Datasets grouping displays metadata for all of the datasets where a variable or the dataset it self matched.  The &ldquo;groups&rdquo;
+parameter of the dataset indicates any variable groups that matched, along with variables that did not match the search but are contained
+within the variable grouping.  The group names that are indexed come from the variable ordering endpoint. </p>
+
+<p>Use the <code class="prettyprint">group_variables_limit</code> parameter to define how many group variables to expose in this parameter. 
+variable_count is the total number of variables that matched the crunch&rsquo;s search index.  This number can be used when considering
+limit and offset parameters.  (limit + offset higher than variable_count will always return no results)
+Totals group defines the number of variables and datasets that matched post-index-filtering.  This parameter is useful in order to limit
+the amount of output of group names, since some groups may have thousands of variables, who&rsquo;s information is less relevent
+since those variables do not match in this context.</p>
 
 <h4 id="drafts">Drafts</h4>
 
@@ -2420,8 +2748,9 @@ from the Crunch system and responds with 204 status.</p>
 <p>See <a href="#multidimensional-analysis">Multidimensional Analysis</a>.</p>
 
 <h5 id="export">Export</h5>
-
-<p><code class="prettyprint">/datasets/{id}/export/</code></p>
+<pre class="highlight http"><code><span class="nf">GET</span> <span class="nn">`/datasets/{id}/export/`</span> <span class="k">HTTP</span><span class="o">/</span><span class="m">1.1</span>
+<span class="na">Host</span><span class="p">:</span> <span class="s">beta.crunch.io</span>
+</code></pre>
 
 <p>GET returns a Shoji View of available dataset export formats.</p>
 <pre class="highlight json"><code><span class="p">{</span><span class="w">
@@ -2434,10 +2763,25 @@ from the Crunch system and responds with 204 status.</p>
 </span><span class="p">}</span><span class="w">
 </span></code></pre>
 
-<p>A GET request on any of the export URLs will return 200 status with a <code class="prettyprint">shoji:view</code>, containing an attribute
-<code class="prettyprint">url</code> pointing to the location of the exported file to be downloaded; GET that URL to download the file. If the dataset does not have any columns of data, the GET on the export view URL will return a 409 response.</p>
+<p>A POST request on any of the export views will return 202 status with a <code class="prettyprint">shoji:view</code>, containing an attribute
+<code class="prettyprint">url</code> pointing to the location of the exported file to be downloaded; GET that URL to download the file. </p>
+<pre class="highlight http"><code><span class="nf">POST</span> <span class="nn">`/api/datasets/f2364cc66e604d63a3be3e8811fc902f/export/spss/`</span> <span class="k">HTTP</span><span class="o">/</span><span class="m">1.1</span>
+</code></pre>
+<pre class="highlight json"><code><span class="p">{</span><span class="nt">"where"</span><span class="p">:{</span><span class="nt">"function"</span><span class="p">:</span><span class="w"> </span><span class="s2">"identify"</span><span class="p">,</span><span class="w">
+          </span><span class="nt">"args"</span><span class="p">:[{</span><span class="nt">"id"</span><span class="p">:[</span><span class="s2">"https://beta.crunch.io/api/datasets/f2364cc66e604d63a3be3e8811fc902f/variables/000000/"</span><span class="p">,</span><span class="w">
+                         </span><span class="s2">"https://beta.crunch.io/api/datasets/f2364cc66e604d63a3be3e8811fc902f/variables/000001/"</span><span class="p">,</span><span class="w">
+                         </span><span class="s2">"https://beta.crunch.io/api/datasets/f2364cc66e604d63a3be3e8811fc902f/variables/000002/"</span><span class="p">]}]}}</span><span class="w">
+</span></code></pre>
+<pre class="highlight http"><code><span class="k">HTTP</span><span class="o">/</span><span class="m">1.1</span> <span class="m">202</span> <span class="ne">Accepted</span>
+<span class="na">Content-Length</span><span class="p">:</span> <span class="s">176</span>
+<span class="na">Access-Control-Allow-Methods</span><span class="p">:</span> <span class="s">OPTIONS, AUTH, POST, GET, HEAD, PUT, PATCH, DELETE</span>
+<span class="na">Access-Control-Expose-Headers</span><span class="p">:</span> <span class="s">Allow, Location, Expires</span>
+<span class="na">Content-Encoding</span><span class="p">:</span> <span class="s">gzip</span>
+<span class="na">Location</span><span class="p">:</span> <span class="s">https://crunch-io.s3.amazonaws.com/exports/dataset_exports/f2364cc66e604d63a3be3e8811fc902f/My_Dataset.sav?Signature=sOmeSigNaTurE%3D&amp;Expires=1470265052&amp;AWSAccessKeyId=SOMEKEY</span>
+</code></pre>
 
-<p>To export a subset of the dataset, instead perform a POST request and include a JSON body with an optional &ldquo;filter&rdquo; expression for the rows and a &ldquo;where&rdquo; attribute to specify variables to include.</p>
+<p>To export a subset of the dataset, instead perform a POST request and include a JSON body with an optional
+ &ldquo;filter&rdquo; expression for the rows and a &ldquo;where&rdquo; attribute to specify variables to include.</p>
 
 <table><thead>
 <tr>
@@ -2476,6 +2820,25 @@ from the Crunch system and responds with 204 status.</p>
 </ul>
 
 <p>Some format-specific properties and options:</p>
+
+<table><thead>
+<tr>
+<th>Format</th>
+<th>Attribute</th>
+<th>Description</th>
+<th>Example</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>csv</td>
+<td>use_category_ids</td>
+<td>instead of category names export the fields as their numeric ids</td>
+<td>{&ldquo;use_category_ids&rdquo;: true}</td>
+</tr>
+</tbody></table>
+
+<p>For both types of responses, the &ldquo;location&rdquo; header is set to the location for the download, whether completed or not.  Besides
+ looking for a 100 percent completion with progress requests, the user may also look for a non-404 response on this location.</p>
 
 <h6 id="spss">SPSS</h6>
 
@@ -2999,8 +3362,8 @@ by variable ID with the corresponding entry under <code class="prettyprint">data
     </span><span class="nt">"000001"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w"> </span><span class="s2">"2000-01-01T00:00:00"</span><span class="p">,</span><span class="w"> </span><span class="s2">"2000-01-02T00:00:00"</span><span class="p">,</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nt">"?"</span><span class="p">:</span><span class="w"> </span><span class="mi">-1</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="p">],</span><span class="w">
     </span><span class="nt">"000008"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span><span class="p">,</span><span class="w"> </span><span class="mi">3</span><span class="w"> </span><span class="p">],</span><span class="w">
     </span><span class="nt">"000009"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w"> </span><span class="mi">2</span><span class="p">,</span><span class="w"> </span><span class="mi">3</span><span class="p">,</span><span class="w"> </span><span class="mi">4</span><span class="w"> </span><span class="p">],</span><span class="w">
-    </span><span class="nt">"00000c"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w"> </span><span class="p">[</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span><span class="w"> </span><span class="p">],</span><span class="w"> </span><span class="p">[</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span><span class="p">,</span><span class="w"> </span><span class="mi">3</span><span class="w"> </span><span class="p">],</span><span class="w"> </span><span class="p">[</span><span class="w"> </span><span class="mi">2</span><span class="p">,</span><span class="w"> </span><span class="mi">3</span><span class="p">,</span><span class="w"> </span><span class="mi">4</span><span class="w"> </span><span class="p">]</span><span class="w"> </span><span class="p">],</span><span class="w">
-  </span><span class="err">}</span><span class="p">,</span><span class="w">
+    </span><span class="nt">"00000c"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w"> </span><span class="p">[</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span><span class="w"> </span><span class="p">],</span><span class="w"> </span><span class="p">[</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span><span class="p">,</span><span class="w"> </span><span class="mi">3</span><span class="w"> </span><span class="p">],</span><span class="w"> </span><span class="p">[</span><span class="w"> </span><span class="mi">2</span><span class="p">,</span><span class="w"> </span><span class="mi">3</span><span class="p">,</span><span class="w"> </span><span class="mi">4</span><span class="w"> </span><span class="p">]</span><span class="w"> </span><span class="p">]</span><span class="w">
+  </span><span class="p">},</span><span class="w">
   </span><span class="nt">"description"</span><span class="p">:</span><span class="w"> </span><span class="s2">"A Crunch Table of data for this dataset."</span><span class="p">,</span><span class="w">
   </span><span class="nt">"metadata"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
     </span><span class="nt">"000007"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
@@ -3245,8 +3608,7 @@ index of those.</p>
         </span><span class="nt">"personal"</span><span class="p">:</span><span class="w"> </span><span class="s2">"https://beta.crunch.io/api/datasets/5330a0/variables/personal/"</span><span class="w">
     </span><span class="p">},</span><span class="w">
     </span><span class="nt">"views"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
-        </span><span class="nt">"weights"</span><span class="p">:</span><span class="w"> </span><span class="s2">"https://beta.crunch.io/api/datasets/5ee0a0/variables/weights/"</span><span class="p">,</span><span class="w">
-        </span><span class="nt">"search"</span><span class="p">:</span><span class="w"> </span><span class="s2">"https://beta.crunch.io/api/datasets/5ee0a0/variables/search/?q={token}"</span><span class="w">
+        </span><span class="nt">"weights"</span><span class="p">:</span><span class="w"> </span><span class="s2">"https://beta.crunch.io/api/datasets/5ee0a0/variables/weights/"</span><span class="w">
     </span><span class="p">},</span><span class="w">
     </span><span class="nt">"specification"</span><span class="p">:</span><span class="w"> </span><span class="s2">"https://beta.crunch.io/api/specifications/variables/"</span><span class="p">,</span><span class="w">
     </span><span class="nt">"description"</span><span class="p">:</span><span class="w"> </span><span class="s2">"List of Variables of this dataset"</span><span class="p">,</span><span class="w">
@@ -3285,8 +3647,8 @@ index of those.</p>
             </span><span class="nt">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"categorical_array"</span><span class="p">,</span><span class="w">
             </span><span class="nt">"id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"aad4ad"</span><span class="p">,</span><span class="w">
             </span><span class="nt">"description"</span><span class="p">:</span><span class="w"> </span><span class="s2">""</span><span class="w">
-        </span><span class="p">},</span><span class="w">
-    </span><span class="err">}</span><span class="w">
+        </span><span class="p">}</span><span class="w">
+    </span><span class="p">}</span><span class="w">
 </span><span class="p">}</span><span class="w">
 </span></code></pre>
 
@@ -3341,8 +3703,7 @@ line 24.</p>
         </span><span class="nt">"hier"</span><span class="p">:</span><span class="w"> </span><span class="s2">"https://beta.crunch.io/api/datasets/5330a0/variables/hier/"</span><span class="w">
     </span><span class="p">},</span><span class="w">
     </span><span class="nt">"views"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
-        </span><span class="nt">"weights"</span><span class="p">:</span><span class="w"> </span><span class="s2">"https://beta.crunch.io/api/datasets/5ee0a0/variables/weights/"</span><span class="p">,</span><span class="w">
-        </span><span class="nt">"search"</span><span class="p">:</span><span class="w"> </span><span class="s2">"https://beta.crunch.io/api/datasets/5ee0a0/variables/search/?q={token}"</span><span class="w">
+        </span><span class="nt">"weights"</span><span class="p">:</span><span class="w"> </span><span class="s2">"https://beta.crunch.io/api/datasets/5ee0a0/variables/weights/"</span><span class="w">
     </span><span class="p">},</span><span class="w">
     </span><span class="nt">"specification"</span><span class="p">:</span><span class="w"> </span><span class="s2">"https://beta.crunch.io/api/specifications/variables/"</span><span class="p">,</span><span class="w">
     </span><span class="nt">"description"</span><span class="p">:</span><span class="w"> </span><span class="s2">"List of Variables of this dataset"</span><span class="p">,</span><span class="w">
@@ -3381,8 +3742,8 @@ line 24.</p>
             </span><span class="nt">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"categorical_array"</span><span class="p">,</span><span class="w">
             </span><span class="nt">"id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"aad4ad"</span><span class="p">,</span><span class="w">
             </span><span class="nt">"description"</span><span class="p">:</span><span class="w"> </span><span class="s2">""</span><span class="w">
-        </span><span class="p">},</span><span class="w">
-    </span><span class="err">}</span><span class="w">
+        </span><span class="p">}</span><span class="w">
+    </span><span class="p">}</span><span class="w">
 </span><span class="p">}</span><span class="w">
 </span></code></pre>
 
@@ -3508,33 +3869,6 @@ weight variables with the incoming ones. Use this to delete weight variables.</p
 It is only possible to submit variables that belong to the main dataset. That
 is, variables from joined datasets cannot be set as weight.
 </aside>
-
-<h3 id="search">Search</h3>
-
-<p><code class="prettyprint">/datasets/{id}/variables/search/{?q}</code></p>
-
-<p>On GET will return a Crunch Order with the variables matching the <code class="prettyprint">q</code> token in
-the URL. The results will be under the &ldquo;Search Results&rdquo; group containing the
-urls for the matching variables.</p>
-<pre class="highlight json"><code><span class="p">{</span><span class="w">
-    </span><span class="nt">"element"</span><span class="p">:</span><span class="w"> </span><span class="s2">"shoji:view"</span><span class="p">,</span><span class="w">
-    </span><span class="nt">"self"</span><span class="p">:</span><span class="w"> </span><span class="s2">"https://beta.crunch.io/api/datasets/4e9a00/variables/search/?q=something"</span><span class="p">,</span><span class="w">
-    </span><span class="nt">"description"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Returns a view with a group containing all the variables that match the given query"</span><span class="p">,</span><span class="w">
-    </span><span class="nt">"value"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
-        </span><span class="nt">"groups"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
-            </span><span class="p">{</span><span class="w">
-                </span><span class="nt">"entities"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
-                    </span><span class="s2">"https://beta.crunch.io/api/datasets/4e9a00/variables/b66668/"</span><span class="p">,</span><span class="w">
-                    </span><span class="s2">"https://beta.crunch.io/api/datasets/4e9a00/variables/8f68ca/"</span><span class="p">,</span><span class="w">
-                    </span><span class="s2">"https://beta.crunch.io/api/datasets/4e9a00/variables/f6ae03/"</span><span class="p">,</span><span class="w">
-                    </span><span class="s2">"https://beta.crunch.io/api/datasets/4e9a00/variables/b4bd6a/"</span><span class="p">,</span><span class="w">
-                </span><span class="p">],</span><span class="w">
-                </span><span class="nt">"group"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Search Results"</span><span class="w">
-            </span><span class="p">}</span><span class="w">
-        </span><span class="p">]</span><span class="w">
-    </span><span class="p">}</span><span class="w">
-</span><span class="p">}</span><span class="w">
-</span></code></pre>
 
 <h3 id="entity">Entity</h3>
 
@@ -3937,8 +4271,8 @@ as well as basic summary statistics:</li>
 <pre class="highlight json"><code><span class="p">[</span><span class="w">
   </span><span class="p">{</span><span class="w">
     </span><span class="nt">"Invalid"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="nt">"value"</span><span class="p">:</span><span class="w"> </span><span class="mi">0</span><span class="p">},</span><span class="w">
-    </span><span class="nt">"Sarai doesn't know how to use a calculator :("</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="nt">"range"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="mi">1000</span><span class="p">,</span><span class="w"> </span><span class="kc">null</span><span class="p">],</span><span class="w"> </span><span class="nt">"inclusive"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="kc">true</span><span class="p">,</span><span class="w"> </span><span class="kc">false</span><span class="p">]},</span><span class="w">
-  </span><span class="err">}</span><span class="w">
+    </span><span class="nt">"Sarai doesn't know how to use a calculator :("</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="nt">"range"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="mi">1000</span><span class="p">,</span><span class="w"> </span><span class="kc">null</span><span class="p">],</span><span class="w"> </span><span class="nt">"inclusive"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="kc">true</span><span class="p">,</span><span class="w"> </span><span class="kc">false</span><span class="p">]}</span><span class="w">
+  </span><span class="p">}</span><span class="w">
 </span><span class="p">]</span><span class="w">
 </span></code></pre>
 
@@ -4005,8 +4339,8 @@ current user can use on this Dataset.</p>
     </span><span class="nt">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"My filter"</span><span class="p">,</span><span class="w">
     </span><span class="nt">"is_public"</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span><span class="w">
     </span><span class="nt">"id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"1442ea"</span><span class="p">,</span><span class="w">
-    </span><span class="nt">"owner_id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"https://beta.crunch.io/api/users/4152de/"</span><span class="p">,</span><span class="w">
-</span><span class="err">}</span><span class="w">
+    </span><span class="nt">"owner_id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"https://beta.crunch.io/api/users/4152de/"</span><span class="w">
+</span><span class="p">}</span><span class="w">
 </span></code></pre>
 
 <p>The only tuple attribute editable via PATCHing the catalog is the &ldquo;name&rdquo;. A 204 response indicates a successful PATCH. Attempting to PATCH any other attribute will
@@ -4296,8 +4630,8 @@ generated regardless of the status of any other pending exports.</p>
                 </span><span class="nt">"dimensions"</span><span class="p">:</span><span class="w"> </span><span class="p">[{</span><span class="nt">"variable"</span><span class="p">:</span><span class="w"> </span><span class="s2">"../variables/bf31fc/"</span><span class="p">}],</span><span class="w">
                 </span><span class="nt">"measures"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="nt">"count"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="nt">"function"</span><span class="p">:</span><span class="w"> </span><span class="s2">"cube_count"</span><span class="p">,</span><span class="w"> </span><span class="nt">"args"</span><span class="p">:</span><span class="w"> </span><span class="p">[]}}</span><span class="w">
             </span><span class="p">}],</span><span class="w">
-            </span><span class="nt">"cube"</span><span class="p">:</span><span class="w"> </span><span class="s2">"9942ce/cube/"</span><span class="p">,</span><span class="w">
-        </span><span class="err">}</span><span class="w">
+            </span><span class="nt">"cube"</span><span class="p">:</span><span class="w"> </span><span class="s2">"9942ce/cube/"</span><span class="w">
+        </span><span class="p">}</span><span class="w">
     </span><span class="p">}</span><span class="w">
 </span><span class="p">}</span><span class="w">
 </span></code></pre>
@@ -4588,7 +4922,6 @@ the <em>current</em> dataset and may be referenced by alias in <em>incoming</em>
     </span><span class="nt">"conflicts"</span><span class="p">:</span><span class="w"> </span><span class="p">{},</span><span class="w">
     </span><span class="nt">"source_children"</span><span class="p">:</span><span class="w"> </span><span class="p">{},</span><span class="w">
     </span><span class="nt">"target_children"</span><span class="p">:</span><span class="w"> </span><span class="p">{},</span><span class="w">
-
     </span><span class="nt">"source_columns"</span><span class="p">:</span><span class="w"> </span><span class="mi">3500</span><span class="p">,</span><span class="w">
     </span><span class="nt">"source_rows"</span><span class="p">:</span><span class="w"> </span><span class="mi">235490</span><span class="p">,</span><span class="w">
     </span><span class="nt">"target_columns"</span><span class="p">:</span><span class="w"> </span><span class="mi">3499</span><span class="p">,</span><span class="w">
@@ -4608,15 +4941,15 @@ the <em>current</em> dataset and may be referenced by alias in <em>incoming</em>
         </span><span class="nt">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"&lt;string&gt;"</span><span class="p">,</span><span class="w">
         </span><span class="nt">"alias"</span><span class="p">:</span><span class="w"> </span><span class="s2">"&lt;string&gt;"</span><span class="p">,</span><span class="w">
         </span><span class="nt">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"&lt;string&gt;"</span><span class="p">,</span><span class="w">
-        </span><span class="nt">"categories"</span><span class="p">:</span><span class="w"> </span><span class="p">[{}],</span><span class="w">
-    </span><span class="err">}</span><span class="p">,</span><span class="w">
+        </span><span class="nt">"categories"</span><span class="p">:</span><span class="w"> </span><span class="p">[{}]</span><span class="w">
+    </span><span class="p">},</span><span class="w">
     </span><span class="nt">"source_id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"&lt;id of the matching variable in the source frame"</span><span class="p">,</span><span class="w">
     </span><span class="nt">"source_metadata"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
         </span><span class="nt">"name, etc"</span><span class="p">:</span><span class="w"> </span><span class="s2">"as above"</span><span class="w">
     </span><span class="p">},</span><span class="w">
     </span><span class="nt">"conflicts"</span><span class="p">:</span><span class="w"> </span><span class="p">[{</span><span class="w">
-        </span><span class="nt">"message"</span><span class="p">:</span><span class="w"> </span><span class="s2">"&lt;string&gt;"</span><span class="p">,</span><span class="w">
-    </span><span class="err">}</span><span class="p">]</span><span class="w">
+        </span><span class="nt">"message"</span><span class="p">:</span><span class="w"> </span><span class="s2">"&lt;string&gt;"</span><span class="w">
+    </span><span class="p">}]</span><span class="w">
 </span><span class="p">}</span><span class="w">
 </span></code></pre>
 
@@ -4799,8 +5132,8 @@ Joins are an experimental feature. Beware when using it, and expect significant 
     </span><span class="nt">"https://beta.crunch.io/api/users/42/"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
         </span><span class="nt">"dataset_permissions"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
             </span><span class="nt">"edit"</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="p">,</span><span class="w">
-            </span><span class="nt">"view"</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span><span class="w">
-        </span><span class="err">}</span><span class="w">
+            </span><span class="nt">"view"</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="w">
+        </span><span class="p">}</span><span class="w">
     </span><span class="p">},</span><span class="w">
     </span><span class="nt">"send_notification"</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span><span class="w">
     </span><span class="nt">"dataset_url"</span><span class="p">:</span><span class="w"> </span><span class="s2">"https://beta.crunch.io/dataset/1"</span><span class="w">
@@ -4824,15 +5157,15 @@ Joins are an experimental feature. Beware when using it, and expect significant 
     </span><span class="nt">"/users/id/"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
         </span><span class="nt">"dataset_permissions"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
             </span><span class="nt">"edit"</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="p">,</span><span class="w">
-            </span><span class="nt">"view"</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span><span class="w">
-        </span><span class="err">}</span><span class="p">,</span><span class="w">
+            </span><span class="nt">"view"</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="w">
+        </span><span class="p">},</span><span class="w">
         </span><span class="nt">"profile"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
             </span><span class="nt">"weight"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span><span class="w"> 
             </span><span class="nt">"applied_filters"</span><span class="p">:</span><span class="w"> </span><span class="p">[]</span><span class="w">
 
         </span><span class="p">}</span><span class="w">
-    </span><span class="p">},</span><span class="w">
-</span><span class="err">}</span><span class="w">
+    </span><span class="p">}</span><span class="w">
+</span><span class="p">}</span><span class="w">
 </span></code></pre>
 
 <p>This payload may include a &ldquo;profile&rdquo; member, which are initial values with which to populate the sharee&rsquo;s user-dataset-profile. </p>
@@ -4850,8 +5183,8 @@ Joins are an experimental feature. Beware when using it, and expect significant 
 
 <p>To revoke users&rsquo; access to this dataset (aka &ldquo;unshare&rdquo; with them), PATCH a null tuple for their user URLs:</p>
 <pre class="highlight json"><code><span class="p">{</span><span class="w">
-    </span><span class="nt">"/users/id/"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span><span class="w">
-</span><span class="err">}</span><span class="w">
+    </span><span class="nt">"/users/id/"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="w">
+</span><span class="p">}</span><span class="w">
 </span></code></pre>
 
 <p>Note that all of these PATCHes for add/edit/remove access to the dataset can be done in a single request that combines them all. </p>
@@ -4877,8 +5210,8 @@ Joins are an experimental feature. Beware when using it, and expect significant 
         </span><span class="p">},</span><span class="w">
         </span><span class="nt">"profile"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
             </span><span class="nt">"weight"</span><span class="p">:,</span><span class="w"> 
-            </span><span class="nt">"applied_filters"</span><span class="p">:</span><span class="w"> </span><span class="p">[],</span><span class="w">
-        </span><span class="err">}</span><span class="w">
+            </span><span class="nt">"applied_filters"</span><span class="p">:</span><span class="w"> </span><span class="p">[]</span><span class="w">
+        </span><span class="p">}</span><span class="w">
     </span><span class="p">},</span><span class="w">
     </span><span class="nt">"send_notifications"</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span><span class="w">
     </span><span class="nt">"url_base"</span><span class="p">:</span><span class="w"> </span><span class="s2">"https://beta.crunch.io/password/change/${token}/"</span><span class="p">,</span><span class="w">
@@ -5314,15 +5647,15 @@ Here you can create new projects via POST</p>
     </span><span class="nt">"http://beta.crunch.io/api/projects/4643/"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
       </span><span class="nt">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Project 1"</span><span class="p">,</span><span class="w">
       </span><span class="nt">"id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"4643"</span><span class="p">,</span><span class="w">
-      </span><span class="nt">"icon"</span><span class="p">:</span><span class="w"> </span><span class="s2">""</span><span class="w">
-      </span><span class="s2">"permissions"</span><span class="err">:</span><span class="w"> </span><span class="p">{</span><span class="nt">"view"</span><span class="p">:</span><span class="kc">true</span><span class="p">,</span><span class="w"> </span><span class="nt">"edit:"</span><span class="err">true</span><span class="nt">"}
-    },
-    "</span><span class="err">http</span><span class="p">:</span><span class="err">//beta.crunch.io/api/projects/</span><span class="mi">6</span><span class="err">c</span><span class="mi">01</span><span class="err">/</span><span class="s2">": {
-      "</span><span class="err">name</span><span class="s2">": "</span><span class="err">Project</span><span class="w"> </span><span class="mi">2</span><span class="s2">",
-      "</span><span class="err">id</span><span class="s2">": "</span><span class="mi">6</span><span class="err">c</span><span class="mi">01</span><span class="s2">",
-      "</span><span class="err">icon</span><span class="s2">": "",
-      "</span><span class="err">description</span><span class="s2">": "</span><span class="err">Description</span><span class="w"> </span><span class="err">of</span><span class="w"> </span><span class="err">project</span><span class="w"> </span><span class="mi">2</span><span class="s2">"
-      "</span><span class="err">permissions</span><span class="s2">": {"</span><span class="err">view</span><span class="s2">":true, "</span><span class="err">edit:</span><span class="s2">"true"</span><span class="p">}</span><span class="w">
+      </span><span class="nt">"icon"</span><span class="p">:</span><span class="w"> </span><span class="s2">""</span><span class="p">,</span><span class="w">
+      </span><span class="nt">"permissions"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="nt">"view"</span><span class="p">:</span><span class="kc">true</span><span class="p">,</span><span class="w"> </span><span class="nt">"edit"</span><span class="p">:</span><span class="w"> </span><span class="s2">"true"</span><span class="p">}</span><span class="w">
+    </span><span class="p">},</span><span class="w">
+    </span><span class="nt">"http://beta.crunch.io/api/projects/6c01/"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+      </span><span class="nt">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Project 2"</span><span class="p">,</span><span class="w">
+      </span><span class="nt">"id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"6c01"</span><span class="p">,</span><span class="w">
+      </span><span class="nt">"icon"</span><span class="p">:</span><span class="w"> </span><span class="s2">""</span><span class="p">,</span><span class="w">
+      </span><span class="nt">"description"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Description of project 2"</span><span class="p">,</span><span class="w">
+      </span><span class="nt">"permissions"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="nt">"view"</span><span class="p">:</span><span class="kc">true</span><span class="p">,</span><span class="w"> </span><span class="nt">"edit"</span><span class="p">:</span><span class="w"> </span><span class="s2">"true"</span><span class="p">}</span><span class="w">
     </span><span class="p">}</span><span class="w">
   </span><span class="p">}</span><span class="w">
 </span><span class="p">}</span><span class="w">
@@ -6431,8 +6764,8 @@ to compose an expression.</p>
     </span><span class="nt">"description"</span><span class="p">:</span><span class="w"> </span><span class="s2">"A list of all the users."</span><span class="p">,</span><span class="w">
     </span><span class="nt">"specification"</span><span class="p">:</span><span class="w"> </span><span class="s2">"https://.../api/specifications/users/"</span><span class="p">,</span><span class="w">
     </span><span class="nt">"orders"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
-        </span><span class="nt">"default"</span><span class="p">:</span><span class="w"> </span><span class="s2">"default_order/"</span><span class="p">,</span><span class="w">
-    </span><span class="err">}</span><span class="p">,</span><span class="w">
+        </span><span class="nt">"default"</span><span class="p">:</span><span class="w"> </span><span class="s2">"default_order/"</span><span class="w">
+    </span><span class="p">},</span><span class="w">
     </span><span class="nt">"index"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
         </span><span class="nt">"2/"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="nt">"active"</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">},</span><span class="w">
         </span><span class="nt">"1/"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="nt">"active"</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="p">},</span><span class="w">
@@ -6499,8 +6832,8 @@ to compose an expression.</p>
     </span><span class="nt">"metadata"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
         </span><span class="nt">"1ef0455"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="nt">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Education"</span><span class="p">,</span><span class="w"> </span><span class="nt">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"categorical"</span><span class="p">,</span><span class="w"> </span><span class="nt">"categories"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="err">...</span><span class="p">],</span><span class="w"> </span><span class="err">...}</span><span class="p">,</span><span class="w">
         </span><span class="nt">"588392a"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="nt">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Favorite color"</span><span class="p">,</span><span class="w"> </span><span class="nt">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"text"</span><span class="p">,</span><span class="w"> </span><span class="err">...}</span><span class="w">
-    </span><span class="p">}</span><span class="w">
-    </span><span class="s2">"data"</span><span class="err">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+    </span><span class="p">},</span><span class="w">
+    </span><span class="nt">"data"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
         </span><span class="nt">"1ef0455"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="mi">6</span><span class="p">,</span><span class="w"> </span><span class="mi">4</span><span class="p">,</span><span class="w"> </span><span class="mi">7</span><span class="p">,</span><span class="w"> </span><span class="mi">7</span><span class="p">,</span><span class="w"> </span><span class="mi">3</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">],</span><span class="w">
         </span><span class="nt">"588392a"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">"green"</span><span class="p">,</span><span class="w"> </span><span class="s2">"red"</span><span class="p">,</span><span class="w"> </span><span class="s2">"blue"</span><span class="p">,</span><span class="w"> </span><span class="s2">"Red"</span><span class="p">,</span><span class="w"> </span><span class="s2">"RED"</span><span class="p">,</span><span class="w"> </span><span class="s2">"pink"</span><span class="p">,</span><span class="w"> </span><span class="s2">" red"</span><span class="p">]</span><span class="w">
     </span><span class="p">}</span><span class="w">
@@ -6575,8 +6908,8 @@ to compose an expression.</p>
     </span><span class="nt">"margins"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
         </span><span class="nt">"data"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="mi">210</span><span class="p">],</span><span class="w">
         </span><span class="nt">"0"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="nt">"data"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="mi">30</span><span class="p">,</span><span class="w"> </span><span class="mi">70</span><span class="p">,</span><span class="w"> </span><span class="mi">110</span><span class="p">]},</span><span class="w">
-        </span><span class="nt">"1"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="nt">"data"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="mi">90</span><span class="p">,</span><span class="w"> </span><span class="mi">120</span><span class="p">]},</span><span class="w">
-    </span><span class="err">}</span><span class="w">
+        </span><span class="nt">"1"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="nt">"data"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="mi">90</span><span class="p">,</span><span class="w"> </span><span class="mi">120</span><span class="p">]}</span><span class="w">
+    </span><span class="p">}</span><span class="w">
 </span><span class="p">}</span><span class="w">
 </span></code></pre>
 
@@ -6625,7 +6958,8 @@ to compose an expression.</p>
 <h6 id="margins">margins</h6>
 
 <p>The &ldquo;margins&rdquo; member is optional. When present, it is a tree of nested margins with one level of depth for each dimension. At the top, we always include the &ldquo;grand total&rdquo; for all dimensions. Then, we include a branch for each axis we &ldquo;unroll&rdquo;. So, for example, for a 3-dimensional cube of X, Y, and Z, the margins member might contain:</p>
-<pre class="highlight json"><code><span class="s2">"margins"</span><span class="err">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+<pre class="highlight json"><code><span class="p">{</span><span class="w"> 
+</span><span class="nt">"margins"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
     </span><span class="nt">"data"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="mi">4526</span><span class="p">],</span><span class="w">
     </span><span class="nt">"0"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
         </span><span class="nt">"data"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="mi">1755</span><span class="p">,</span><span class="w"> </span><span class="mi">2771</span><span class="p">],</span><span class="w">
