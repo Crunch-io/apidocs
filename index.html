@@ -197,7 +197,8 @@ format, plus a CSV of data, and upload those to Crunch, without requiring much
 <span class="s">            "element": "crunch:table",</span>
 <span class="s">            "metadata": {</span>
 <span class="s">                "educ": {"name": "Education", "alias": "educ", "type": "categorical", "categories": [...], ...},</span>
-<span class="s">                "color": {"name": "Favorite color", "alias": "color", "type": "text", ...}</span>
+<span class="s">                "color": {"name": "Favorite color", "alias": "color", "type": "text", ...},</span>
+<span class="s">                "state": {"name": "State", "alias": "state", "view": {"geodata": [{"geodatum": &lt;uri&gt;, "feature_key": "properties.postal-code"}]}}</span>
 <span class="s">            },</span>
 <span class="s">            "order": ["educ", {'my group": "color"}]</span>
 <span class="s">        },</span>
@@ -2640,11 +2641,11 @@ dataset Shoji entity.</p>
 </thead><tbody>
 <tr>
 <td>batches</td>
-<td>Returns all the batches (successful and failed) used for this dataset</td>
+<td>Returns all the batches (successful and failed) used for this dataset. See <a href="#batches">Batches</a>.</td>
 </tr>
 <tr>
 <td>joins</td>
-<td>Contains the list of all the joins available</td>
+<td>Contains the list of all datasets joined to the current dataset. See <a href="#joins">Joins</a>.</td>
 </tr>
 <tr>
 <td>parent</td>
@@ -2652,15 +2653,15 @@ dataset Shoji entity.</p>
 </tr>
 <tr>
 <td>variables</td>
-<td>Catalog of all public variables of this dataset</td>
+<td>Catalog of all public variables of this dataset. See <a href="#variables">Variables</a>.</td>
 </tr>
 <tr>
 <td>actions</td>
-<td>All actions executed for this dataset</td>
+<td>All actions executed on this dataset</td>
 </tr>
 <tr>
 <td>savepoints</td>
-<td>Lists the created versions for this dataset</td>
+<td>Lists the saved versions for this dataset. See <a href="#versions">Versions</a>.</td>
 </tr>
 <tr>
 <td>weight_variables</td>
@@ -2668,7 +2669,7 @@ dataset Shoji entity.</p>
 </tr>
 <tr>
 <td>filters</td>
-<td>Makes available the public and user-created filters</td>
+<td>Makes available the public and user-created filters. See <a href="#filters">Filters</a>.</td>
 </tr>
 <tr>
 <td>multitables</td>
@@ -2676,11 +2677,11 @@ dataset Shoji entity.</p>
 </tr>
 <tr>
 <td>comparisons</td>
-<td>Contains all user&rsquo;s created comparisons</td>
+<td>Contains all available comparisons. See <a href="#comparisons">Comparisons</a>.</td>
 </tr>
 <tr>
 <td>forks</td>
-<td>Returns all the forks created from the dataset in question</td>
+<td>Returns all the forks created from this dataset</td>
 </tr>
 <tr>
 <td>decks</td>
@@ -2688,7 +2689,7 @@ dataset Shoji entity.</p>
 </tr>
 <tr>
 <td>permissions</td>
-<td>Returns the list of all users and teams with access to this dataset</td>
+<td>Returns the list of all users and teams with access to this dataset. See <a href="#permissions">Permissions</a>.</td>
 </tr>
 </tbody></table>
 
@@ -2914,276 +2915,6 @@ in its body. Rows that match the filter expression will be excluded from all vie
  are dropped.</p>
 
 <h5 id="stream">Stream</h5>
-
-<h5 id="decks">Decks</h5>
-
-<p><code class="prettyprint">/datasets/{id}/decks/</code></p>
-
-<p>Decks allow you to store <a href="#saving-analyses">saved analyses</a> as slides on them
-for exporting or future reference.</p>
-
-<p>Decks are personal per dataset and each dataset gets one by default but it is
-possible to create more as necessary by POSTing to the decks catalog. They
-only need a name.</p>
-
-<h6 id="get">GET</h6>
-
-<p>A GET request on the catalog endpoint will return all the decks available for
-this dataset for the authenticated user, this includes decks created by
-the user and public decks shared for this dataset.</p>
-<pre class="highlight json"><code><span class="p">{</span><span class="w">
-    </span><span class="nt">"element"</span><span class="p">:</span><span class="w"> </span><span class="s2">"shoji:catalog"</span><span class="p">,</span><span class="w">
-    </span><span class="nt">"self"</span><span class="p">:</span><span class="w"> </span><span class="s2">"https://beta.crunch.io/api/datasets/223fd4/decks/"</span><span class="p">,</span><span class="w">
-    </span><span class="nt">"index"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
-        </span><span class="nt">"https://beta.crunch.io/api/datasets/cc9161/decks/4fa25/"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
-          </span><span class="nt">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"my new deck"</span><span class="p">,</span><span class="w">
-          </span><span class="nt">"creation_time"</span><span class="p">:</span><span class="w"> </span><span class="s2">"1986-11-26T12:05:00"</span><span class="p">,</span><span class="w">
-          </span><span class="nt">"id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"4fa25"</span><span class="p">,</span><span class="w">
-          </span><span class="nt">"is_public"</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="p">,</span><span class="w">
-          </span><span class="nt">"owner_id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"https://beta.crunch.io/api/users/abcd3/"</span><span class="p">,</span><span class="w">
-          </span><span class="nt">"owner_name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Real Person"</span><span class="w">
-        </span><span class="p">},</span><span class="w">
-        </span><span class="nt">"https://beta.crunch.io/api/datasets/cc9161/decks/2b53e/"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
-          </span><span class="nt">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Default deck"</span><span class="p">,</span><span class="w">
-          </span><span class="nt">"creation_time"</span><span class="p">:</span><span class="w"> </span><span class="s2">"1987-10-15T11:45:00"</span><span class="p">,</span><span class="w">
-          </span><span class="nt">"id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2b53e"</span><span class="p">,</span><span class="w">
-          </span><span class="nt">"is_public"</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span><span class="w">
-          </span><span class="nt">"owner_id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"https://beta.crunch.io/api/users/4cba5/"</span><span class="p">,</span><span class="w">
-          </span><span class="nt">"owner_name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Other Person"</span><span class="w">
-        </span><span class="p">},</span><span class="w">
-    </span><span class="err">}</span><span class="p">,</span><span class="w">
-    </span><span class="nt">"order"</span><span class="p">:</span><span class="w"> </span><span class="s2">"https://beta.crunch.io/api/datasets/223fd4/decks/order/"</span><span class="w">
-</span><span class="p">}</span><span class="w">
-
-</span></code></pre>
-
-<h6 id="post">POST</h6>
-
-<p>POST will create a new decks for this dataset. It only needs to have
-identifiable name.</p>
-<pre class="highlight json"><code><span class="p">{</span><span class="w">
-    </span><span class="nt">"element"</span><span class="p">:</span><span class="w"> </span><span class="s2">"shoji:entity"</span><span class="p">,</span><span class="w">
-    </span><span class="nt">"self"</span><span class="p">:</span><span class="w"> </span><span class="s2">"https://beta.crunch.io/api/datasets/223fd4/decks/"</span><span class="p">,</span><span class="w">
-    </span><span class="nt">"body"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
-        </span><span class="nt">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"my new deck"</span><span class="w">
-    </span><span class="p">}</span><span class="w">
-</span><span class="p">}</span><span class="w">
-</span></code></pre>
-<pre class="highlight http"><code><span class="k">HTTP</span><span class="o">/</span><span class="m">1.1</span> <span class="m">201</span> <span class="ne">Created</span>
-<span class="na">Location</span><span class="p">:</span> <span class="s">https://beta.crunch.io/api/datasets/223fd4/decks/2b3c5e/</span>
-
-</code></pre>
-
-<h6 id="deck-entity">Deck entity</h6>
-
-<p><code class="prettyprint">/datasets/{id}/decks/{id}/</code></p>
-
-<h6 id="get"># GET</h6>
-
-<p>You can GET on the deck entity to see all its attributes:</p>
-<pre class="highlight json"><code><span class="p">{</span><span class="w">
-    </span><span class="nt">"element"</span><span class="p">:</span><span class="w"> </span><span class="s2">"shoji:entity"</span><span class="p">,</span><span class="w">
-    </span><span class="nt">"self"</span><span class="p">:</span><span class="w"> </span><span class="s2">"https://beta.crunch.io/api/datasets/223fd4/decks/223fd4/"</span><span class="p">,</span><span class="w">
-    </span><span class="nt">"body"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
-        </span><span class="nt">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Presentation deck"</span><span class="p">,</span><span class="w">
-        </span><span class="nt">"id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"223fd4"</span><span class="p">,</span><span class="w">
-        </span><span class="nt">"creation_time"</span><span class="p">:</span><span class="w"> </span><span class="s2">"1987-10-15T11:45:00"</span><span class="p">,</span><span class="w">
-        </span><span class="nt">"description"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Explanation about the deck"</span><span class="p">,</span><span class="w">
-        </span><span class="nt">"id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"223fd4"</span><span class="p">,</span><span class="w">
-        </span><span class="nt">"is_public"</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="p">,</span><span class="w">
-        </span><span class="nt">"owner_id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"https://beta.crunch.io/api/users/abcd3/"</span><span class="p">,</span><span class="w">
-        </span><span class="nt">"owner_name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Real Person"</span><span class="w">
-    </span><span class="p">}</span><span class="w">
-</span><span class="p">}</span><span class="w">
-</span></code></pre>
-
-<h6 id="patch"># PATCH</h6>
-
-<p>In order to change the name or description of a deck you can PATCH a
-shoji:entity to it. The server will return a 204 response.</p>
-<pre class="highlight json"><code><span class="p">{</span><span class="w">
-    </span><span class="nt">"element"</span><span class="p">:</span><span class="w"> </span><span class="s2">"shoji:entity"</span><span class="p">,</span><span class="w">
-    </span><span class="nt">"self"</span><span class="p">:</span><span class="w"> </span><span class="s2">"https://beta.crunch.io/api/datasets/223fd4/decks/223fd4/"</span><span class="p">,</span><span class="w">
-    </span><span class="nt">"body"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
-        </span><span class="nt">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Presentation deck"</span><span class="p">,</span><span class="w">
-        </span><span class="nt">"id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"223fd4"</span><span class="p">,</span><span class="w">
-        </span><span class="nt">"creation_time"</span><span class="p">:</span><span class="w"> </span><span class="s2">"1987-10-15T11:45:00"</span><span class="p">,</span><span class="w">
-        </span><span class="nt">"description"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Explanation about the deck"</span><span class="w">
-    </span><span class="p">}</span><span class="w">
-</span><span class="p">}</span><span class="w">
-</span></code></pre>
-<pre class="highlight http"><code><span class="k">HTTP</span><span class="o">/</span><span class="m">1.1</span> <span class="m">204</span> <span class="ne">No Content</span>
-</code></pre>
-
-<p>Only the following attributes are editable:</p>
-
-<ul>
-<li>name</li>
-<li>description</li>
-<li>is_public</li>
-</ul>
-
-<p>The <code class="prettyprint">is_public</code> attribute is only editable if the authenticated user is the
-owner of the deck.</p>
-
-<h6 id="decks-order">Decks order</h6>
-
-<p><code class="prettyprint">/datasets/{id}/decks/order/</code></p>
-
-<p>The Deck order allows to the user to customize the order in which they will be
-displayed by an API client.</p>
-
-<p>The deck order will always contain all existing decks that are visible to the
-authenticated user, private and public decks.</p>
-
-<h6 id="get"># GET</h6>
-
-<p>Will return a (Shoji Order)[#shoji-order] payload.</p>
-<pre class="highlight json"><code><span class="p">{</span><span class="w">
-  </span><span class="nt">"element"</span><span class="p">:</span><span class="w"> </span><span class="s2">"shoji:order"</span><span class="p">,</span><span class="w">
-  </span><span class="nt">"self"</span><span class="p">:</span><span class="w"> </span><span class="s2">"https://beta.crunch.io/api/datasets/223fd4/decks/order/"</span><span class="p">,</span><span class="w">
-  </span><span class="nt">"graph"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
-    </span><span class="s2">"https://beta.crunch.io/api/datasets/223fd4/decks/1/"</span><span class="p">,</span><span class="w">
-    </span><span class="s2">"https://beta.crunch.io/api/datasets/223fd4/decks/2/"</span><span class="p">,</span><span class="w">
-    </span><span class="s2">"https://beta.crunch.io/api/datasets/223fd4/decks/3/"</span><span class="w">
-  </span><span class="p">]</span><span class="w">
-</span><span class="p">}</span><span class="w">
-
-</span></code></pre>
-
-<h6 id="patch"># PATCH</h6>
-
-<p>It is necessary to do a PATCH request to change the order of the decks. On success the server will return a 204 response.</p>
-
-<p>If the payload contains only a subset of the existing decks. The unmentioned decks will be always appended at the bottom of the top level graph in arbitrary order.</p>
-<pre class="highlight json"><code><span class="p">{</span><span class="w">
-  </span><span class="nt">"element"</span><span class="p">:</span><span class="w"> </span><span class="s2">"shoji:order"</span><span class="p">,</span><span class="w">
-  </span><span class="nt">"self"</span><span class="p">:</span><span class="w"> </span><span class="s2">"https://beta.crunch.io/api/datasets/223fd4/decks/order/"</span><span class="p">,</span><span class="w">
-  </span><span class="nt">"graph"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
-    </span><span class="s2">"https://beta.crunch.io/api/datasets/223fd4/decks/1/"</span><span class="p">,</span><span class="w">
-    </span><span class="s2">"https://beta.crunch.io/api/datasets/223fd4/decks/3/"</span><span class="w">
-  </span><span class="p">]</span><span class="w">
-</span><span class="p">}</span><span class="w">
-</span></code></pre>
-
-<p>Including invalid URLs or URLs to decks that are not present in the catalog will return a 400 response from the server.</p>
-
-<h6 id="slides">Slides</h6>
-
-<p><code class="prettyprint">/datasets/223fd4/decks/slides/</code></p>
-
-<p>Each deck will contain a list of slides for each of its saved analyses.</p>
-
-<h6 id="get"># GET</h6>
-
-<p>Returns a <code class="prettyprint">shoji:catalog</code> with the slides for this deck.</p>
-<pre class="highlight json"><code><span class="w">
-</span><span class="p">{</span><span class="w">
-    </span><span class="nt">"element"</span><span class="p">:</span><span class="w"> </span><span class="s2">"shoji:catalog"</span><span class="p">,</span><span class="w">
-    </span><span class="nt">"self"</span><span class="p">:</span><span class="w"> </span><span class="s2">"/api/datasets/123/decks/123/slides/"</span><span class="p">,</span><span class="w">
-    </span><span class="nt">"orders"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
-        </span><span class="nt">"flat"</span><span class="p">:</span><span class="w"> </span><span class="s2">"/api/datasets/123/decks/123/slides/flat/"</span><span class="w">
-    </span><span class="p">},</span><span class="w">
-    </span><span class="nt">"specification"</span><span class="p">:</span><span class="w"> </span><span class="s2">"https://beta.crunch.io/api/specifications/slides/"</span><span class="p">,</span><span class="w">
-    </span><span class="nt">"description"</span><span class="p">:</span><span class="w"> </span><span class="s2">"A catalog of the Slides in this Deck"</span><span class="p">,</span><span class="w">
-    </span><span class="nt">"index"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
-        </span><span class="nt">"/api/datasets/123/decks/123/slides/123/"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
-            </span><span class="nt">"analysis_url"</span><span class="p">:</span><span class="w"> </span><span class="s2">"/api/datasets/123/decks/123/slides/123/analyses/123/"</span><span class="p">,</span><span class="w">
-            </span><span class="nt">"subtitle"</span><span class="p">:</span><span class="w"> </span><span class="s2">"z"</span><span class="p">,</span><span class="w">
-            </span><span class="nt">"display"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
-                </span><span class="nt">"value"</span><span class="p">:</span><span class="w"> </span><span class="s2">"table"</span><span class="w">
-            </span><span class="p">},</span><span class="w">
-            </span><span class="nt">"title"</span><span class="p">:</span><span class="w"> </span><span class="s2">"slide 1"</span><span class="w">
-        </span><span class="p">},</span><span class="w">
-        </span><span class="nt">"/api/datasets/123/decks/123/slides/456/"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
-            </span><span class="nt">"analysis_url"</span><span class="p">:</span><span class="w"> </span><span class="s2">"/api/datasets/123/decks/123/slides/456/"</span><span class="p">,</span><span class="w">
-            </span><span class="nt">"subtitle"</span><span class="p">:</span><span class="w"> </span><span class="s2">""</span><span class="p">,</span><span class="w">
-            </span><span class="nt">"display"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
-                </span><span class="nt">"value"</span><span class="p">:</span><span class="w"> </span><span class="s2">"table"</span><span class="w">
-            </span><span class="p">},</span><span class="w">
-            </span><span class="nt">"title"</span><span class="p">:</span><span class="w"> </span><span class="s2">"slide 2"</span><span class="w">
-        </span><span class="p">}</span><span class="w">
-    </span><span class="p">},</span><span class="w">
-    </span><span class="nt">"template"</span><span class="p">:</span><span class="w"> </span><span class="s2">"{\"query\": {\"measures\": \"Object with keyed measures functions\", \"dimensions\": \"Array of variable references\", \"weight\": \"Optional weight variable URL\"}, \"display_settings\": {}, \"query_environment\": {\"filter\": \"Array of filter urls\"}}"</span><span class="w">
-</span><span class="p">}</span><span class="w">
-
-</span></code></pre>
-
-<h6 id="post"># POST</h6>
-
-<p>To create a new slide an analysis has to be posted to the catalog. The payload
-is described in the <a href="#saving-analyses">saved analyses</a> section.</p>
-
-<h6 id="slide-entity">Slide Entity</h6>
-
-<p><code class="prettyprint">/datasets/223fd4/decks/slides/a126ce/</code></p>
-
-<p>Each slide in the Slide Catalog contains reference to its analysis.</p>
-
-<h6 id="get"># GET</h6>
-<pre class="highlight json"><code><span class="p">{</span><span class="w">
-    </span><span class="nt">"element"</span><span class="p">:</span><span class="w"> </span><span class="s2">"shoji:entity"</span><span class="p">,</span><span class="w">
-    </span><span class="nt">"self"</span><span class="p">:</span><span class="w"> </span><span class="s2">"/api/datasets/123/decks/123/slides/123/"</span><span class="p">,</span><span class="w">
-    </span><span class="nt">"catalogs"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
-        </span><span class="nt">"analyses"</span><span class="p">:</span><span class="w"> </span><span class="s2">"/api/datasets/123/decks/123/slides/123/analyses/"</span><span class="w">
-    </span><span class="p">},</span><span class="w">
-    </span><span class="nt">"description"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Returns the detail information for a given slide"</span><span class="p">,</span><span class="w">
-    </span><span class="nt">"body"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
-        </span><span class="nt">"deck_id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"123"</span><span class="p">,</span><span class="w">
-        </span><span class="nt">"subtitle"</span><span class="p">:</span><span class="w"> </span><span class="s2">"z"</span><span class="p">,</span><span class="w">
-        </span><span class="nt">"title"</span><span class="p">:</span><span class="w"> </span><span class="s2">"slide 1"</span><span class="p">,</span><span class="w">
-        </span><span class="nt">"analysis_url"</span><span class="p">:</span><span class="w"> </span><span class="s2">"/api/datasets/123/decks/123/slides/123/analyses/123/"</span><span class="p">,</span><span class="w">
-        </span><span class="nt">"display"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
-            </span><span class="nt">"value"</span><span class="p">:</span><span class="w"> </span><span class="s2">"table"</span><span class="w">
-        </span><span class="p">},</span><span class="w">
-        </span><span class="nt">"id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"123"</span><span class="w">
-    </span><span class="p">}</span><span class="w">
-</span><span class="p">}</span><span class="w">
-</span></code></pre>
-
-<h6 id="delete"># DELETE</h6>
-
-<p>Call DELETE on the Slide entity endpoint to delete this slide and its analyses.</p>
-
-<h6 id="slides-order">Slides Order</h6>
-
-<p><code class="prettyprint">/datasets/223fd4/decks/slides/flat/</code></p>
-
-<p>The owner of the deck can pick the order of the slides on it. Unlike other
-<code class="prettyprint">shoji:order</code> resources, this order does not allow grouping or nesting so it
-will always be a flat list of slide URLs.</p>
-
-<h6 id="get"># GET</h6>
-
-<p>Will return the list of all the slides in the deck.</p>
-<pre class="highlight json"><code><span class="p">{</span><span class="w">
-    </span><span class="nt">"element"</span><span class="p">:</span><span class="w"> </span><span class="s2">"shoji:order"</span><span class="p">,</span><span class="w">
-    </span><span class="nt">"self"</span><span class="p">:</span><span class="w"> </span><span class="s2">"/api/datasets/123/decks/123/slides/flat/"</span><span class="p">,</span><span class="w">
-    </span><span class="nt">"description"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Order of the slides on this deck"</span><span class="p">,</span><span class="w">
-    </span><span class="nt">"graph"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
-        </span><span class="s2">"/api/datasets/123/decks/123/slides/123/"</span><span class="p">,</span><span class="w">
-        </span><span class="s2">"/api/datasets/123/decks/123/slides/456/"</span><span class="w">
-    </span><span class="p">]</span><span class="w">
-</span><span class="p">}</span><span class="w">
-</span></code></pre>
-
-<h6 id="patch"># PATCH</h6>
-
-<p>To make changes to the order, a client should PATCH the full <code class="prettyprint">shoji:order</code>
-resource to the endpoint with the new order on its <code class="prettyprint">graph</code> attribute.</p>
-
-<p>Any slide not mentioned on the payload will be added at the end of the graph
-in arbitrary order.</p>
-<pre class="highlight json"><code><span class="p">{</span><span class="w">
-    </span><span class="nt">"element"</span><span class="p">:</span><span class="w"> </span><span class="s2">"shoji:order"</span><span class="p">,</span><span class="w">
-    </span><span class="nt">"self"</span><span class="p">:</span><span class="w"> </span><span class="s2">"/api/datasets/123/decks/123/slides/flat/"</span><span class="p">,</span><span class="w">
-    </span><span class="nt">"description"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Order of the slides on this deck"</span><span class="p">,</span><span class="w">
-    </span><span class="nt">"graph"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
-        </span><span class="s2">"/api/datasets/123/decks/123/slides/123/"</span><span class="p">,</span><span class="w">
-        </span><span class="s2">"/api/datasets/123/decks/123/slides/456/"</span><span class="w">
-    </span><span class="p">]</span><span class="w">
-</span><span class="p">}</span><span class="w">
-</span></code></pre>
 
 <h5 id="preferences">Preferences</h5>
 
@@ -3826,7 +3557,7 @@ previously existing group will be eliminated and any new groups will be added.
 
 <p>Unlike the hierarchical order, the personal variable order returns different
 content per user.
-Each user can add variable references to it including personal variables and 
+Each user can add variable references to it including personal variables and
 will not be shared with other users.</p>
 
 <p>The personal variable order defaults to an empty Shoji order until each user
@@ -4450,7 +4181,517 @@ parameter:</p>
 <pre class="highlight http"><code><span class="nf">GET</span> <span class="nn">/datasets/id/summary/?filter=%7B%22function%22%3A+%22and%22%2C+%22args%22%3A+%5B%7B%22filter%22%3A+%22http%3A%2F%2Fbeta.crunch.io%2Fapi%2Fdatasets%2Fac64ef%2Ffilters%2F28ef72%2F%22%7D%2C+%7B%22function%22%3A+%22%3D%3D%22%2C+%22args%22%3A+%5B%7B%22variable%22%3A+%22http%3A%2F%2Fbeta.crunch.io%2Fapi%2Fdatasets%2Fac64ef%2Fvariables%2Faae3c2%2F%22%7D%2C+%7B%22value%22%3A+1%7D%5D%7D%5D%7D</span> <span class="k">HTTP</span><span class="o">/</span><span class="m">1.1</span>
 </code></pre>
 
-          <h2 id="saving-analyses">Saving analyses</h2>
+          <h2 id="decks">Decks</h2>
+
+<p>Decks allow you to store <a href="#analysis">analyses</a> for future reference or for export.
+Decks correspond to a single dataset, and they are personal to each user unless they have been set as &ldquo;public&rdquo;. Each deck contains a list of slides, and each slide contains analyses.</p>
+
+<h3 id="catalog">Catalog</h3>
+
+<p><code class="prettyprint">/datasets/{id}/decks/</code></p>
+
+<h4 id="get">GET</h4>
+
+<p>A GET request on the catalog endpoint will return all the decks available for
+this dataset for the current user. This includes decks created by
+the user, as well as public decks shared with all users of the dataset.</p>
+<pre class="highlight json"><code><span class="p">{</span><span class="w">
+    </span><span class="nt">"element"</span><span class="p">:</span><span class="w"> </span><span class="s2">"shoji:catalog"</span><span class="p">,</span><span class="w">
+    </span><span class="nt">"self"</span><span class="p">:</span><span class="w"> </span><span class="s2">"https://beta.crunch.io/api/datasets/223fd4/decks/"</span><span class="p">,</span><span class="w">
+    </span><span class="nt">"index"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+        </span><span class="nt">"https://beta.crunch.io/api/datasets/cc9161/decks/4fa25/"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+          </span><span class="nt">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"my new deck"</span><span class="p">,</span><span class="w">
+          </span><span class="nt">"creation_time"</span><span class="p">:</span><span class="w"> </span><span class="s2">"1986-11-26T12:05:00"</span><span class="p">,</span><span class="w">
+          </span><span class="nt">"id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"4fa25"</span><span class="p">,</span><span class="w">
+          </span><span class="nt">"is_public"</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="p">,</span><span class="w">
+          </span><span class="nt">"owner_id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"https://beta.crunch.io/api/users/abcd3/"</span><span class="p">,</span><span class="w">
+          </span><span class="nt">"owner_name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Real Person"</span><span class="w">
+        </span><span class="p">},</span><span class="w">
+        </span><span class="nt">"https://beta.crunch.io/api/datasets/cc9161/decks/2b53e/"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+          </span><span class="nt">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Default deck"</span><span class="p">,</span><span class="w">
+          </span><span class="nt">"creation_time"</span><span class="p">:</span><span class="w"> </span><span class="s2">"1987-10-15T11:45:00"</span><span class="p">,</span><span class="w">
+          </span><span class="nt">"id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2b53e"</span><span class="p">,</span><span class="w">
+          </span><span class="nt">"is_public"</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span><span class="w">
+          </span><span class="nt">"owner_id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"https://beta.crunch.io/api/users/4cba5/"</span><span class="p">,</span><span class="w">
+          </span><span class="nt">"owner_name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Other Person"</span><span class="w">
+        </span><span class="p">}</span><span class="w">
+    </span><span class="p">},</span><span class="w">
+    </span><span class="nt">"order"</span><span class="p">:</span><span class="w"> </span><span class="s2">"https://beta.crunch.io/api/datasets/223fd4/decks/order/"</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre>
+
+<p>The decks catalog tuples contain the following keys:</p>
+
+<table><thead>
+<tr>
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>name</td>
+<td>string</td>
+<td>Human-friendly string identifier</td>
+</tr>
+<tr>
+<td>creation_time</td>
+<td>timestamp</td>
+<td>Time when this deck was created</td>
+</tr>
+<tr>
+<td>id</td>
+<td>string</td>
+<td>Global unique identifier for this deck</td>
+</tr>
+<tr>
+<td>is_public</td>
+<td>boolean</td>
+<td>Indicates whether this is a public deck or not</td>
+</tr>
+<tr>
+<td>owner_id</td>
+<td>url</td>
+<td>Points to the owner of this deck</td>
+</tr>
+<tr>
+<td>owner_name</td>
+<td>string</td>
+<td>Name of the owner of the deck (referred by <code class="prettyprint">owner_id</code>)</td>
+</tr>
+</tbody></table>
+
+<p>To determine if a deck belongs to the current user, check the <code class="prettyprint">owner_id</code> attribute.</p>
+
+<h4 id="post">POST</h4>
+
+<p>POST a shoji:entity to create a new deck for this dataset. The only required body attribute is &ldquo;name&rdquo;; other attributes are optional.</p>
+<pre class="highlight json"><code><span class="p">{</span><span class="w">
+    </span><span class="nt">"element"</span><span class="p">:</span><span class="w"> </span><span class="s2">"shoji:entity"</span><span class="p">,</span><span class="w">
+    </span><span class="nt">"self"</span><span class="p">:</span><span class="w"> </span><span class="s2">"https://beta.crunch.io/api/datasets/223fd4/decks/"</span><span class="p">,</span><span class="w">
+    </span><span class="nt">"body"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+        </span><span class="nt">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"my new deck"</span><span class="p">,</span><span class="w">
+        </span><span class="nt">"description"</span><span class="p">:</span><span class="w"> </span><span class="s2">"This deck will contain analyses for a variable"</span><span class="p">,</span><span class="w">
+        </span><span class="nt">"is_public"</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="w">
+    </span><span class="p">}</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre>
+<pre class="highlight http"><code><span class="k">HTTP</span><span class="o">/</span><span class="m">1.1</span> <span class="m">201</span> <span class="ne">Created</span>
+<span class="na">Location</span><span class="p">:</span> <span class="s">https://beta.crunch.io/api/datasets/223fd4/decks/2b3c5e/</span>
+
+</code></pre>
+
+<p>The <code class="prettyprint">shoji:entity</code> POSTed accepts the following keys</p>
+
+<p>Name | Type | required | Description
+&mdash;- | &mdash;- | &mdash;&mdash;&mdash;&ndash;
+name | string | Yes | Human-friendly string identifier
+description | string | No | Optional longer string with additional notes
+is_public | boolean | No | If <code class="prettyprint">true</code>, all users with view access to this dataset will be able to read and export this deck and its analyses; if <code class="prettyprint">false</code>, the default value, the deck remains private for the current user only.</p>
+
+<h4 id="patch">PATCH</h4>
+
+<p>It is possible to bulk-edit many decks at once by PATCHing a shoji:catalog to
+the decks&rsquo; catalog.</p>
+<pre class="highlight json"><code><span class="p">{</span><span class="w">
+    </span><span class="nt">"element"</span><span class="p">:</span><span class="w"> </span><span class="s2">"shoji:catalog"</span><span class="p">,</span><span class="w">
+    </span><span class="nt">"index"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+        </span><span class="nt">"https://beta.crunch.io/api/datasets/cc9161/decks/4fa25/"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+          </span><span class="nt">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Renamed deck"</span><span class="p">,</span><span class="w">
+          </span><span class="nt">"is_public"</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span><span class="w">
+        </span><span class="err">}</span><span class="w">
+    </span><span class="p">},</span><span class="w">
+    </span><span class="nt">"order"</span><span class="p">:</span><span class="w"> </span><span class="s2">"https://beta.crunch.io/api/datasets/223fd4/decks/order/"</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre>
+
+<p>The following attributes are editable via PATCHing this resource:</p>
+
+<ul>
+<li>name</li>
+<li>description</li>
+<li>is_public</li>
+</ul>
+
+<p>For decks that the current user owns, &ldquo;name&rdquo;, &ldquo;description&rdquo;, and &ldquo;is_public&rdquo; are editable. Users with edit permissions on the dataset may edit &ldquo;name&rdquo; and &ldquo;description&rdquo; of public decks, but they cannot edit &ldquo;is_public&rdquo; unless they own the deck. Other deck attributes are not editable and will respond with 400 status if the request tries to change them.</p>
+
+<p>On success, the server will reply with a 204 response.</p>
+
+<h3 id="entity">Entity</h3>
+
+<p><code class="prettyprint">/datasets/{id}/decks/{id}/</code></p>
+
+<h4 id="get">GET</h4>
+
+<p>GET a deck entity resource to return a shoji:entity with all of its attributes:</p>
+<pre class="highlight json"><code><span class="p">{</span><span class="w">
+    </span><span class="nt">"element"</span><span class="p">:</span><span class="w"> </span><span class="s2">"shoji:entity"</span><span class="p">,</span><span class="w">
+    </span><span class="nt">"self"</span><span class="p">:</span><span class="w"> </span><span class="s2">"https://beta.crunch.io/api/datasets/223fd4/decks/223fd4/"</span><span class="p">,</span><span class="w">
+    </span><span class="nt">"body"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+        </span><span class="nt">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Presentation deck"</span><span class="p">,</span><span class="w">
+        </span><span class="nt">"id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"223fd4"</span><span class="p">,</span><span class="w">
+        </span><span class="nt">"creation_time"</span><span class="p">:</span><span class="w"> </span><span class="s2">"1987-10-15T11:45:00"</span><span class="p">,</span><span class="w">
+        </span><span class="nt">"description"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Explanation about the deck"</span><span class="p">,</span><span class="w">
+        </span><span class="nt">"is_public"</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="p">,</span><span class="w">
+        </span><span class="nt">"owner_id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"https://beta.crunch.io/api/users/abcd3/"</span><span class="p">,</span><span class="w">
+        </span><span class="nt">"owner_name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Real Person"</span><span class="w">
+    </span><span class="p">}</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre>
+
+<table><thead>
+<tr>
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>name</td>
+<td>string</td>
+<td>Human-friendly string identifier</td>
+</tr>
+<tr>
+<td>id</td>
+<td>string</td>
+<td>Global unique identifier for this deck</td>
+</tr>
+<tr>
+<td>creation_time</td>
+<td>timestamp</td>
+<td>Time when this deck was created</td>
+</tr>
+<tr>
+<td>description</td>
+<td>string</td>
+<td>Longer annotations for this deck</td>
+</tr>
+<tr>
+<td>is_public</td>
+<td>boolean</td>
+<td>Indicates whether this is a public deck or not</td>
+</tr>
+<tr>
+<td>owner_id</td>
+<td>url</td>
+<td>Points to the owner of this deck</td>
+</tr>
+<tr>
+<td>owner_name</td>
+<td>string</td>
+<td>Name of the owner of the deck (referred by <code class="prettyprint">owner_id</code>)</td>
+</tr>
+</tbody></table>
+
+<h4 id="patch">PATCH</h4>
+
+<p>To edit a deck, PATCH it with a
+shoji:entity. The server will return a 204 response on success or 400
+if the request is invalid.</p>
+<pre class="highlight json"><code><span class="p">{</span><span class="w">
+    </span><span class="nt">"element"</span><span class="p">:</span><span class="w"> </span><span class="s2">"shoji:entity"</span><span class="p">,</span><span class="w">
+    </span><span class="nt">"self"</span><span class="p">:</span><span class="w"> </span><span class="s2">"https://beta.crunch.io/api/datasets/223fd4/decks/223fd4/"</span><span class="p">,</span><span class="w">
+    </span><span class="nt">"body"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+        </span><span class="nt">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Presentation deck"</span><span class="p">,</span><span class="w">
+        </span><span class="nt">"id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"223fd4"</span><span class="p">,</span><span class="w">
+        </span><span class="nt">"creation_time"</span><span class="p">:</span><span class="w"> </span><span class="s2">"1987-10-15T11:45:00"</span><span class="p">,</span><span class="w">
+        </span><span class="nt">"description"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Explanation about the deck"</span><span class="w">
+    </span><span class="p">}</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre>
+<pre class="highlight http"><code><span class="k">HTTP</span><span class="o">/</span><span class="m">1.1</span> <span class="m">204</span> <span class="ne">No Content</span>
+</code></pre>
+
+<p>As with the catalog, for decks that the current user owns, &ldquo;name&rdquo;, &ldquo;description&rdquo;, and &ldquo;is_public&rdquo; are editable. Users with edit permissions on the dataset may edit &ldquo;name&rdquo; and &ldquo;description&rdquo; of public decks, but they cannot edit &ldquo;is_public&rdquo; unless they own the deck. Other deck attributes are not editable.</p>
+
+<h4 id="delete">DELETE</h4>
+
+<p>To delete a deck, DELETE the deck&rsquo;s entity URL. On success, the server returns
+a 204 response.</p>
+
+<h3 id="order">Order</h3>
+
+<p><code class="prettyprint">/datasets/{id}/decks/order/</code></p>
+
+<p>The deck order resource allows the user to arrange how API clients, such as the web application, will present the deck catalog. The deck order contains all decks that are visible to the current user, both personal and public. Unlike many other
+<code class="prettyprint">shoji:order</code> resources, this order does not allow grouping or nesting: it
+will always be a flat list of slide URLs.</p>
+
+<h4 id="get">GET</h4>
+
+<p>Returns a <a href="#shoji-order">Shoji Order</a> response.</p>
+<pre class="highlight json"><code><span class="p">{</span><span class="w">
+  </span><span class="nt">"element"</span><span class="p">:</span><span class="w"> </span><span class="s2">"shoji:order"</span><span class="p">,</span><span class="w">
+  </span><span class="nt">"self"</span><span class="p">:</span><span class="w"> </span><span class="s2">"https://beta.crunch.io/api/datasets/223fd4/decks/order/"</span><span class="p">,</span><span class="w">
+  </span><span class="nt">"graph"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
+    </span><span class="s2">"https://beta.crunch.io/api/datasets/223fd4/decks/1/"</span><span class="p">,</span><span class="w">
+    </span><span class="s2">"https://beta.crunch.io/api/datasets/223fd4/decks/2/"</span><span class="p">,</span><span class="w">
+    </span><span class="s2">"https://beta.crunch.io/api/datasets/223fd4/decks/3/"</span><span class="w">
+  </span><span class="p">]</span><span class="w">
+</span><span class="p">}</span><span class="w">
+
+</span></code></pre>
+
+<h4 id="patch">PATCH</h4>
+
+<p>PATCH the order resource to change the order of the decks. A 204 response indicates success.</p>
+
+<p>If the PATCH payload contains only a subset of available decks, those
+decks not referenced will be appended at the bottom of the top level graph in arbitrary
+order.</p>
+<pre class="highlight json"><code><span class="p">{</span><span class="w">
+  </span><span class="nt">"element"</span><span class="p">:</span><span class="w"> </span><span class="s2">"shoji:order"</span><span class="p">,</span><span class="w">
+  </span><span class="nt">"self"</span><span class="p">:</span><span class="w"> </span><span class="s2">"https://beta.crunch.io/api/datasets/223fd4/decks/order/"</span><span class="p">,</span><span class="w">
+  </span><span class="nt">"graph"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
+    </span><span class="s2">"https://beta.crunch.io/api/datasets/223fd4/decks/1/"</span><span class="p">,</span><span class="w">
+    </span><span class="s2">"https://beta.crunch.io/api/datasets/223fd4/decks/3/"</span><span class="w">
+  </span><span class="p">]</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre>
+
+<p>Including invalid URLs, such as URLs of decks that are not present in the catalog, will
+ return a 400 response from the server.</p>
+
+<p>The deck order should always be a flat list of URLs. Nesting or grouping is not
+supported by the web application. Server will return a 400 response if the order supplied in the PATCH request has nesting.</p>
+
+<h2 id="slides">Slides</h2>
+
+<p>Each deck contains a catalog of slides into which analyses are saved.</p>
+
+<h3 id="catalog">Catalog</h3>
+
+<p><code class="prettyprint">/datasets/{id}/decks/{deck_id}/slides/</code></p>
+
+<h4 id="get">GET</h4>
+
+<p>Returns a <code class="prettyprint">shoji:catalog</code> with the slides for this deck.</p>
+<pre class="highlight json"><code><span class="w">
+</span><span class="p">{</span><span class="w">
+    </span><span class="nt">"element"</span><span class="p">:</span><span class="w"> </span><span class="s2">"shoji:catalog"</span><span class="p">,</span><span class="w">
+    </span><span class="nt">"self"</span><span class="p">:</span><span class="w"> </span><span class="s2">"https://beta.crunch.io/api/datasets/123/decks/123/slides/"</span><span class="p">,</span><span class="w">
+    </span><span class="nt">"orders"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+        </span><span class="nt">"flat"</span><span class="p">:</span><span class="w"> </span><span class="s2">"https://beta.crunch.io/api/datasets/123/decks/123/slides/flat/"</span><span class="w">
+    </span><span class="p">},</span><span class="w">
+    </span><span class="nt">"specification"</span><span class="p">:</span><span class="w"> </span><span class="s2">"https://beta.crunch.io/api/specifications/slides/"</span><span class="p">,</span><span class="w">
+    </span><span class="nt">"description"</span><span class="p">:</span><span class="w"> </span><span class="s2">"A catalog of the Slides in this Deck"</span><span class="p">,</span><span class="w">
+    </span><span class="nt">"index"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+        </span><span class="nt">"https://beta.crunch.io/api/datasets/123/decks/123/slides/123/"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+            </span><span class="nt">"analysis_url"</span><span class="p">:</span><span class="w"> </span><span class="s2">"https://beta.crunch.io/api/datasets/123/decks/123/slides/123/analyses/123/"</span><span class="p">,</span><span class="w">
+            </span><span class="nt">"subtitle"</span><span class="p">:</span><span class="w"> </span><span class="s2">"z"</span><span class="p">,</span><span class="w">
+            </span><span class="nt">"display"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+                </span><span class="nt">"value"</span><span class="p">:</span><span class="w"> </span><span class="s2">"table"</span><span class="w">
+            </span><span class="p">},</span><span class="w">
+            </span><span class="nt">"title"</span><span class="p">:</span><span class="w"> </span><span class="s2">"slide 1"</span><span class="w">
+        </span><span class="p">},</span><span class="w">
+        </span><span class="nt">"https://beta.crunch.io/api/datasets/123/decks/123/slides/456/"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+            </span><span class="nt">"analysis_url"</span><span class="p">:</span><span class="w"> </span><span class="s2">"https://beta.crunch.io/api/datasets/123/decks/123/slides/456/"</span><span class="p">,</span><span class="w">
+            </span><span class="nt">"subtitle"</span><span class="p">:</span><span class="w"> </span><span class="s2">""</span><span class="p">,</span><span class="w">
+            </span><span class="nt">"display"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+                </span><span class="nt">"value"</span><span class="p">:</span><span class="w"> </span><span class="s2">"table"</span><span class="w">
+            </span><span class="p">},</span><span class="w">
+            </span><span class="nt">"title"</span><span class="p">:</span><span class="w"> </span><span class="s2">"slide 2"</span><span class="w">
+        </span><span class="p">}</span><span class="w">
+    </span><span class="p">}</span><span class="w">
+</span><span class="p">}</span><span class="w">
+
+</span></code></pre>
+
+<p>Each tuple on the slides catalog contains the following keys:</p>
+
+<table><thead>
+<tr>
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>analysis_url</td>
+<td>url</td>
+<td>Points to the first (and typically only) analysis contained on this slide</td>
+</tr>
+<tr>
+<td>title</td>
+<td>string</td>
+<td>Optional title for the slide</td>
+</tr>
+<tr>
+<td>subtitle</td>
+<td>string</td>
+<td>Optional subtitle for the slide</td>
+</tr>
+<tr>
+<td>display</td>
+<td>object</td>
+<td>Stores settings used to load the analysis</td>
+</tr>
+</tbody></table>
+
+<h4 id="post">POST</h4>
+
+<p>To create a new slide, POST an analysis to the slides catalog. The payload, described in the <a href="#analyses">below</a> section, should be wrapped as a shoji:entity.</p>
+
+<p>On success, the server returns a 201 response with a Location header containing the URL of the newly created slide entity.</p>
+
+<p>Only a <code class="prettyprint">query</code> field is required to create a new slide; other attributes are optional.</p>
+
+<table><thead>
+<tr>
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>query</td>
+<td>object</td>
+<td>Contains a valid analysis query, required</td>
+</tr>
+<tr>
+<td>title</td>
+<td>string</td>
+<td>Optional title for the slide</td>
+</tr>
+<tr>
+<td>subtitle</td>
+<td>string</td>
+<td>Optional subtitle for the slide</td>
+</tr>
+<tr>
+<td>display_settings</td>
+<td>object</td>
+<td>Contains a set of attribtues to be interpreted by the client to render and export the analysis</td>
+</tr>
+<tr>
+<td>query_environment</td>
+<td>object</td>
+<td>Contains the <code class="prettyprint">weight</code> and <code class="prettyprint">filter</code> applied during the analysis, they will be applied up on future evaluation/render/export</td>
+</tr>
+</tbody></table>
+
+<h4 id="patch">PATCH</h4>
+
+<p>It is possible to bulk-edit several slides at once by PATCHing a shoji:catalog
+to this endpoint.</p>
+
+<p>The only editable attributes with this method are:</p>
+
+<ul>
+<li>title</li>
+<li>subtitle</li>
+</ul>
+
+<p>Other attributes should be considered read-only.</p>
+
+<p>Submitting invalid attributes or references to other slides results in a 400 error response.</p>
+
+<h3 id="entity">Entity</h3>
+
+<p><code class="prettyprint">/datasets/223fd4/decks/slides/a126ce/</code></p>
+
+<p>Each slide in the Slide Catalog contains reference to its first analysis.</p>
+
+<h4 id="get">GET</h4>
+<pre class="highlight json"><code><span class="p">{</span><span class="w">
+    </span><span class="nt">"element"</span><span class="p">:</span><span class="w"> </span><span class="s2">"shoji:entity"</span><span class="p">,</span><span class="w">
+    </span><span class="nt">"self"</span><span class="p">:</span><span class="w"> </span><span class="s2">"/api/datasets/123/decks/123/slides/123/"</span><span class="p">,</span><span class="w">
+    </span><span class="nt">"catalogs"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+        </span><span class="nt">"analyses"</span><span class="p">:</span><span class="w"> </span><span class="s2">"/api/datasets/123/decks/123/slides/123/analyses/"</span><span class="w">
+    </span><span class="p">},</span><span class="w">
+    </span><span class="nt">"description"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Returns the detail information for a given slide"</span><span class="p">,</span><span class="w">
+    </span><span class="nt">"body"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+        </span><span class="nt">"deck_id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"123"</span><span class="p">,</span><span class="w">
+        </span><span class="nt">"subtitle"</span><span class="p">:</span><span class="w"> </span><span class="s2">"z"</span><span class="p">,</span><span class="w">
+        </span><span class="nt">"title"</span><span class="p">:</span><span class="w"> </span><span class="s2">"slide 1"</span><span class="p">,</span><span class="w">
+        </span><span class="nt">"analysis_url"</span><span class="p">:</span><span class="w"> </span><span class="s2">"/api/datasets/123/decks/123/slides/123/analyses/123/"</span><span class="p">,</span><span class="w">
+        </span><span class="nt">"display"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+            </span><span class="nt">"value"</span><span class="p">:</span><span class="w"> </span><span class="s2">"table"</span><span class="w">
+        </span><span class="p">},</span><span class="w">
+        </span><span class="nt">"id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"123"</span><span class="w">
+    </span><span class="p">}</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre>
+
+<h4 id="delete">DELETE</h4>
+
+<p>Perform a DELETE request on the Slide entity resource to delete the slide and its analyses.</p>
+
+<h4 id="patch">PATCH</h4>
+
+<p>It is possible to edit a slide entity by PATCHing with a shoji:entity.</p>
+
+<p>The editable attributes are:</p>
+
+<ul>
+<li>title</li>
+<li>subtitle</li>
+</ul>
+
+<p>The other attributes are considered read-only.</p>
+
+<h3 id="order">Order</h3>
+
+<p><code class="prettyprint">/datasets/223fd4/decks/slides/flat/</code></p>
+
+<p>The owner of the deck can specify the order of its slides. As with deck order, the slide order must be a flat list of slide URLs.</p>
+
+<h4 id="get">GET</h4>
+
+<p>Returns the list of all the slides in the deck.</p>
+<pre class="highlight json"><code><span class="p">{</span><span class="w">
+    </span><span class="nt">"element"</span><span class="p">:</span><span class="w"> </span><span class="s2">"shoji:order"</span><span class="p">,</span><span class="w">
+    </span><span class="nt">"self"</span><span class="p">:</span><span class="w"> </span><span class="s2">"/api/datasets/123/decks/123/slides/flat/"</span><span class="p">,</span><span class="w">
+    </span><span class="nt">"description"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Order of the slides on this deck"</span><span class="p">,</span><span class="w">
+    </span><span class="nt">"graph"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
+        </span><span class="s2">"/api/datasets/123/decks/123/slides/123/"</span><span class="p">,</span><span class="w">
+        </span><span class="s2">"/api/datasets/123/decks/123/slides/456/"</span><span class="w">
+    </span><span class="p">]</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre>
+
+<h4 id="patch">PATCH</h4>
+
+<p>To make changes to the order, a client should PATCH the full <code class="prettyprint">shoji:order</code>
+resource to the endpoint with the new order on its <code class="prettyprint">graph</code> attribute.</p>
+
+<p>Any slide not mentioned on the payload will be added at the end of the graph
+in arbitrary order.</p>
+<pre class="highlight json"><code><span class="p">{</span><span class="w">
+    </span><span class="nt">"element"</span><span class="p">:</span><span class="w"> </span><span class="s2">"shoji:order"</span><span class="p">,</span><span class="w">
+    </span><span class="nt">"self"</span><span class="p">:</span><span class="w"> </span><span class="s2">"/api/datasets/123/decks/123/slides/flat/"</span><span class="p">,</span><span class="w">
+    </span><span class="nt">"description"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Order of the slides on this deck"</span><span class="p">,</span><span class="w">
+    </span><span class="nt">"graph"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
+        </span><span class="s2">"/api/datasets/123/decks/123/slides/123/"</span><span class="p">,</span><span class="w">
+        </span><span class="s2">"/api/datasets/123/decks/123/slides/456/"</span><span class="w">
+    </span><span class="p">]</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre>
+
+<p>This is a flat order: grouping or nesting is not allowed. PATCHing with a nested order will generate a 400 response.</p>
+
+<h2 id="analysis">Analysis</h2>
+
+<p>Each slide contains one or more analyses. An analysis &ndash; a table or graph with some specific combination of variables
+defining measures, rows, columns, and tabs; settings such as percentage
+direction and decimal places &ndash; can be saved to a <em>deck</em>, which can then be
+exported, or the analysis can be reloaded in whole in the application or even
+exported as a standalone embeddable result.</p>
+
+<p>An analysis is defined by a <em>query</em>, <em>query environment</em>, and <em>display settings</em>.
+To save an analysis, <code class="prettyprint">POST</code> these to a deck.</p>
+
+<aside class="notice">
+Analysis queries are described in detail in the
+[feature guide](#multidimensional-analysis). [Filters](#filters) may contain a
+mix of stored filters or expressions. Expressions may contain an optional
+`name` which may be used to label results.
+</aside>
+
+<p>Display settings can be anything a client may need to reproduce the view of the
+data returned from the query. The settings the Crunch web client uses are shown
+here, but other clients are free to store other attributes as they see fit.
+Display settings should be objects with a <code class="prettyprint">value</code> member.</p>
 <pre class="highlight json"><code><span class="p">{</span><span class="w">
     </span><span class="nt">"query"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
         </span><span class="nt">"dimensions"</span><span class="w"> </span><span class="p">:</span><span class="w"> </span><span class="p">[],</span><span class="w">
@@ -4483,15 +4724,139 @@ parameter:</p>
 </span><span class="p">}</span><span class="w">
 </span></code></pre>
 
-<blockquote>
-<p>Analysis queries are described in detail in the <a href="#multidimensional-analysis">feature guide</a>. <a href="#filters">Filters</a> may contain a mix of stored filters or expressions. Expressions may contain an optional <code class="prettyprint">name</code> which may be used to label results.</p>
-</blockquote>
+<table><thead>
+<tr>
+<th>Name</th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>query</td>
+<td>Includes the query body for this analysis</td>
+</tr>
+<tr>
+<td>query_environment</td>
+<td>An object with a <code class="prettyprint">weight</code> and <code class="prettyprint">filters</code> to be used for rendering/evaluating this analysis</td>
+</tr>
+<tr>
+<td>display_settings</td>
+<td>An object containing client specific instructions on how to recreate the analysis</td>
+</tr>
+</tbody></table>
 
-<p>An analysis &ndash; a table or graph with some specific combination of variables defining measures, rows, columns, and tabs; settings such as percentage direction and decimal places &ndash; can be saved to a <em>deck</em> which can then be exported, or the analysis can be reloaded in whole in the application or even exported as a standalone embeddable result.</p>
+<h3 id="patch">PATCH</h3>
 
-<p>An analysis is defined by a <em>query</em>, <em>query environment</em>, and <em>display settings</em>. To save an analysis, <code class="prettyprint">POST</code> these to a deck (each user of each dataset has their own &ldquo;main deck&rdquo;).</p>
+<p>To edit an analysis, PATCH its URL with a shoji:entity.</p>
 
-<p>Display settings can be anything a client may need to reproduce the view of the data returned from the query. The settings the Crunch web client uses are shown here, but other clients are free to store other attributes as they see fit. Display settings should be objects with a <code class="prettyprint">value</code> member.</p>
+<p>The editable attributes are:</p>
+
+<ul>
+<li>query</li>
+<li>query_environment</li>
+<li>display_settings</li>
+</ul>
+
+<p>Providing invalid values for those attributes or extra attributes will be rejected with a 400 response from the server.</p>
+
+<h3 id="delete">DELETE</h3>
+
+<p>It is possible to delete analyses from a slide as long as there is always
+one analysis left.</p>
+
+<p>Attempting to delete the last analysis of a slide will cause a 409 response
+from the server indicating the problem.</p>
+
+          <h2 id="geodata">Geodata</h2>
+
+<p>Geodata allow you to associate a variable with features in a FeatureCollection
+of geojson or topojson.</p>
+
+<h3 id="catalog">Catalog</h3>
+
+<p><code class="prettyprint">/geodata/</code></p>
+
+<h4 id="get">GET</h4>
+
+<p>Crunch maintains a few geojson/topojson resources and publishes them on CDN.
+GET the catalog <a href="https://beta.crunch.io/api/geodata/">https://beta.crunch.io/api/geodata/</a> for an index of available
+geographies, each of which then includes a location to download the actual
+geojson or topojson.</p>
+<pre class="highlight json"><code><span class="p">{</span><span class="w">
+    </span><span class="nt">"element"</span><span class="p">:</span><span class="w"> </span><span class="s2">"shoji:catalog"</span><span class="p">,</span><span class="w">
+    </span><span class="nt">"self"</span><span class="p">:</span><span class="w"> </span><span class="s2">"https://beta.crunch.io/api/geodata/"</span><span class="p">,</span><span class="w">
+    </span><span class="nt">"index"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+        </span><span class="nt">"https://beta.crunch.io/api/geodata/7ae898e210b04a9a8992314452c6677b/"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+            </span><span class="nt">"description"</span><span class="p">:</span><span class="w"> </span><span class="s2">"use properties.name or properties.postal-code"</span><span class="p">,</span><span class="w">
+            </span><span class="nt">"created"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2016-07-08T16:33:44.601000+00:00"</span><span class="p">,</span><span class="w">
+            </span><span class="nt">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"US States GeoJSON Name + Postal Code"</span><span class="p">,</span><span class="w">
+            </span><span class="nt">"location"</span><span class="p">:</span><span class="w"> </span><span class="s2">"https://s.crunch.io/geodata/leafletjs/us-states.geojson"</span><span class="p">,</span><span class="w">
+            </span><span class="nt">"id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"7ae898e210b04a9a8992314452c6677b"</span><span class="w">
+        </span><span class="p">}</span><span class="w">
+    </span><span class="p">}</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre>
+
+<p>The geodata catalog tuples contain the following keys:</p>
+
+<table><thead>
+<tr>
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>name</td>
+<td>string</td>
+<td>Human-friendly string identifier</td>
+</tr>
+<tr>
+<td>created</td>
+<td>timestamp</td>
+<td>Time when the item was created</td>
+</tr>
+<tr>
+<td>id</td>
+<td>string</td>
+<td>Global unique identifier for this deck</td>
+</tr>
+<tr>
+<td>location</td>
+<td>uri</td>
+<td>Location of crunch-curated geojson/topojson file. Users may need to inspect this actual file to learn about details of the FeatureCollection and individual Features.</td>
+</tr>
+<tr>
+<td>description</td>
+<td>string</td>
+<td>Any additional information about the geodatum</td>
+</tr>
+</tbody></table>
+
+<h3 id="geodata-for-common-applications">Geodata for common applications</h3>
+
+<ul>
+<li><a href="https://beta.crunch.io/api/geodata/7ae898e210b04a9a8992314452c6677b/">https://beta.crunch.io/api/geodata/7ae898e210b04a9a8992314452c6677b/</a>
+<strong>US States</strong> –
+Use <code class="prettyprint">properties.name</code> or <code class="prettyprint">properties.postal-code</code> as your <code class="prettyprint">feature_key</code> depending on the variable (state name or abbreviation), or <code class="prettyprint">id</code> is FIPS code.</li>
+<li><a href="https://beta.crunch.io/api/geodata/8f9f5fed101042c4815d2dd1fd248cec/">https://beta.crunch.io/api/geodata/8f9f5fed101042c4815d2dd1fd248cec/</a>
+<strong>World</strong> –
+<code class="prettyprint">properties</code> include ISO3166 <code class="prettyprint">name</code> as well as ISO3166-1 Alpha-3 <code class="prettyprint">abbrev</code></li>
+<li><a href="https://beta.crunch.io/api/geodata/2b64724ce81c41c9bdc2436fb0bf6026/">https://beta.crunch.io/api/geodata/2b64724ce81c41c9bdc2436fb0bf6026/</a>
+<strong>UK Regions</strong> –
+<code class="prettyprint">properties.EER13NM</code> matches a YouGov stylization of United Kingdom region names.</li>
+</ul>
+
+<h3 id="associating-variables-with-geodata">Associating Variables with Geodata</h3>
+
+<p>To make maps with variables, update a variable’s <code class="prettyprint">view</code> (or include with metadata at creation) as follows, where
+<code class="prettyprint">feature_key</code> is key defined for each Feature in the geojson/topojson that matches the relevant field on the
+variable at hand (generally category <code class="prettyprint">name</code>s).</p>
+<pre class="highlight json"><code><span class="p">{</span><span class="nt">"view"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nt">"geodata"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
+        </span><span class="p">{</span><span class="nt">"geodatum"</span><span class="p">:</span><span class="w"> </span><span class="s2">"&lt;uri&gt;"</span><span class="p">,</span><span class="w">
+         </span><span class="nt">"feature_key"</span><span class="p">:</span><span class="w"> </span><span class="s2">"properties.name"</span><span class="p">}</span><span class="w">
+    </span><span class="p">]}</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre>
 
           <h2 id="tab-books">Tab books</h2>
 
@@ -4530,6 +4895,128 @@ generated regardless of the status of any other pending exports.</p>
     </span><span class="nt">"value"</span><span class="p">:</span><span class="w"> </span><span class="s2">"https://beta.crunch.io/api/progress/5be83a/"</span><span class="w">
 </span><span class="p">}</span><span class="w">
 </span></code></pre>
+
+<h4 id="endpoint-parameters">Endpoint Parameters</h4>
+
+<p>At the top level, the tab book endpoint can take filtering and variable limiting parameters.</p>
+
+<table><thead>
+<tr>
+<th>Name</th>
+<th>Type</th>
+<th>Default</th>
+<th>Description</th>
+<th>Example</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>filter</td>
+<td>object</td>
+<td>None</td>
+<td>Filter by Crunch Expression.  Variables used in the filter should be fully-expressed urls.</td>
+<td>[{&ldquo;filter&rdquo;:&ldquo;https://beta.crunch.io/api/datasets/45fc0d5ca0a945dab7d05444efa3310a/filters/5f14133582f34b8b85b408830f4b4a9b/&rdquo;}]</td>
+</tr>
+<tr>
+<td>where</td>
+<td>object</td>
+<td>None</td>
+<td>Crunch Expression signifying which variables to use</td>
+<td>{<br>&ldquo;function&rdquo;: &ldquo;select&rdquo;,<br>&ldquo;args&rdquo;: [<br>{<br>&ldquo;map&rdquo;: {<br>&ldquo;https://beta.crunch.io/api/datasets/45fc0d5ca0a945dab7d05444efa3310a/variables/000004/&rdquo;: {<br>&ldquo;variable&rdquo;: &ldquo;https://beta.crunch.io/api/datasets/45fc0d5ca0a945dab7d05444efa3310a/variables/000004/&rdquo;<br>},<br>&ldquo;https://beta.crunch.io/api/datasets/45fc0d5ca0a945dab7d05444efa3310a/variables/000003/&rdquo;: {<br>&ldquo;variable&rdquo;: &ldquo;https://beta.crunch.io/api/datasets/45fc0d5ca0a945dab7d05444efa3310a/variables/000003/&rdquo;<br>}<br>}<br>}<br>]<br>}</td>
+</tr>
+<tr>
+<td>options</td>
+<td>object</td>
+<td>{}</td>
+<td>further options defining the tabbook output.</td>
+<td></td>
+</tr>
+</tbody></table>
+
+<h5 id="options">Options</h5>
+
+<p>Options for generating tab books</p>
+
+<table><thead>
+<tr>
+<th>Name</th>
+<th>Type</th>
+<th>Default</th>
+<th>Description</th>
+<th>Example</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>display_settings</td>
+<td>object</td>
+<td>{}</td>
+<td>a set of settings to define how the output should be displayed</td>
+<td>See Below.</td>
+</tr>
+<tr>
+<td>weight</td>
+<td>url</td>
+<td>None</td>
+<td>&ldquo;&quot;http://beta.crunch.io/api/datasets/45fc0d5ca0a945dab7d05444efa3310a/variables/5f14133582f34b8b85b408830f4b4a9b/&rdquo;</td>
+<td></td>
+</tr>
+</tbody></table>
+
+<h6 id="display-settings">Display Settings</h6>
+
+<p>Further tab book viewing options.</p>
+
+<table><thead>
+<tr>
+<th>Name</th>
+<th>Type</th>
+<th>Default</th>
+<th>Description</th>
+<th>Example</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>decimalPlaces</td>
+<td>object</td>
+<td>0</td>
+<td>number of decimal places to diaplay</td>
+<td>{&ldquo;value&rdquo;: 0}</td>
+</tr>
+<tr>
+<td>vizType</td>
+<td>object</td>
+<td>table</td>
+<td>Visialization Type</td>
+<td>{value:table},</td>
+</tr>
+<tr>
+<td>countsOrPercents</td>
+<td>object</td>
+<td>percent</td>
+<td>use counts or percents</td>
+<td>{value:percent}</td>
+</tr>
+<tr>
+<td>percentageDirection</td>
+<td>object</td>
+<td>row or column based percents</td>
+<td></td>
+<td>{value:colPct}</td>
+</tr>
+<tr>
+<td>slicesOrGroups</td>
+<td>object</td>
+<td>groups</td>
+<td>slices or groups</td>
+<td>{value:groups}</td>
+</tr>
+<tr>
+<td>valuesAreMeans</td>
+<td>object</td>
+<td>false</td>
+<td>are values means?</td>
+<td>{value:false}</td>
+</tr>
+</tbody></table>
 
           <h2 id="comparisons">Comparisons</h2>
 
@@ -6227,8 +6714,8 @@ Only the project&rsquo;s editors can make these changes.</p>
 <h3 id="shoji-entity">Shoji entity</h3>
 
 <p>A Shoji entity is identified by the <code class="prettyprint">element</code> key having value <code class="prettyprint">shoji:entity</code>.
-Its principal attribute is the <code class="prettyprint">body</code> key wich is an object containing the 
-attributes that describe such entity.</p>
+Its principal attribute is the <code class="prettyprint">body</code> key, which is an object containing the
+attributes that describe the entity.</p>
 
 <h3 id="shoji-catalog">Shoji Catalog</h3>
 
@@ -6248,16 +6735,16 @@ object.</p>
 
 <h3 id="shoji-order">Shoji Order</h3>
 
-<p>Shoji orders are identified by the <code class="prettyprint">element</code> key having a value <code class="prettyprint">shoji:order</code>. 
-Their principal attribute is the <code class="prettyprint">graph</code> key which is an array containing the 
+<p>Shoji orders are identified by the <code class="prettyprint">element</code> key having a value <code class="prettyprint">shoji:order</code>.
+Their principal attribute is the <code class="prettyprint">graph</code> key which is an array containing the
 order of present resources.</p>
 
-<p>A shoji order may be associated to a catalog. In such case it will contain a 
-subset or totality of the entities present in the catalog. The catalog remains 
+<p>A shoji order may be associated to a catalog. In such case it will contain a
+subset or totality of the entities present in the catalog. The catalog remains
 as the authoritative source of available entities.</p>
 
-<p>Any entity not present on the order but present in the catalog should be 
-considered to belong at the bottom of the root of the graph in an arbitrary 
+<p>Any entity not present on the order but present in the catalog should be
+considered to belong at the bottom of the root of the graph in an arbitrary
 order.</p>
 
 <h2 id="statistical-data">Statistical data</h2>
@@ -6422,13 +6909,13 @@ selected: (optional) boolean indicating whether this category corresponds to a s
 <h5 id="subvariables">subvariables</h5>
 
 <p>Multiple Response and Categorical Array variables contain an array of subvariable
- references. In the HTTP API, these are presented as URLs. To create a variable 
- of type &ldquo;multiple_response&rdquo; or &ldquo;categorical_array&rdquo;, you must include a 
- &ldquo;subvariables&rdquo; member with an array of subvariable references. These variables 
+ references. In the HTTP API, these are presented as URLs. To create a variable
+ of type &ldquo;multiple_response&rdquo; or &ldquo;categorical_array&rdquo;, you must include a
+ &ldquo;subvariables&rdquo; member with an array of subvariable references. These variables
  will become the subvariables in the new array variable.</p>
 
 <p>Like Categories, the array of subvariables within an array variable indicate
- the order in which they are presented; to reorder them, save a modified array 
+ the order in which they are presented; to reorder them, save a modified array
  of subvariable references.</p>
 
 <p>The shape of each subvariable member must contain a name and optionally an alias.
@@ -6485,6 +6972,7 @@ They will be created with the matching type according to the parent array.</p>
 <li>include_missing: For categorical types only. If true, include missing categories.</li>
 <li>column_width: For &ldquo;untyped&rdquo; Variables only. The selected display width of column data, in pixels, or None.</li>
 <li>include_noneoftheabove: For multipleresponse types only. If true, display a &ldquo;none of the above&rdquo; category in the requested summary or analysis.</li>
+<li>geodata: A list of associations of a variable to Crunch geodatm entities. PATCH a variable entity amending the <code class="prettyprint">view.geodata</code> in order to create, modify, or remove an association. An association is an object with required keys <code class="prettyprint">geodatum</code>, <code class="prettyprint">feature_key</code>, and optional <code class="prettyprint">match_field</code>. The geodatum must exist; <code class="prettyprint">feature_key</code> is the name of the property of each ‘feature’ in the geojson/topojson that corresponds to the <code class="prettyprint">match_field</code> of the variable (perhaps a dotted string for nested properties; e.g. ”properties.postal-code”). By default, <code class="prettyprint">match_field</code> is “name”: a categorical variable will match category names to the <code class="prettyprint">feature_key</code> present in the given geodatum.</li>
 </ul>
 
 <h5 id="discarded">discarded</h5>
