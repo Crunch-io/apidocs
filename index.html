@@ -3535,9 +3535,13 @@ values. It provides granular control over the rows and columns for each dataset.
 <h4 id="get">GET</h4>
 
 <p>When authenticated, GET returns a 200 status with a Shoji Table of the 
-dataset&rsquo;s data. It will expose all the variables that are visible by the authenticated
-user (Public + privates created by them) as well as the exclusion filter 
-applied (if any).</p>
+dataset&rsquo;s data. It will expose all the variables that are visible by the 
+authenticated user (Public + personals created by them if requested) as 
+well as the exclusion filter applied (if any).</p>
+
+<p>To include the personal variables on the output table the client should
+include the <code class="prettyprint">include_personal</code> GET parameter on the request with a True 
+value.</p>
 
 <p>A <code class="prettyprint">metadata</code> section contains the definitions of all the variables matched
 by variable ID with the corresponding entry under <code class="prettyprint">data</code>.</p>
@@ -5491,6 +5495,497 @@ generated regardless of the status of any other pending exports.</p>
 <td>{value:false}</td>
 </tr>
 </tbody></table>
+
+          <h2 id="xlsx">Xlsx</h2>
+
+<p>The <code class="prettyprint">xlsx</code> endpoint takes as input a prepared table (intended for use with
+multitables) and returns an xlsx file, with some basic formatting conventions.</p>
+
+<p>A POST request to <code class="prettyprint">/api/xlsx/</code> will return an xlsx file directly, with
+correct content-disposition and type headers.</p>
+
+<h4 id="post">POST</h4>
+<pre class="highlight http"><code><span class="nf">POST</span> <span class="nn">/api/xlsx/</span> <span class="k">HTTP</span><span class="o">/</span><span class="m">1.1</span>
+</code></pre>
+
+<hr>
+<pre class="highlight http"><code><span class="k">HTTP</span><span class="o">/</span><span class="m">1.1</span> <span class="m">200</span> <span class="ne">OK</span>
+<span class="na">Content-Disposition</span><span class="p">:</span> <span class="s">attachment; filename=Crunch-export.xlsx</span>
+<span class="na">Content-Type</span><span class="p">:</span> <span class="s">application/vnd.openxmlformats-officedocument.spreadsheetml.sheet</span>
+</code></pre>
+<pre class="highlight json"><code><span class="p">{</span><span class="w">
+    </span><span class="nt">"element"</span><span class="p">:</span><span class="w"> </span><span class="s2">"shoji:entity"</span><span class="p">,</span><span class="w">
+    </span><span class="nt">"body"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+        </span><span class="nt">"result"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
+            </span><span class="p">{</span><span class="w">
+                </span><span class="nt">"rows"</span><span class="p">:</span><span class="w"> </span><span class="p">[],</span><span class="w">
+                </span><span class="nt">"etc."</span><span class="p">:</span><span class="w"> </span><span class="s2">"described below"</span><span class="w">
+            </span><span class="p">}</span><span class="w">
+        </span><span class="p">]</span><span class="w">
+    </span><span class="p">}</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre>
+
+<h4 id="endpoint-parameters">Endpoint Parameters</h4>
+
+<p>At the top level, the xlsx takes a <code class="prettyprint">result</code> <em>array</em> and <code class="prettyprint">display_settings</code> object
+which defines some formatting to be used on the values. Multiple tables can be
+placed on a single sheet.</p>
+
+<h5 id="result">Result</h5>
+
+<table><thead>
+<tr>
+<th>Name</th>
+<th>Type</th>
+<th>Typical element</th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>rows</td>
+<td>array</td>
+<td><code class="prettyprint">{&quot;value&quot;: 30, &quot;class&quot;: &quot;formatted&quot;}</code></td>
+<td>Cells are objects with at least a <code class="prettyprint">value</code> member, and optional <code class="prettyprint">class</code>, where a value of <code class="prettyprint">&quot;formatted&quot;</code> prevents the exporter from applying any number format to the result cell</td>
+</tr>
+<tr>
+<td>colLabels</td>
+<td>array</td>
+<td><code class="prettyprint">{&quot;value&quot;: &quot;All&quot;}</code></td>
+<td>Array of objects with a <code class="prettyprint">value</code> member</td>
+</tr>
+<tr>
+<td>colTitles</td>
+<td>array</td>
+<td><code class="prettyprint">&quot;Age&quot;</code></td>
+<td>Array of strings</td>
+</tr>
+<tr>
+<td>spans</td>
+<td>array</td>
+<td><code class="prettyprint">4</code></td>
+<td>array of integers matching the length of colTitles, indicating the number of cells to be joined for each colTitle after the first one. The first colTitle is assumed to be only one column wide.</td>
+</tr>
+<tr>
+<td>rowTitle</td>
+<td>string</td>
+<td><code class="prettyprint">&quot;Dog food brands&quot;</code></td>
+<td>A title, which is formatted bold above the first column of the table (the rowLabels, below)</td>
+</tr>
+<tr>
+<td>rowLabels</td>
+<td>array</td>
+<td><code class="prettyprint">{&quot;value&quot;: &quot;Canine Crunch&quot;}</code></td>
+<td>labels for rows of the table</td>
+</tr>
+<tr>
+<td>rowVariableName</td>
+<td>string</td>
+<td><code class="prettyprint">&quot;Preferred dog food&quot;</code></td>
+<td>title to display at the very top left of the result sheet</td>
+</tr>
+<tr>
+<td>filter_names</td>
+<td>array</td>
+<td><code class="prettyprint">&quot;Breed: Dachshund&quot;</code></td>
+<td>Names of any filters to print beneath the table, will be labeled &ldquo;Filters&rdquo;. If multiple result objects are included in the payload, the filter names from the <em>first</em> result are used, and placed at the bottom of the sheet beneath all results.</td>
+</tr>
+</tbody></table>
+
+<h5 id="display-settings">Display Settings</h5>
+
+<p>Further customization for the resulting output.</p>
+
+<table><thead>
+<tr>
+<th>Name</th>
+<th>Type</th>
+<th>Default</th>
+<th>Description</th>
+<th>Example</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>decimalPlaces</td>
+<td>object</td>
+<td>0</td>
+<td>number of decimal places to diaplay</td>
+<td><code class="prettyprint">{&quot;value&quot;: 0}</code></td>
+</tr>
+<tr>
+<td>countsOrPercents</td>
+<td>object</td>
+<td>percent</td>
+<td>use counts or percents</td>
+<td><code class="prettyprint">{&quot;value&quot;: &quot;percent&quot;}</code></td>
+</tr>
+<tr>
+<td>percentageDirection</td>
+<td>object</td>
+<td>{&ldquo;value&rdquo;: &ldquo;colPct&rdquo;}</td>
+<td>row or column based percents</td>
+<td><code class="prettyprint">{&quot;value&quot;: &quot;colPct&quot;}</code></td>
+</tr>
+<tr>
+<td>valuesAreMeans</td>
+<td>object</td>
+<td>false</td>
+<td>are values means? (If so, will be formatted with decimal places)</td>
+<td><code class="prettyprint">{&quot;value&quot;: false}</code></td>
+</tr>
+</tbody></table>
+
+<h5 id="quirks">Quirks</h5>
+
+<p>Because the formatted output was designed to display values computed by other clients,
+it abuses some assumptions about the tables it is displaying. Some of these are enumerated below.</p>
+
+<ol>
+<li>Rows have a ‘marginal’ column positioned first after the row label.</li>
+<li>If display settings indicate <code class="prettyprint">rowPct</code>, rows have an additional marginal column intended to show unconditional N for each row.</li>
+<li>The remaining row labels are all accounted for in the sum of <code class="prettyprint">spans</code>.</li>
+<li>Column titles are placed in merged cells above one or more labels.</li>
+<li>The same filter(s) are applied to all tables on a page.</li>
+<li>No “freeze panes” are applied to the result.</li>
+<li>If the table contains percentages, they should be percentages, not proportions (0 to 100, not 0 to 1).</li>
+</ol>
+
+<h3 id="complete-example">Complete example</h3>
+<pre class="highlight json"><code><span class="p">{</span><span class="nt">"element"</span><span class="p">:</span><span class="s2">"shoji:entity"</span><span class="p">,</span><span class="w">
+</span><span class="nt">"body"</span><span class="p">:{</span><span class="w">
+    </span><span class="nt">"result"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
+  </span><span class="p">{</span><span class="w">
+    </span><span class="nt">"filter_names"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">"Name_of_filter"</span><span class="p">],</span><span class="w">
+    </span><span class="nt">"rows"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
+      </span><span class="p">[</span><span class="w">
+        </span><span class="p">{</span><span class="w">
+          </span><span class="nt">"value"</span><span class="p">:</span><span class="w"> </span><span class="mi">50</span><span class="p">,</span><span class="w">
+          </span><span class="nt">"class"</span><span class="p">:</span><span class="w"> </span><span class="s2">"marginal marginal-percentage"</span><span class="w">
+        </span><span class="p">},</span><span class="w">
+        </span><span class="p">{</span><span class="w">
+          </span><span class="nt">"value"</span><span class="p">:</span><span class="w"> </span><span class="mi">50</span><span class="p">,</span><span class="w">
+          </span><span class="nt">"pValue"</span><span class="p">:</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w">
+          </span><span class="nt">"class"</span><span class="p">:</span><span class="w"> </span><span class="s2">"subtable-0 col-0"</span><span class="w">
+        </span><span class="p">},</span><span class="w">
+        </span><span class="p">{</span><span class="w">
+          </span><span class="nt">"value"</span><span class="p">:</span><span class="w"> </span><span class="mi">50</span><span class="p">,</span><span class="w">
+          </span><span class="nt">"pValue"</span><span class="p">:</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w">
+          </span><span class="nt">"class"</span><span class="p">:</span><span class="w"> </span><span class="s2">"subtable-0 col-1"</span><span class="w">
+        </span><span class="p">}</span><span class="w">
+      </span><span class="p">],</span><span class="w">
+      </span><span class="p">[</span><span class="w">
+        </span><span class="p">{</span><span class="w">
+          </span><span class="nt">"value"</span><span class="p">:</span><span class="w"> </span><span class="mi">50</span><span class="p">,</span><span class="w">
+          </span><span class="nt">"class"</span><span class="p">:</span><span class="w"> </span><span class="s2">"marginal marginal-percentage"</span><span class="w">
+        </span><span class="p">},</span><span class="w">
+        </span><span class="p">{</span><span class="w">
+          </span><span class="nt">"value"</span><span class="p">:</span><span class="w"> </span><span class="mi">50</span><span class="p">,</span><span class="w">
+          </span><span class="nt">"pValue"</span><span class="p">:</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w">
+          </span><span class="nt">"class"</span><span class="p">:</span><span class="w"> </span><span class="s2">"subtable-0 col-0"</span><span class="w">
+        </span><span class="p">},</span><span class="w">
+        </span><span class="p">{</span><span class="w">
+          </span><span class="nt">"value"</span><span class="p">:</span><span class="w"> </span><span class="mi">50</span><span class="p">,</span><span class="w">
+          </span><span class="nt">"pValue"</span><span class="p">:</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w">
+          </span><span class="nt">"class"</span><span class="p">:</span><span class="w"> </span><span class="s2">"subtable-0 col-1"</span><span class="w">
+        </span><span class="p">}</span><span class="w">
+      </span><span class="p">],</span><span class="w">
+      </span><span class="p">[</span><span class="w">
+        </span><span class="p">{</span><span class="w">
+          </span><span class="nt">"value"</span><span class="p">:</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w">
+          </span><span class="nt">"class"</span><span class="p">:</span><span class="w"> </span><span class="s2">"marginal marginal-percentage"</span><span class="w">
+        </span><span class="p">},</span><span class="w">
+        </span><span class="p">{</span><span class="w">
+          </span><span class="nt">"value"</span><span class="p">:</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w">
+          </span><span class="nt">"pValue"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span><span class="w">
+          </span><span class="nt">"class"</span><span class="p">:</span><span class="w"> </span><span class="s2">"subtable-0 col-0"</span><span class="w">
+        </span><span class="p">},</span><span class="w">
+        </span><span class="p">{</span><span class="w">
+          </span><span class="nt">"value"</span><span class="p">:</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w">
+          </span><span class="nt">"pValue"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span><span class="w">
+          </span><span class="nt">"class"</span><span class="p">:</span><span class="w"> </span><span class="s2">"subtable-0 col-1"</span><span class="w">
+        </span><span class="p">}</span><span class="w">
+      </span><span class="p">],</span><span class="w">
+      </span><span class="p">[</span><span class="w">
+        </span><span class="p">{</span><span class="w">
+          </span><span class="nt">"value"</span><span class="p">:</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w">
+          </span><span class="nt">"class"</span><span class="p">:</span><span class="w"> </span><span class="s2">"marginal marginal-percentage"</span><span class="w">
+        </span><span class="p">},</span><span class="w">
+        </span><span class="p">{</span><span class="w">
+          </span><span class="nt">"value"</span><span class="p">:</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w">
+          </span><span class="nt">"pValue"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span><span class="w">
+          </span><span class="nt">"class"</span><span class="p">:</span><span class="w"> </span><span class="s2">"subtable-0 col-0"</span><span class="w">
+        </span><span class="p">},</span><span class="w">
+        </span><span class="p">{</span><span class="w">
+          </span><span class="nt">"value"</span><span class="p">:</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w">
+          </span><span class="nt">"pValue"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span><span class="w">
+          </span><span class="nt">"class"</span><span class="p">:</span><span class="w"> </span><span class="s2">"subtable-0 col-1"</span><span class="w">
+        </span><span class="p">}</span><span class="w">
+      </span><span class="p">]</span><span class="w">
+    </span><span class="p">],</span><span class="w">
+    </span><span class="nt">"colLabels"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
+      </span><span class="p">{</span><span class="w">
+        </span><span class="nt">"value"</span><span class="p">:</span><span class="w"> </span><span class="s2">"All"</span><span class="w">
+      </span><span class="p">},</span><span class="w">
+      </span><span class="p">{</span><span class="w">
+        </span><span class="nt">"value"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2014"</span><span class="p">,</span><span class="w">
+        </span><span class="nt">"class"</span><span class="p">:</span><span class="w"> </span><span class="s2">"col-0"</span><span class="w">
+      </span><span class="p">},</span><span class="w">
+      </span><span class="p">{</span><span class="w">
+        </span><span class="nt">"value"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2015"</span><span class="p">,</span><span class="w">
+        </span><span class="nt">"class"</span><span class="p">:</span><span class="w"> </span><span class="s2">"col-1"</span><span class="w">
+      </span><span class="p">}</span><span class="w">
+    </span><span class="p">],</span><span class="w">
+    </span><span class="nt">"spans"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
+      </span><span class="mi">2</span><span class="w">
+    </span><span class="p">],</span><span class="w">
+    </span><span class="nt">"rowLabels"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
+      </span><span class="p">{</span><span class="w">
+        </span><span class="nt">"value"</span><span class="p">:</span><span class="w"> </span><span class="s2">"a"</span><span class="p">,</span><span class="w">
+        </span><span class="nt">"class"</span><span class="p">:</span><span class="w"> </span><span class="s2">"row-label"</span><span class="w">
+      </span><span class="p">},</span><span class="w">
+      </span><span class="p">{</span><span class="w">
+        </span><span class="nt">"value"</span><span class="p">:</span><span class="w"> </span><span class="s2">"b"</span><span class="p">,</span><span class="w">
+        </span><span class="nt">"class"</span><span class="p">:</span><span class="w"> </span><span class="s2">"row-label"</span><span class="w">
+      </span><span class="p">},</span><span class="w">
+      </span><span class="p">{</span><span class="w">
+        </span><span class="nt">"value"</span><span class="p">:</span><span class="w"> </span><span class="s2">"c"</span><span class="p">,</span><span class="w">
+        </span><span class="nt">"class"</span><span class="p">:</span><span class="w"> </span><span class="s2">"row-label"</span><span class="w">
+      </span><span class="p">},</span><span class="w">
+      </span><span class="p">{</span><span class="w">
+        </span><span class="nt">"value"</span><span class="p">:</span><span class="w"> </span><span class="s2">"d"</span><span class="p">,</span><span class="w">
+        </span><span class="nt">"class"</span><span class="p">:</span><span class="w"> </span><span class="s2">"row-label"</span><span class="w">
+      </span><span class="p">}</span><span class="w">
+    </span><span class="p">],</span><span class="w">
+    </span><span class="nt">"rowTitle"</span><span class="p">:</span><span class="w"> </span><span class="s2">"ca_subvar_1"</span><span class="p">,</span><span class="w">
+    </span><span class="nt">"rowVariableName"</span><span class="p">:</span><span class="w"> </span><span class="s2">"categorical_array"</span><span class="p">,</span><span class="w">
+    </span><span class="nt">"colTitles"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
+      </span><span class="s2">"quarter"</span><span class="w">
+    </span><span class="p">]</span><span class="w">
+  </span><span class="p">},</span><span class="w">
+  </span><span class="p">{</span><span class="w">
+    </span><span class="nt">"rows"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
+      </span><span class="p">[</span><span class="w">
+        </span><span class="p">{</span><span class="w">
+          </span><span class="nt">"value"</span><span class="p">:</span><span class="w"> </span><span class="mf">16.666666666666664</span><span class="p">,</span><span class="w">
+          </span><span class="nt">"class"</span><span class="p">:</span><span class="w"> </span><span class="s2">"marginal marginal-percentage"</span><span class="w">
+        </span><span class="p">},</span><span class="w">
+        </span><span class="p">{</span><span class="w">
+          </span><span class="nt">"value"</span><span class="p">:</span><span class="w"> </span><span class="mi">25</span><span class="p">,</span><span class="w">
+          </span><span class="nt">"pValue"</span><span class="p">:</span><span class="w"> </span><span class="mf">0.24821309601845032</span><span class="p">,</span><span class="w">
+          </span><span class="nt">"class"</span><span class="p">:</span><span class="w"> </span><span class="s2">"subtable-0 col-0"</span><span class="w">
+        </span><span class="p">},</span><span class="w">
+        </span><span class="p">{</span><span class="w">
+          </span><span class="nt">"value"</span><span class="p">:</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w">
+          </span><span class="nt">"pValue"</span><span class="p">:</span><span class="w"> </span><span class="mf">-0.2482130960184501</span><span class="p">,</span><span class="w">
+          </span><span class="nt">"class"</span><span class="p">:</span><span class="w"> </span><span class="s2">"subtable-0 col-1"</span><span class="w">
+        </span><span class="p">}</span><span class="w">
+      </span><span class="p">],</span><span class="w">
+      </span><span class="p">[</span><span class="w">
+        </span><span class="p">{</span><span class="w">
+          </span><span class="nt">"value"</span><span class="p">:</span><span class="w"> </span><span class="mi">50</span><span class="p">,</span><span class="w">
+          </span><span class="nt">"class"</span><span class="p">:</span><span class="w"> </span><span class="s2">"marginal marginal-percentage"</span><span class="w">
+        </span><span class="p">},</span><span class="w">
+        </span><span class="p">{</span><span class="w">
+          </span><span class="nt">"value"</span><span class="p">:</span><span class="w"> </span><span class="mi">50</span><span class="p">,</span><span class="w">
+          </span><span class="nt">"pValue"</span><span class="p">:</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w">
+          </span><span class="nt">"class"</span><span class="p">:</span><span class="w"> </span><span class="s2">"subtable-0 col-0"</span><span class="w">
+        </span><span class="p">},</span><span class="w">
+        </span><span class="p">{</span><span class="w">
+          </span><span class="nt">"value"</span><span class="p">:</span><span class="w"> </span><span class="mi">50</span><span class="p">,</span><span class="w">
+          </span><span class="nt">"pValue"</span><span class="p">:</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w">
+          </span><span class="nt">"class"</span><span class="p">:</span><span class="w"> </span><span class="s2">"subtable-0 col-1"</span><span class="w">
+        </span><span class="p">}</span><span class="w">
+      </span><span class="p">],</span><span class="w">
+      </span><span class="p">[</span><span class="w">
+        </span><span class="p">{</span><span class="w">
+          </span><span class="nt">"value"</span><span class="p">:</span><span class="w"> </span><span class="mf">33.33333333333333</span><span class="p">,</span><span class="w">
+          </span><span class="nt">"class"</span><span class="p">:</span><span class="w"> </span><span class="s2">"marginal marginal-percentage"</span><span class="w">
+        </span><span class="p">},</span><span class="w">
+        </span><span class="p">{</span><span class="w">
+          </span><span class="nt">"value"</span><span class="p">:</span><span class="w"> </span><span class="mi">25</span><span class="p">,</span><span class="w">
+          </span><span class="nt">"pValue"</span><span class="p">:</span><span class="w"> </span><span class="mf">-0.5464935495198773</span><span class="p">,</span><span class="w">
+          </span><span class="nt">"class"</span><span class="p">:</span><span class="w"> </span><span class="s2">"subtable-0 col-0"</span><span class="w">
+        </span><span class="p">},</span><span class="w">
+        </span><span class="p">{</span><span class="w">
+          </span><span class="nt">"value"</span><span class="p">:</span><span class="w"> </span><span class="mi">50</span><span class="p">,</span><span class="w">
+          </span><span class="nt">"pValue"</span><span class="p">:</span><span class="w"> </span><span class="mf">0.5464935495198773</span><span class="p">,</span><span class="w">
+          </span><span class="nt">"class"</span><span class="p">:</span><span class="w"> </span><span class="s2">"subtable-0 col-1"</span><span class="w">
+        </span><span class="p">}</span><span class="w">
+      </span><span class="p">],</span><span class="w">
+      </span><span class="p">[</span><span class="w">
+        </span><span class="p">{</span><span class="w">
+          </span><span class="nt">"value"</span><span class="p">:</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w">
+          </span><span class="nt">"class"</span><span class="p">:</span><span class="w"> </span><span class="s2">"marginal marginal-percentage"</span><span class="w">
+        </span><span class="p">},</span><span class="w">
+        </span><span class="p">{</span><span class="w">
+          </span><span class="nt">"value"</span><span class="p">:</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w">
+          </span><span class="nt">"pValue"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span><span class="w">
+          </span><span class="nt">"class"</span><span class="p">:</span><span class="w"> </span><span class="s2">"subtable-0 col-0"</span><span class="w">
+        </span><span class="p">},</span><span class="w">
+        </span><span class="p">{</span><span class="w">
+          </span><span class="nt">"value"</span><span class="p">:</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w">
+          </span><span class="nt">"pValue"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span><span class="w">
+          </span><span class="nt">"class"</span><span class="p">:</span><span class="w"> </span><span class="s2">"subtable-0 col-1"</span><span class="w">
+        </span><span class="p">}</span><span class="w">
+      </span><span class="p">]</span><span class="w">
+    </span><span class="p">],</span><span class="w">
+    </span><span class="nt">"colLabels"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
+      </span><span class="p">{</span><span class="w">
+        </span><span class="nt">"value"</span><span class="p">:</span><span class="w"> </span><span class="s2">"All"</span><span class="w">
+      </span><span class="p">},</span><span class="w">
+      </span><span class="p">{</span><span class="w">
+        </span><span class="nt">"value"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2014"</span><span class="p">,</span><span class="w">
+        </span><span class="nt">"class"</span><span class="p">:</span><span class="w"> </span><span class="s2">"col-0"</span><span class="w">
+      </span><span class="p">},</span><span class="w">
+      </span><span class="p">{</span><span class="w">
+        </span><span class="nt">"value"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2015"</span><span class="p">,</span><span class="w">
+        </span><span class="nt">"class"</span><span class="p">:</span><span class="w"> </span><span class="s2">"col-1"</span><span class="w">
+      </span><span class="p">}</span><span class="w">
+    </span><span class="p">],</span><span class="w">
+    </span><span class="nt">"spans"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
+      </span><span class="mi">2</span><span class="w">
+    </span><span class="p">],</span><span class="w">
+    </span><span class="nt">"rowLabels"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
+      </span><span class="p">{</span><span class="w">
+        </span><span class="nt">"value"</span><span class="p">:</span><span class="w"> </span><span class="s2">"a"</span><span class="p">,</span><span class="w">
+        </span><span class="nt">"class"</span><span class="p">:</span><span class="w"> </span><span class="s2">"row-label"</span><span class="w">
+      </span><span class="p">},</span><span class="w">
+      </span><span class="p">{</span><span class="w">
+        </span><span class="nt">"value"</span><span class="p">:</span><span class="w"> </span><span class="s2">"b"</span><span class="p">,</span><span class="w">
+        </span><span class="nt">"class"</span><span class="p">:</span><span class="w"> </span><span class="s2">"row-label"</span><span class="w">
+      </span><span class="p">},</span><span class="w">
+      </span><span class="p">{</span><span class="w">
+        </span><span class="nt">"value"</span><span class="p">:</span><span class="w"> </span><span class="s2">"c"</span><span class="p">,</span><span class="w">
+        </span><span class="nt">"class"</span><span class="p">:</span><span class="w"> </span><span class="s2">"row-label"</span><span class="w">
+      </span><span class="p">},</span><span class="w">
+      </span><span class="p">{</span><span class="w">
+        </span><span class="nt">"value"</span><span class="p">:</span><span class="w"> </span><span class="s2">"d"</span><span class="p">,</span><span class="w">
+        </span><span class="nt">"class"</span><span class="p">:</span><span class="w"> </span><span class="s2">"row-label"</span><span class="w">
+      </span><span class="p">}</span><span class="w">
+    </span><span class="p">],</span><span class="w">
+    </span><span class="nt">"rowTitle"</span><span class="p">:</span><span class="w"> </span><span class="s2">"ca_subvar_2"</span><span class="p">,</span><span class="w">
+    </span><span class="nt">"rowVariableName"</span><span class="p">:</span><span class="w"> </span><span class="s2">"categorical_array"</span><span class="p">,</span><span class="w">
+    </span><span class="nt">"colTitles"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
+      </span><span class="s2">"quarter"</span><span class="w">
+    </span><span class="p">]</span><span class="w">
+  </span><span class="p">},</span><span class="w">
+  </span><span class="p">{</span><span class="w">
+    </span><span class="nt">"rows"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
+      </span><span class="p">[</span><span class="w">
+        </span><span class="p">{</span><span class="w">
+          </span><span class="nt">"value"</span><span class="p">:</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w">
+          </span><span class="nt">"class"</span><span class="p">:</span><span class="w"> </span><span class="s2">"marginal marginal-percentage"</span><span class="w">
+        </span><span class="p">},</span><span class="w">
+        </span><span class="p">{</span><span class="w">
+          </span><span class="nt">"value"</span><span class="p">:</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w">
+          </span><span class="nt">"pValue"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span><span class="w">
+          </span><span class="nt">"class"</span><span class="p">:</span><span class="w"> </span><span class="s2">"subtable-0 col-0"</span><span class="w">
+        </span><span class="p">},</span><span class="w">
+        </span><span class="p">{</span><span class="w">
+          </span><span class="nt">"value"</span><span class="p">:</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w">
+          </span><span class="nt">"pValue"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span><span class="w">
+          </span><span class="nt">"class"</span><span class="p">:</span><span class="w"> </span><span class="s2">"subtable-0 col-1"</span><span class="w">
+        </span><span class="p">}</span><span class="w">
+      </span><span class="p">],</span><span class="w">
+      </span><span class="p">[</span><span class="w">
+        </span><span class="p">{</span><span class="w">
+          </span><span class="nt">"value"</span><span class="p">:</span><span class="w"> </span><span class="mf">33.33333333333333</span><span class="p">,</span><span class="w">
+          </span><span class="nt">"class"</span><span class="p">:</span><span class="w"> </span><span class="s2">"marginal marginal-percentage"</span><span class="w">
+        </span><span class="p">},</span><span class="w">
+        </span><span class="p">{</span><span class="w">
+          </span><span class="nt">"value"</span><span class="p">:</span><span class="w"> </span><span class="mi">50</span><span class="p">,</span><span class="w">
+          </span><span class="nt">"pValue"</span><span class="p">:</span><span class="w"> </span><span class="mf">0.045500259780248964</span><span class="p">,</span><span class="w">
+          </span><span class="nt">"class"</span><span class="p">:</span><span class="w"> </span><span class="s2">"subtable-0 col-0"</span><span class="w">
+        </span><span class="p">},</span><span class="w">
+        </span><span class="p">{</span><span class="w">
+          </span><span class="nt">"value"</span><span class="p">:</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w">
+          </span><span class="nt">"pValue"</span><span class="p">:</span><span class="w"> </span><span class="mf">-0.045500259780248964</span><span class="p">,</span><span class="w">
+          </span><span class="nt">"class"</span><span class="p">:</span><span class="w"> </span><span class="s2">"subtable-0 col-1"</span><span class="w">
+        </span><span class="p">}</span><span class="w">
+      </span><span class="p">],</span><span class="w">
+      </span><span class="p">[</span><span class="w">
+        </span><span class="p">{</span><span class="w">
+          </span><span class="nt">"value"</span><span class="p">:</span><span class="w"> </span><span class="mf">16.666666666666664</span><span class="p">,</span><span class="w">
+          </span><span class="nt">"class"</span><span class="p">:</span><span class="w"> </span><span class="s2">"marginal marginal-percentage"</span><span class="w">
+        </span><span class="p">},</span><span class="w">
+        </span><span class="p">{</span><span class="w">
+          </span><span class="nt">"value"</span><span class="p">:</span><span class="w"> </span><span class="mi">25</span><span class="p">,</span><span class="w">
+          </span><span class="nt">"pValue"</span><span class="p">:</span><span class="w"> </span><span class="mf">0.24821309601845032</span><span class="p">,</span><span class="w">
+          </span><span class="nt">"class"</span><span class="p">:</span><span class="w"> </span><span class="s2">"subtable-0 col-0"</span><span class="w">
+        </span><span class="p">},</span><span class="w">
+        </span><span class="p">{</span><span class="w">
+          </span><span class="nt">"value"</span><span class="p">:</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w">
+          </span><span class="nt">"pValue"</span><span class="p">:</span><span class="w"> </span><span class="mf">-0.2482130960184501</span><span class="p">,</span><span class="w">
+          </span><span class="nt">"class"</span><span class="p">:</span><span class="w"> </span><span class="s2">"subtable-0 col-1"</span><span class="w">
+        </span><span class="p">}</span><span class="w">
+      </span><span class="p">],</span><span class="w">
+      </span><span class="p">[</span><span class="w">
+        </span><span class="p">{</span><span class="w">
+          </span><span class="nt">"value"</span><span class="p">:</span><span class="w"> </span><span class="mi">50</span><span class="p">,</span><span class="w">
+          </span><span class="nt">"class"</span><span class="p">:</span><span class="w"> </span><span class="s2">"marginal marginal-percentage"</span><span class="w">
+        </span><span class="p">},</span><span class="w">
+        </span><span class="p">{</span><span class="w">
+          </span><span class="nt">"value"</span><span class="p">:</span><span class="w"> </span><span class="mi">25</span><span class="p">,</span><span class="w">
+          </span><span class="nt">"pValue"</span><span class="p">:</span><span class="w"> </span><span class="mf">-0.0005320055485602548</span><span class="p">,</span><span class="w">
+          </span><span class="nt">"class"</span><span class="p">:</span><span class="w"> </span><span class="s2">"subtable-0 col-0"</span><span class="w">
+        </span><span class="p">},</span><span class="w">
+        </span><span class="p">{</span><span class="w">
+          </span><span class="nt">"value"</span><span class="p">:</span><span class="w"> </span><span class="mi">100</span><span class="p">,</span><span class="w">
+          </span><span class="nt">"pValue"</span><span class="p">:</span><span class="w"> </span><span class="mf">0.0005320055485602548</span><span class="p">,</span><span class="w">
+          </span><span class="nt">"class"</span><span class="p">:</span><span class="w"> </span><span class="s2">"subtable-0 col-1"</span><span class="w">
+        </span><span class="p">}</span><span class="w">
+      </span><span class="p">]</span><span class="w">
+    </span><span class="p">],</span><span class="w">
+    </span><span class="nt">"colLabels"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
+      </span><span class="p">{</span><span class="w">
+        </span><span class="nt">"value"</span><span class="p">:</span><span class="w"> </span><span class="s2">"All"</span><span class="w">
+      </span><span class="p">},</span><span class="w">
+      </span><span class="p">{</span><span class="w">
+        </span><span class="nt">"value"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2014"</span><span class="p">,</span><span class="w">
+        </span><span class="nt">"class"</span><span class="p">:</span><span class="w"> </span><span class="s2">"col-0"</span><span class="w">
+      </span><span class="p">},</span><span class="w">
+      </span><span class="p">{</span><span class="w">
+        </span><span class="nt">"value"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2015"</span><span class="p">,</span><span class="w">
+        </span><span class="nt">"class"</span><span class="p">:</span><span class="w"> </span><span class="s2">"col-1"</span><span class="w">
+      </span><span class="p">}</span><span class="w">
+    </span><span class="p">],</span><span class="w">
+    </span><span class="nt">"spans"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
+      </span><span class="mi">2</span><span class="w">
+    </span><span class="p">],</span><span class="w">
+    </span><span class="nt">"rowLabels"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
+      </span><span class="p">{</span><span class="w">
+        </span><span class="nt">"value"</span><span class="p">:</span><span class="w"> </span><span class="s2">"a"</span><span class="p">,</span><span class="w">
+        </span><span class="nt">"class"</span><span class="p">:</span><span class="w"> </span><span class="s2">"row-label"</span><span class="w">
+      </span><span class="p">},</span><span class="w">
+      </span><span class="p">{</span><span class="w">
+        </span><span class="nt">"value"</span><span class="p">:</span><span class="w"> </span><span class="s2">"b"</span><span class="p">,</span><span class="w">
+        </span><span class="nt">"class"</span><span class="p">:</span><span class="w"> </span><span class="s2">"row-label"</span><span class="w">
+      </span><span class="p">},</span><span class="w">
+      </span><span class="p">{</span><span class="w">
+        </span><span class="nt">"value"</span><span class="p">:</span><span class="w"> </span><span class="s2">"c"</span><span class="p">,</span><span class="w">
+        </span><span class="nt">"class"</span><span class="p">:</span><span class="w"> </span><span class="s2">"row-label"</span><span class="w">
+      </span><span class="p">},</span><span class="w">
+      </span><span class="p">{</span><span class="w">
+        </span><span class="nt">"value"</span><span class="p">:</span><span class="w"> </span><span class="s2">"d"</span><span class="p">,</span><span class="w">
+        </span><span class="nt">"class"</span><span class="p">:</span><span class="w"> </span><span class="s2">"row-label"</span><span class="w">
+      </span><span class="p">}</span><span class="w">
+    </span><span class="p">],</span><span class="w">
+    </span><span class="nt">"rowTitle"</span><span class="p">:</span><span class="w"> </span><span class="s2">"ca_subvar_3"</span><span class="p">,</span><span class="w">
+    </span><span class="nt">"rowVariableName"</span><span class="p">:</span><span class="w"> </span><span class="s2">"categorical_array"</span><span class="p">,</span><span class="w">
+    </span><span class="nt">"colTitles"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
+      </span><span class="s2">"quarter"</span><span class="w">
+    </span><span class="p">]</span><span class="w">
+  </span><span class="p">}</span><span class="w">
+</span><span class="p">],</span><span class="w">
+</span><span class="nt">"display_settings"</span><span class="p">:{</span><span class="w">
+        </span><span class="nt">"valuesAreMeans"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="nt">"value"</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="p">},</span><span class="w">
+        </span><span class="nt">"countsOrPercents"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="nt">"value"</span><span class="p">:</span><span class="w"> </span><span class="s2">"percent"</span><span class="p">},</span><span class="w">
+        </span><span class="nt">"percentageDirection"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="nt">"value"</span><span class="p">:</span><span class="w"> </span><span class="s2">"colPct"</span><span class="p">},</span><span class="w">
+        </span><span class="nt">"decimalPlaces"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="nt">"value"</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">}</span><span class="w">
+    </span><span class="p">}</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre>
 
           <h2 id="boxdata">Boxdata</h2>
 
