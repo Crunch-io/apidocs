@@ -72,14 +72,14 @@
 </code></pre>
 <pre class="highlight r"><code><span class="n">library</span><span class="p">(</span><span class="n">crunch</span><span class="p">)</span>
 <span class="n">login</span><span class="p">(</span><span class="s2">"fake.user@example.com"</span><span class="p">,</span> <span class="s2">"password"</span><span class="p">)</span>
-<span class="c1"># See ?login for options, including how to store your credentials 
+<span class="c1"># See ?login for options, including how to store your credentials
 # in your .Rprofile
 </span></code></pre>
 <pre class="highlight python"><code><span class="kn">import</span> <span class="nn">pycrunch</span>
 </code></pre>
-<pre class="highlight shell"><code>curl -c cookie-jar 
-    -X POST 
-    -d <span class="s1">'{"email": "fake.user@example.com", "password": "password"}'</span> 
+<pre class="highlight shell"><code>curl -c cookie-jar
+    -X POST
+    -d <span class="s1">'{"email": "fake.user@example.com", "password": "password"}'</span>
     -H <span class="s2">"Content-type: application/json"</span>
     https://app.crunch.io/api/public/login/
 
@@ -98,12 +98,31 @@
 <p>Failure will return 401 Unauthorized.</p>
 
 <aside class="notice">
-Replace &ldquo;fake.user@example.com&rdquo; and &ldquo;password&rdquo; with your email and password, respectively.
+    Replace &ldquo;fake.user@example.com&rdquo; and &ldquo;password&rdquo; with your email and password, respectively. Refer to the [password policy](#Password-policy) for more information on passwords.
 </aside>
 
-<p>Crunch also supports OAuth 2.0/OpenID Connect. See <a href="#public">the public endpoint reference</a> for more on how to authenticate with OAuth. </p>
+<p>Crunch also supports OAuth 2.0/OpenID Connect. See <a href="#public">the public endpoint reference</a> for more on how to authenticate with OAuth.</p>
 
 <p>If you&rsquo;d like to add your auth provider to the set of supported providers, contact <a href="mailto:support@crunch.io">support@crunch.io</a></p>
+
+          <h2 id="password-policy">Password policy</h2>
+
+<p>Password policy is as follows:</p>
+
+<ul>
+<li>Password must be 8 characters or longer</li>
+<li>Password must contain at least 4 unique characters</li>
+</ul>
+
+<p>Examples:</p>
+
+<ul>
+<li>Secure 8 character password: 4B3a8f4$</li>
+<li>Secure passphrase: correct horse battery staple</li>
+</ul>
+
+<p>We highly recommend that users use long pass phrases instead of passwords for
+security and for ease of remembering the credentials for accessing the service.</p>
 
           <h2 id="importing-data">Importing Data</h2>
 
@@ -223,6 +242,202 @@ illustrates how this can be used. Shoji is JSON, which means the &ldquo;metadata
 object is explicitly unordered. If you wish the variables to have an order,
 you must supply an order object rather than relying on any order of the
 &ldquo;metadata&rdquo; object.</p>
+
+<p>It is possible to create derived variables using any of the 
+<a href="#Deriving-Variables">derivation functions available</a> simulaneously in one 
+request when creating the dataset along its metadata. The variable references 
+inside the derivation expressions must point to declared aliases of variables 
+or subvariables. </p>
+<pre class="highlight http"><code><span class="nf">POST</span> <span class="nn">/datasets/</span> <span class="k">HTTP</span><span class="o">/</span><span class="m">1.1</span>
+<span class="na">Content-Type</span><span class="p">:</span> <span class="s">application/shoji</span>
+<span class="na">Content-Length</span><span class="p">:</span> <span class="s">3294</span>
+<span class="s">...</span>
+<span class="s">{</span>
+<span class="s">    "element": "shoji:entity",</span>
+<span class="s">    "body": {</span>
+<span class="s">      "name": "Dataset with derived arrays",</span>
+<span class="s">      "table": {</span>
+<span class="s">        "metadata": {</span>
+<span class="s">           "combined": {</span>
+<span class="s">              "name": "combined CA", </span>
+<span class="s">              "derivation": {</span>
+<span class="s">                "function": "combine_categories", </span>
+<span class="s">                "args": [</span>
+<span class="s">                  {</span>
+<span class="s">                    "variable": "CA1"</span>
+<span class="s">                  }, </span>
+<span class="s">                  {</span>
+<span class="s">                    "value": [</span>
+<span class="s">                      {</span>
+<span class="s">                        "combined_ids": [2], </span>
+<span class="s">                        "numeric_value": 2, </span>
+<span class="s">                        "missing": false, </span>
+<span class="s">                        "name": "even", </span>
+<span class="s">                        "id": 1</span>
+<span class="s">                      }, </span>
+<span class="s">                      {</span>
+<span class="s">                        "combined_ids": [1], </span>
+<span class="s">                        "numeric_value": 1, </span>
+<span class="s">                        "missing": false, </span>
+<span class="s">                        "name": "odd", </span>
+<span class="s">                        "id": 2</span>
+<span class="s">                      }</span>
+<span class="s">                    ]</span>
+<span class="s">                  }</span>
+<span class="s">                ]</span>
+<span class="s">              }</span>
+<span class="s">            },</span>
+<span class="s">          "numeric": {</span>
+<span class="s">            "name": "numeric variable",</span>
+<span class="s">            "type": "numeric"</span>
+<span class="s">          },</span>
+<span class="s">          "numeric_copy": {</span>
+<span class="s">            "name": "Copy of numeric",</span>
+<span class="s">            "derivation": {</span>
+<span class="s">                "function": "copy_variable",</span>
+<span class="s">                "args": [{"variable": "numeric"}]</span>
+<span class="s">            }</span>
+<span class="s">          },</span>
+<span class="s">          "MR1": {</span>
+<span class="s">              "name": "multiple response", </span>
+<span class="s">              "derivation": {</span>
+<span class="s">                "function": "select_categories", </span>
+<span class="s">                "args": [</span>
+<span class="s">                  {</span>
+<span class="s">                    "variable": "CA3"</span>
+<span class="s">                  }, </span>
+<span class="s">                  {</span>
+<span class="s">                    "value": [</span>
+<span class="s">                      1</span>
+<span class="s">                    ]</span>
+<span class="s">                  }</span>
+<span class="s">                ]</span>
+<span class="s">              }</span>
+<span class="s">            },</span>
+<span class="s">          "CA3": {</span>
+<span class="s">            "name": "cat array 3", </span>
+<span class="s">            "derivation": {</span>
+<span class="s">              "function": "array", </span>
+<span class="s">              "args": [</span>
+<span class="s">                {</span>
+<span class="s">                  "function": "select", </span>
+<span class="s">                  "args": [</span>
+<span class="s">                    {</span>
+<span class="s">                      "map": {</span>
+<span class="s">                        "var1": {</span>
+<span class="s">                          "variable": "ca2-subvar-2", </span>
+<span class="s">                          "references": {</span>
+<span class="s">                            "alias": "subvar2", </span>
+<span class="s">                            "name": "Subvar 2"</span>
+<span class="s">                          }</span>
+<span class="s">                        }, </span>
+<span class="s">                        "var0": {</span>
+<span class="s">                          "variable": "ca1-subvar-1", </span>
+<span class="s">                          "references": {</span>
+<span class="s">                            "alias": "subvar1", </span>
+<span class="s">                            "name": "Subvar 1"</span>
+<span class="s">                          }</span>
+<span class="s">                        }</span>
+<span class="s">                      }</span>
+<span class="s">                    }, </span>
+<span class="s">                    {</span>
+<span class="s">                      "value": ["var1", "var0"]</span>
+<span class="s">                    }</span>
+<span class="s">                  ]</span>
+<span class="s">                }</span>
+<span class="s">              ]</span>
+<span class="s">            }</span>
+<span class="s">          }, </span>
+<span class="s">          "CA2": {</span>
+<span class="s">            "subvariables": [</span>
+<span class="s">              {</span>
+<span class="s">                "alias": "ca2-subvar-1", </span>
+<span class="s">                "name": "ca2-subvar-1"</span>
+<span class="s">              }, </span>
+<span class="s">              {</span>
+<span class="s">                "alias": "ca2-subvar-2", </span>
+<span class="s">                "name": "ca2-subvar-2"</span>
+<span class="s">              }</span>
+<span class="s">            ], </span>
+<span class="s">            "type": "categorical_array", </span>
+<span class="s">            "name": "cat array 2", </span>
+<span class="s">            "categories": [</span>
+<span class="s">              {</span>
+<span class="s">                "numeric_value": null, </span>
+<span class="s">                "missing": false, </span>
+<span class="s">                "id": 1, </span>
+<span class="s">                "name": "yes"</span>
+<span class="s">              }, </span>
+<span class="s">              {</span>
+<span class="s">                "numeric_value": null, </span>
+<span class="s">                "missing": false, </span>
+<span class="s">                "id": 2, </span>
+<span class="s">                "name": "no"</span>
+<span class="s">              }, </span>
+<span class="s">              {</span>
+<span class="s">                "numeric_value": null, </span>
+<span class="s">                "missing": true, </span>
+<span class="s">                "id": -1, </span>
+<span class="s">                "name": "No Data"</span>
+<span class="s">              }</span>
+<span class="s">            ]</span>
+<span class="s">          }, </span>
+<span class="s">          "CA1": {</span>
+<span class="s">            "subvariables": [</span>
+<span class="s">              {</span>
+<span class="s">                "alias": "ca1-subvar-1", </span>
+<span class="s">                "name": "ca1-subvar-1"</span>
+<span class="s">              }, </span>
+<span class="s">              {</span>
+<span class="s">                "alias": "ca1-subvar-2", </span>
+<span class="s">                "name": "ca1-subvar-2"</span>
+<span class="s">              }, </span>
+<span class="s">              {</span>
+<span class="s">                "alias": "ca1-subvar-3", </span>
+<span class="s">                "name": "ca1-subvar-3"</span>
+<span class="s">              }</span>
+<span class="s">            ], </span>
+<span class="s">            "type": "categorical_array", </span>
+<span class="s">            "name": "cat array 1", </span>
+<span class="s">            "categories": [</span>
+<span class="s">              {</span>
+<span class="s">                "numeric_value": null, </span>
+<span class="s">                "missing": false, </span>
+<span class="s">                "id": 1, </span>
+<span class="s">                "name": "yes"</span>
+<span class="s">              }, </span>
+<span class="s">              {</span>
+<span class="s">                "numeric_value": null, </span>
+<span class="s">                "missing": false, </span>
+<span class="s">                "id": 2, </span>
+<span class="s">                "name": "no"</span>
+<span class="s">              }, </span>
+<span class="s">              {</span>
+<span class="s">                "numeric_value": null, </span>
+<span class="s">                "missing": true, </span>
+<span class="s">                "id": -1, </span>
+<span class="s">                "name": "No Data"</span>
+<span class="s">              }</span>
+<span class="s">            ]</span>
+<span class="s">          }</span>
+<span class="s">        }, </span>
+<span class="s">        "element": "crunch:table"</span>
+<span class="s">      }</span>
+<span class="s">    }</span>
+<span class="s"> }</span>
+<span class="s">--------</span>
+<span class="s">201 Created</span>
+<span class="na">Location</span><span class="p">:</span> <span class="s">/datasets/{dataset_id}/</span>
+</code></pre>
+
+<p>The example above does a number of things:</p>
+
+<ul>
+<li>Creates variables <code class="prettyprint">numeric</code> and arrays <code class="prettyprint">CA1</code> and <code class="prettyprint">CA2</code>.</li>
+<li>Makes a shallow copy of variable <code class="prettyprint">numeric</code> as <code class="prettyprint">numeric_copy</code>.</li>
+<li>Makes an ad hoc array <code class="prettyprint">CA3</code> reusing subvariables from <code class="prettyprint">CA1</code> and <code class="prettyprint">CA2</code>.</li>
+<li>Makes a multiple response view <code class="prettyprint">MR1</code> selecting category 1 from categorical array <code class="prettyprint">CA3</code>.</li>
+</ul>
 
 <h5 id="validation-rules">Validation rules</h5>
 
@@ -1012,6 +1227,141 @@ an existing filter entity URL (from the right-side dataset), wrapped as <code cl
 </span><span class="p">}</span><span class="w">
 </span></code></pre>
 
+<h3 id="making-ad-hoc-arrays">Making ad hoc arrays</h3>
+
+<p>It is possible to create derived arrays reusing subvariables from other arrays 
+using the <code class="prettyprint">array</code> function and indicating the reference for each of its 
+subvariables. </p>
+
+<p>The subvariables of an array are specified using the <code class="prettyprint">select</code> function, with its
+first <code class="prettyprint">map</code> argument indicating the IDs for each of these virtual subvariables.
+These IDs are user defined and can be any string. They remain unique inside the
+parent variable so they can be reused between different arrays.
+The second argument of the <code class="prettyprint">select</code> function indicates the order of the 
+subvariables in the array. They are referenced by the user defined IDs.</p>
+
+<p>Each of its variables must point to a variable expression, which can take an
+optional (but recommended) <code class="prettyprint">references</code> attribute to specify a particular name and alias for
+the subvariable, if not specified, the same name from the original will be used
+and the alias will be padded to ensure uniqueness.</p>
+<pre class="highlight json"><code><span class="p">{</span><span class="w">
+  </span><span class="nt">"CA3"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+    </span><span class="nt">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"cat array 3"</span><span class="p">,</span><span class="w"> 
+    </span><span class="nt">"derivation"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+      </span><span class="nt">"function"</span><span class="p">:</span><span class="w"> </span><span class="s2">"array"</span><span class="p">,</span><span class="w"> 
+      </span><span class="nt">"args"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
+        </span><span class="p">{</span><span class="w">
+          </span><span class="nt">"function"</span><span class="p">:</span><span class="w"> </span><span class="s2">"select"</span><span class="p">,</span><span class="w"> 
+          </span><span class="nt">"args"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
+            </span><span class="p">{</span><span class="w">
+              </span><span class="nt">"map"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+                </span><span class="nt">"var1"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+                  </span><span class="nt">"variable"</span><span class="p">:</span><span class="w"> </span><span class="s2">"ca2-subvar-2"</span><span class="p">,</span><span class="w"> 
+                  </span><span class="nt">"references"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+                    </span><span class="nt">"alias"</span><span class="p">:</span><span class="w"> </span><span class="s2">"subvar2"</span><span class="p">,</span><span class="w"> 
+                    </span><span class="nt">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Subvar 2"</span><span class="w">
+                  </span><span class="p">}</span><span class="w">
+                </span><span class="p">},</span><span class="w"> 
+                </span><span class="nt">"var0"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+                  </span><span class="nt">"variable"</span><span class="p">:</span><span class="w"> </span><span class="s2">"ca1-subvar-1"</span><span class="p">,</span><span class="w"> 
+                  </span><span class="nt">"references"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+                    </span><span class="nt">"alias"</span><span class="p">:</span><span class="w"> </span><span class="s2">"subvar1"</span><span class="p">,</span><span class="w"> 
+                    </span><span class="nt">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Subvar 1"</span><span class="w">
+                  </span><span class="p">}</span><span class="w">
+                </span><span class="p">}</span><span class="w">
+              </span><span class="p">}</span><span class="w">
+            </span><span class="p">},</span><span class="w"> 
+            </span><span class="p">{</span><span class="w">
+              </span><span class="nt">"value"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
+                </span><span class="s2">"var1"</span><span class="p">,</span><span class="w"> 
+                </span><span class="s2">"var0"</span><span class="w">
+              </span><span class="p">]</span><span class="w">
+            </span><span class="p">}</span><span class="w">
+          </span><span class="p">]</span><span class="w">
+        </span><span class="p">}</span><span class="w">
+      </span><span class="p">]</span><span class="w">
+    </span><span class="p">}</span><span class="w">
+  </span><span class="p">},</span><span class="w"> 
+  </span><span class="nt">"CA2"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+    </span><span class="nt">"subvariables"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
+      </span><span class="p">{</span><span class="w">
+        </span><span class="nt">"alias"</span><span class="p">:</span><span class="w"> </span><span class="s2">"ca2-subvar-1"</span><span class="p">,</span><span class="w"> 
+        </span><span class="nt">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"ca2-subvar-1"</span><span class="w">
+      </span><span class="p">},</span><span class="w"> 
+      </span><span class="p">{</span><span class="w">
+        </span><span class="nt">"alias"</span><span class="p">:</span><span class="w"> </span><span class="s2">"ca2-subvar-2"</span><span class="p">,</span><span class="w"> 
+        </span><span class="nt">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"ca2-subvar-2"</span><span class="w">
+      </span><span class="p">}</span><span class="w">
+    </span><span class="p">],</span><span class="w"> 
+    </span><span class="nt">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"categorical_array"</span><span class="p">,</span><span class="w"> 
+    </span><span class="nt">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"cat array 2"</span><span class="p">,</span><span class="w"> 
+    </span><span class="nt">"categories"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
+      </span><span class="p">{</span><span class="w">
+        </span><span class="nt">"numeric_value"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span><span class="w"> 
+        </span><span class="nt">"missing"</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="p">,</span><span class="w"> 
+        </span><span class="nt">"id"</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> 
+        </span><span class="nt">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"yes"</span><span class="w">
+      </span><span class="p">},</span><span class="w"> 
+      </span><span class="p">{</span><span class="w">
+        </span><span class="nt">"numeric_value"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span><span class="w"> 
+        </span><span class="nt">"missing"</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="p">,</span><span class="w"> 
+        </span><span class="nt">"id"</span><span class="p">:</span><span class="w"> </span><span class="mi">2</span><span class="p">,</span><span class="w"> 
+        </span><span class="nt">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"no"</span><span class="w">
+      </span><span class="p">},</span><span class="w"> 
+      </span><span class="p">{</span><span class="w">
+        </span><span class="nt">"numeric_value"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span><span class="w"> 
+        </span><span class="nt">"missing"</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span><span class="w"> 
+        </span><span class="nt">"id"</span><span class="p">:</span><span class="w"> </span><span class="mi">-1</span><span class="p">,</span><span class="w"> 
+        </span><span class="nt">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"No Data"</span><span class="w">
+      </span><span class="p">}</span><span class="w">
+    </span><span class="p">]</span><span class="w">
+  </span><span class="p">},</span><span class="w"> 
+  </span><span class="nt">"CA1"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+    </span><span class="nt">"subvariables"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
+      </span><span class="p">{</span><span class="w">
+        </span><span class="nt">"alias"</span><span class="p">:</span><span class="w"> </span><span class="s2">"ca1-subvar-1"</span><span class="p">,</span><span class="w"> 
+        </span><span class="nt">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"ca1-subvar-1"</span><span class="w">
+      </span><span class="p">},</span><span class="w"> 
+      </span><span class="p">{</span><span class="w">
+        </span><span class="nt">"alias"</span><span class="p">:</span><span class="w"> </span><span class="s2">"ca1-subvar-2"</span><span class="p">,</span><span class="w"> 
+        </span><span class="nt">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"ca1-subvar-2"</span><span class="w">
+      </span><span class="p">},</span><span class="w"> 
+      </span><span class="p">{</span><span class="w">
+        </span><span class="nt">"alias"</span><span class="p">:</span><span class="w"> </span><span class="s2">"ca1-subvar-3"</span><span class="p">,</span><span class="w"> 
+        </span><span class="nt">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"ca1-subvar-3"</span><span class="w">
+      </span><span class="p">}</span><span class="w">
+    </span><span class="p">],</span><span class="w"> 
+    </span><span class="nt">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"categorical_array"</span><span class="p">,</span><span class="w"> 
+    </span><span class="nt">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"cat array 1"</span><span class="p">,</span><span class="w"> 
+    </span><span class="nt">"categories"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
+      </span><span class="p">{</span><span class="w">
+        </span><span class="nt">"numeric_value"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span><span class="w"> 
+        </span><span class="nt">"missing"</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="p">,</span><span class="w"> 
+        </span><span class="nt">"id"</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> 
+        </span><span class="nt">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"yes"</span><span class="w">
+      </span><span class="p">},</span><span class="w"> 
+      </span><span class="p">{</span><span class="w">
+        </span><span class="nt">"numeric_value"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span><span class="w"> 
+        </span><span class="nt">"missing"</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="p">,</span><span class="w"> 
+        </span><span class="nt">"id"</span><span class="p">:</span><span class="w"> </span><span class="mi">2</span><span class="p">,</span><span class="w"> 
+        </span><span class="nt">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"no"</span><span class="w">
+      </span><span class="p">},</span><span class="w"> 
+      </span><span class="p">{</span><span class="w">
+        </span><span class="nt">"numeric_value"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span><span class="w"> 
+        </span><span class="nt">"missing"</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span><span class="w"> 
+        </span><span class="nt">"id"</span><span class="p">:</span><span class="w"> </span><span class="mi">-1</span><span class="p">,</span><span class="w"> 
+        </span><span class="nt">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"No Data"</span><span class="w">
+      </span><span class="p">}</span><span class="w">
+    </span><span class="p">]</span><span class="w">
+  </span><span class="p">}</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre>
+
+<p>On the above example, the array <code class="prettyprint">CA3</code> uses the array function and uses 
+subvariables <code class="prettyprint">ca1-subvar-1</code> and <code class="prettyprint">ca2-subvar-2</code> from <code class="prettyprint">CA1</code> and <code class="prettyprint">CA2</code> respectively.
+The <code class="prettyprint">references</code> attribute is used to indicate specific name/alias for these
+subvariables.</p>
+
 <h3 id="weights">Weights</h3>
 
 <p>A numeric variable suitable for use as row weights can be constructed from one or more categorical variables and target proportions of their categories. The sample distribution is “raked” iteratively to each categorical marginal target to produce a set of joint values that can be used as weights. Note that available weight variables are shared by all; you may not create private weights. To create a weight variable, POST a JSON variable definition to the variables catalog describing the properties of the weight variable, with an &ldquo;expr&rdquo; member indicating to use the &ldquo;rake&rdquo; function, which takes a &ldquo;targets&rdquo; argument containing an array of Crunch Tables of targets:</p>
@@ -1097,7 +1447,154 @@ Location: /api/datasets/<span class="o">{</span>datasetid<span class="o">}</span
 
 <h3 id="other-transformations">Other transformations</h3>
 
-<p>Forthcoming.</p>
+<h4 id="arithmetic-operations">Arithmetic operations</h4>
+
+<p>It is possible to create new numeric variables out of pairs of other
+ numeric variables. The following arithmetic operations are available
+ and will take two numeric variables as their arguments.</p>
+
+<ul>
+<li>&ldquo;+&rdquo; for adding up two numeric variables.</li>
+<li>&ldquo;-&rdquo; returns the difference between two numeric variables.</li>
+<li>&ldquo;*&rdquo; for the product of two numeric variables.</li>
+<li>&ldquo;/&rdquo; Real division.</li>
+<li>&ldquo;//&rdquo; Floor division; Returns always an integer.</li>
+<li>&ldquo;^&rdquo; Raises the first argument to the power of the second argument</li>
+<li>&ldquo;%&rdquo; Modulo operation; Accepts floats</li>
+</ul>
+
+<p>The usage is as follows for all operators:</p>
+<pre class="highlight json"><code><span class="p">{</span><span class="w">
+    </span><span class="nt">"function"</span><span class="p">:</span><span class="w"> </span><span class="s2">"+"</span><span class="p">,</span><span class="w">
+    </span><span class="nt">"args"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
+        </span><span class="p">{</span><span class="nt">"variable"</span><span class="p">:</span><span class="w"> </span><span class="s2">"https://app.crunch.io/api/datasets/123/variables/abc/"</span><span class="p">}</span><span class="w">
+        </span><span class="p">{</span><span class="nt">"variable"</span><span class="p">:</span><span class="w"> </span><span class="s2">"https://app.crunch.io/api/datasets/123/variables/def/"</span><span class="p">}</span><span class="w">
+    </span><span class="p">]</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre>
+
+<h4 id="bin">bin</h4>
+
+<p>Receives a numeric variable and returns a categorical one where each
+category represents a bin of the numeric values.</p>
+
+<p>Each category on the new variable is annotated with a &ldquo;boundaries&rdquo; 
+member that contains the lower/upper bound of each bin.</p>
+<pre class="highlight json"><code><span class="p">{</span><span class="w">
+    </span><span class="nt">"function"</span><span class="p">:</span><span class="w"> </span><span class="s2">"bin"</span><span class="p">,</span><span class="w">
+    </span><span class="nt">"args"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
+        </span><span class="p">{</span><span class="nt">"variable"</span><span class="p">:</span><span class="w"> </span><span class="s2">"https://app.crunch.io/api/datasets/123/variables/abc/"</span><span class="p">}</span><span class="w">
+    </span><span class="p">]</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre>
+
+<p>Optionally it is possible to pass a second argument indicating the desired
+bin size to use instead of allowing the API to decide them.</p>
+<pre class="highlight json"><code><span class="p">{</span><span class="w">
+    </span><span class="nt">"function"</span><span class="p">:</span><span class="w"> </span><span class="s2">"bin"</span><span class="p">,</span><span class="w">
+    </span><span class="nt">"args"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
+        </span><span class="p">{</span><span class="nt">"variable"</span><span class="p">:</span><span class="w"> </span><span class="s2">"https://app.crunch.io/api/datasets/123/variables/abc/"</span><span class="p">},</span><span class="w">
+        </span><span class="p">{</span><span class="err">'value':</span><span class="w"> </span><span class="err">100</span><span class="p">}</span><span class="w">
+    </span><span class="p">]</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre>
+
+<h4 id="case">case</h4>
+
+<p>Returns a categorical variable with its categories following the specified
+conditions from different variables on the dataset. <a href="#Case-statements">View Case Statements</a></p>
+
+<h4 id="cast">cast</h4>
+
+<p>Returns a new variable with its type and values casted. Not applicable
+on arrays or date variable; use <a href="#Date-Functions">Date Functions</a> to
+work with date variables.</p>
+<pre class="highlight json"><code><span class="p">{</span><span class="w">
+    </span><span class="nt">"function"</span><span class="p">:</span><span class="w"> </span><span class="s2">"cast"</span><span class="p">,</span><span class="w">
+    </span><span class="nt">"args"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
+        </span><span class="p">{</span><span class="nt">"variable"</span><span class="p">:</span><span class="w"> </span><span class="s2">"https://app.crunch.io/api/datasets/123/variables/abc/"</span><span class="p">},</span><span class="w">
+        </span><span class="p">{</span><span class="nt">"value"</span><span class="p">:</span><span class="w"> </span><span class="s2">"numeric"</span><span class="p">}</span><span class="w">
+    </span><span class="p">]</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre>
+
+<p>The allowed output variable types are:</p>
+
+<ul>
+<li>numeric</li>
+<li>text</li>
+<li>categorical</li>
+</ul>
+
+<p>For categorical types it is necessary to indicate the categories as a type
+definition instead of a string name:</p>
+
+<p>To cast to categorical type, the second argument <code class="prettyprint">value</code> should not be
+ a name string (<code class="prettyprint">numeric</code>, <code class="prettyprint">text</code>) but a type definition indicating a 
+ <code class="prettyprint">class</code> and <code class="prettyprint">categories</code> as follow:</p>
+<pre class="highlight json"><code><span class="p">{</span><span class="w">
+    </span><span class="nt">"function"</span><span class="p">:</span><span class="w"> </span><span class="s2">"cast"</span><span class="p">,</span><span class="w">
+    </span><span class="nt">"args"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
+        </span><span class="p">{</span><span class="nt">"variable"</span><span class="p">:</span><span class="w"> </span><span class="s2">"https://app.crunch.io/api/datasets/123/variables/abc/"</span><span class="p">},</span><span class="w">
+        </span><span class="p">{</span><span class="nt">"value"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+                </span><span class="nt">"class"</span><span class="p">:</span><span class="w"> </span><span class="s2">"categorical"</span><span class="p">,</span><span class="w">
+                </span><span class="nt">"categories"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
+                    </span><span class="p">{</span><span class="nt">"id"</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="nt">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"one"</span><span class="p">,</span><span class="w"> </span><span class="nt">"missing"</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="p">,</span><span class="w"> </span><span class="nt">"numeric_value"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">},</span><span class="w">
+                    </span><span class="p">{</span><span class="nt">"id"</span><span class="p">:</span><span class="w"> </span><span class="mi">2</span><span class="p">,</span><span class="w"> </span><span class="nt">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"two"</span><span class="p">,</span><span class="w"> </span><span class="nt">"missing"</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="p">,</span><span class="w"> </span><span class="nt">"numeric_value"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">},</span><span class="w">
+                    </span><span class="p">{</span><span class="nt">"id"</span><span class="p">:</span><span class="w"> </span><span class="mi">-1</span><span class="p">,</span><span class="w"> </span><span class="nt">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"No Data"</span><span class="p">,</span><span class="w"> </span><span class="nt">"missing"</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span><span class="w"> </span><span class="nt">"numeric_value"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">},</span><span class="w">
+                </span><span class="p">]</span><span class="w">
+            </span><span class="p">}</span><span class="w">
+        </span><span class="p">}</span><span class="w">
+    </span><span class="p">]</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre>
+
+<p>To change the type of a variable a client should POST to the <code class="prettyprint">/variable/:id/cast/</code>
+endpoint. See <a href="#Convert-type">Convert type</a> for API examples.</p>
+
+<h4 id="char_length">char_length</h4>
+
+<p>Returns a numeric variable containing the text length of each value. Only
+applicable on text variables.</p>
+<pre class="highlight json"><code><span class="p">{</span><span class="w">
+    </span><span class="nt">"function"</span><span class="p">:</span><span class="w"> </span><span class="s2">"char_length"</span><span class="p">,</span><span class="w">
+    </span><span class="nt">"args"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
+        </span><span class="p">{</span><span class="nt">"variable"</span><span class="p">:</span><span class="w"> </span><span class="s2">"https://app.crunch.io/api/datasets/123/variables/abc/"</span><span class="p">}</span><span class="w">
+    </span><span class="p">]</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre>
+
+<h4 id="copy_variable">copy_variable</h4>
+
+<p>Returns a shallow copy of the indicated variable maintaining type and data.</p>
+<pre class="highlight json"><code><span class="p">{</span><span class="w">
+    </span><span class="nt">"function"</span><span class="p">:</span><span class="w"> </span><span class="s2">"copy_variable"</span><span class="p">,</span><span class="w">
+    </span><span class="nt">"args"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
+        </span><span class="p">{</span><span class="nt">"variable"</span><span class="p">:</span><span class="w"> </span><span class="s2">"https://app.crunch.io/api/datasets/123/variables/abc/"</span><span class="p">}</span><span class="w">
+    </span><span class="p">]</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre>
+
+<p>Changes on the data of the original variable will be reflected on this copy.</p>
+
+<h4 id="combine_categories">combine_categories</h4>
+
+<p>Returns a categorical variable with values combined following the specified
+combination rules. See <a href="#Combining-categories">Combining categories</a></p>
+
+<h4 id="combine_responses">combine_responses</h4>
+
+<p>Given a list of categorical variables, return the selected value out
+of them. See <a href="#Combining-responses">Combining responses</a></p>
+
+<h4 id="row">row</h4>
+
+<p>Returns a numeric variable with row 0 based indices. It takes no arguments.</p>
+<pre class="highlight json"><code><span class="p">{</span><span class="w">
+    </span><span class="nt">"function"</span><span class="p">:</span><span class="w"> </span><span class="s2">"row"</span><span class="p">,</span><span class="w">
+    </span><span class="nt">"args"</span><span class="p">:</span><span class="w"> </span><span class="p">[]</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre>
 
           <h2 id="array-variables">Array Variables</h2>
 
@@ -3079,7 +3576,7 @@ attribute pointing to the URL of the source dataset to use.</p>
 <pre class="highlight json"><code><span class="p">{</span><span class="w">
   </span><span class="nt">"element"</span><span class="p">:</span><span class="w"> </span><span class="s2">"shoji:entity"</span><span class="p">,</span><span class="w">
   </span><span class="nt">"body"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
-    </span><span class="nt">"copy_from"</span><span class="p">:</span><span class="w"> </span><span class="s2">"htp://app.crunch.io/api/datasets/1234/"</span><span class="w">
+    </span><span class="nt">"copy_from"</span><span class="p">:</span><span class="w"> </span><span class="s2">"https://app.crunch.io/api/datasets/1234/"</span><span class="w">
   </span><span class="p">}</span><span class="w">
 </span><span class="p">}</span><span class="w">
 </span></code></pre>
@@ -3097,6 +3594,42 @@ will be brought over to the current dataset:</p>
 <li>Personal variables</li>
 <li>Permissions</li>
 </ul>
+
+<p>The response will be a <code class="prettyprint">shoji:entity</code> containing as a body an object with
+keys for each entity type that uas not been copied. In the case of variables
+these entities will display their name, alias and owner (if personal).</p>
+
+<p>All the URLs will refer to entities on the source dataset.</p>
+<pre class="highlight json"><code><span class="p">{</span><span class="w">
+    </span><span class="nt">"element"</span><span class="p">:</span><span class="w"> </span><span class="s2">"shoji:entity"</span><span class="p">,</span><span class="w">
+    </span><span class="nt">"body"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+        </span><span class="nt">"variables"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+            </span><span class="nt">"https://app.crunch.io/dataset/1234/variables/abc/"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+                </span><span class="nt">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Variable name"</span><span class="p">,</span><span class="w">
+                </span><span class="nt">"alias"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Variable alias"</span><span class="p">,</span><span class="w">
+                </span><span class="nt">"owner_url"</span><span class="p">:</span><span class="w"> </span><span class="s2">"https://app.crunch.io/users/qwe/"</span><span class="p">,</span><span class="w">
+                </span><span class="nt">"owner_name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Angus MacGyver"</span><span class="w">
+            </span><span class="p">},</span><span class="w"> 
+            </span><span class="nt">"https://app.crunch.io/dataset/1234/variables/cde/"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+                </span><span class="nt">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Variable name"</span><span class="p">,</span><span class="w">
+                </span><span class="nt">"alias"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Variable alias"</span><span class="p">,</span><span class="w">
+                </span><span class="nt">"owner_url"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span><span class="w">
+                </span><span class="nt">"owner_name"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="w">
+            </span><span class="p">},</span><span class="w"> 
+        </span><span class="err">}</span><span class="p">,</span><span class="w">
+        </span><span class="nt">"filters"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+            </span><span class="nt">"https://app.crunch.io/filters/abcd/"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+                </span><span class="nt">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"filter name"</span><span class="p">,</span><span class="w">
+                </span><span class="nt">"owner_url"</span><span class="p">:</span><span class="w"> </span><span class="s2">"http://app.crunch.io/users/qwe/"</span><span class="w">
+            </span><span class="p">},</span><span class="w">
+            </span><span class="nt">"http://app.crunch.io/filters/cdef/"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+                </span><span class="nt">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"filter name"</span><span class="p">,</span><span class="w">
+                </span><span class="nt">"owner_url"</span><span class="p">:</span><span class="w"> </span><span class="s2">"https://app.crunch.io/users/qwe/"</span><span class="w">
+            </span><span class="p">}</span><span class="w">
+        </span><span class="p">}</span><span class="w">
+    </span><span class="p">}</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre>
 
 <h4 id="delete">DELETE</h4>
 
@@ -4117,6 +4650,11 @@ is, variables from joined datasets cannot be set as weight.
 <td>For array variables, an ordered array of {&ldquo;name&rdquo;: &hellip;, &ldquo;alias&rdquo;: &hellip;, &hellip;} objects, one per subvariable</td>
 </tr>
 <tr>
+<td>resolution</td>
+<td>string</td>
+<td>For datetime variables, a string, such as &ldquo;Y&rdquo;, &ldquo;M&rdquo;, &ldquo;D&rdquo;, &ldquo;h&rdquo;, &ldquo;m&rdquo;, &ldquo;s&rdquo;, &ldquo;ms&rdquo;, that indicates the unit size of the datetime data.</td>
+</tr>
+<tr>
 <td>derivation</td>
 <td>object</td>
 <td>For derived variables, a Crunch expression which was used to derive this variable; or null</td>
@@ -4129,7 +4667,7 @@ is, variables from joined datasets cannot be set as weight.
 <tr>
 <td>view</td>
 <td>object</td>
-<td>An object with various members to control the display of Variable data</td>
+<td>An object with various members to control the display of Variable data (see below)</td>
 </tr>
 <tr>
 <td>dataset_id</td>
@@ -4234,6 +4772,11 @@ category definitions. You don&rsquo;t need the &ldquo;missing_reasons&rdquo; bod
 <td>boolean</td>
 <td>For multiple response types only; if true, display a &ldquo;none of the above&rdquo; category in the requested summary or analysis</td>
 </tr>
+<tr>
+<td>rollup_resolution</td>
+<td>string</td>
+<td>For datetime variables, a unit to which data should be &ldquo;rolled up&rdquo; by default. See &ldquo;resolution&rdquo; above.</td>
+</tr>
 </tbody></table>
 
 <h4 id="patch">PATCH</h4>
@@ -4251,6 +4794,7 @@ variable entities:</p>
 <li>Reordering or removing subvariables in an array. Unlike categories, subvariables cannot be added via PATCH here.</li>
 <li>Editing derivation expressions</li>
 <li>Editing format and view settings</li>
+<li>Changing a datetime variable&rsquo;s resolution</li>
 </ul>
 
 <p>Actions that are best or only achieved elsewhere include:</p>
@@ -4563,6 +5107,28 @@ that will contain a Location header with the URL of the newly created filter.</p
     </span><span class="p">]</span><span class="w">
 </span><span class="p">}</span><span class="w">
 </span></code></pre>
+
+<p>PUT the applied endpoint to change the which filters are applied for other operations.
+The graph parameter indicates which filters are applied.  Successful PUT requests return 204 status.</p>
+
+<h3 id="filter-order">Filter Order</h3>
+
+<p><code class="prettyprint">GET /datasets/{id}/filters/order/</code></p>
+
+<p>A Shoji order containing the persisted filter order.</p>
+<pre class="highlight json"><code><span class="p">{</span><span class="w">
+    </span><span class="nt">"element"</span><span class="p">:</span><span class="w"> </span><span class="s2">"shoji:order"</span><span class="p">,</span><span class="w">
+    </span><span class="nt">"self"</span><span class="p">:</span><span class="w"> </span><span class="s2">"http://app.crunch.io/api/datasets/ac64ef/filters/order/"</span><span class="p">,</span><span class="w">
+    </span><span class="nt">"graph"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
+        </span><span class="s2">"http://app.crunch.io/api/datasets/ac64ef/filters/28ef72/"</span><span class="p">,</span><span class="w">
+        </span><span class="s2">"http://app.crunch.io/api/datasets/ac64ef/filters/0ac6e1/"</span><span class="p">,</span><span class="w">
+    </span><span class="p">]</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre>
+
+<p>PATCH the order to change the order of the filters.  The graph parameter indicates the order.  Private filters
+are not included in the order.  Any filters that are missing are appended to the end of the order. Successful
+PATCH requests return 204 status.</p>
 
 <h3 id="filtering-endpoints">Filtering endpoints</h3>
 
@@ -7001,19 +7567,21 @@ Joins are an experimental feature. Beware when using it, and expect significant 
 
 <p><code class="prettyprint">/users/{id}/{?reason_url}</code></p>
 
-<p>A Shoji Entity with the following body members:
-first_name
-last_name
-id
-email
-id_method (optional)
-id_provider (optional, and only if id_method == &lsquo;oauth&rsquo;)</p>
+<p>A Shoji Entity with the following body members:</p>
+
+<ul>
+<li>name</li>
+<li>id</li>
+<li>email</li>
+<li>id_method (optional)</li>
+<li>id_provider (optional, and only if id_method == &lsquo;oauth&rsquo;)</li>
+</ul>
 
 <p>If the current user has the &ldquo;alter_users&rdquo; account permission, or is the viewed user, a hefty set of associated URL&rsquo;s is included. Otherwise, the current user must have the &ldquo;view&rdquo; permission for the viewed user, or receives 403 Forbidden.</p>
 
 <p>The id_method member can be one of {&#39;oauth&rsquo;, &#39;pwhash&rsquo;}. If not present, &#39;pwhash&rsquo; is assumed.</p>
 
-<p>Any user can PUT new attributes via a JSON-like request body. A 200 indicates success.</p>
+<p>A user themselves or with &ldquo;alter_users&rdquo; account permission can PUT new attributes via a JSON-like request body. A 200 indicates success.</p>
 
 <p><code class="prettyprint">/users/{id}/invite/</code></p>
 
@@ -7023,13 +7591,26 @@ id_provider (optional, and only if id_method == &lsquo;oauth&rsquo;)</p>
 
 <p><code class="prettyprint">/users/{id}/password/</code></p>
 
-<p>A POST on this resource must consist of a JSON object with the members &ldquo;old_pw&rdquo; and &ldquo;new_pw&rdquo;. A 204 indicates success.</p>
+<p>A POST on this resource must consist of a JSON object with the members &ldquo;old_pw&rdquo; and &ldquo;new_pw&rdquo;. A 204 indicates success, a 400 indicates failure.</p>
+
+<aside class="notice">
+    Please refer to the [password policy](#Password-policy) for information on
+    what the requirements are for a password.
+</aside>
 
 <p><code class="prettyprint">/users/{id}/password_reset/</code></p>
 
 <p>A GET on this resource always returns 204. A POST will send a reset password notification to the identified user. A 204 indicates success.</p>
 
 <p>If a &ldquo;url_base&rdquo; parameter is included in the request body, it will be used to form links inside the notification.</p>
+
+<p><code class="prettyprint">/users/{id}/change_email/</code></p>
+
+<p>A POST on this resource must consist of a JSON object with the members &ldquo;pw&rdquo; and &ldquo;email&rdquo;. A 204 indicates potential success to change the users email address to the newly provided email. The user should check their email and verify they own the email address in question.</p>
+
+<p>If the password does not match the users current password they will receive an error message (400 Bad Request). If the user is an oauth account, then the email address may not be changed (409 Conflict).</p>
+
+<p>If the user ID does not match the current signed in user, an 403 Forbidden will be sent back.</p>
 
           <h2 id="teams">Teams</h2>
 
