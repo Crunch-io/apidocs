@@ -271,48 +271,18 @@ Each multi-table template may be a list of variable references and other informa
 The template may contain in addition to variable references and their query arguments, an optional `transform`: \
 To obtain their multiple output cubes, you `GET datasets/{id}/cube?query=<q>` where `<q>` is a ZCL object in JSON format (which must then be URI encoded for inclusion in the querystring). Use the "each" function to iterate over the overview variables’ `query`, producing one output cube for each one as "variable x". For example, to cross each of the above 3 variables against another variable "449b421":
 
-
 ```json
 {
     "function": "each",
     "args": [
-        {
-            "value": "x"
-        },
-        [
-            {
-                "variable": "de85b32"
-            },
-            {
-                "variable": "398620f"
-            },
-            {
-                "variable": "c116a77"
-            }
-        ]
+        {"value": "x"},
+        [{"variable": "de85b32"}, {"variable": "398620f"}, {"variable": "c116a77"}]
     ],
     "block": {
         "function": "cube",
         "args": [
-            [
-                {
-                    "variable": "449b421"
-                },
-                {
-                    "variable": "x"
-                }
-            ],
-            {
-                "map": {
-                    "count": {
-                        "function": "cube_count",
-                        "args": []
-                    }
-                }
-            },
-            {
-                "value": null
-            }
+            [{"variable": "449b421"}, {"variable": "x"}],
+            {"count": {"function": "cube_count", "args": []}}
         ]
     }
 }
@@ -323,27 +293,26 @@ The result will be an array of output cubes:
 ```json
 {
     "element": "shoji:view",
-    "value": [
-        {
-            "query": {},
-            "result": {
+    "value": {
+        "result": {
+            "definitions": {
+                "449b421": {"type": {"class": "categorical", ...}, "references": {...}, "derived": False},
+                "de85b32": {"type": {"class": "categorical", ...}, "references": {...}, "derived": False},
+                "398620f": {"type": {"class": "categorical", ...}, "references": {...}, "derived": False},
+                "c116a77": {"type": {"class": "categorical", ...}, "references": {...}, "derived": False},
+                "count": {"type": {"class": "numeric"}, "references": {...}, "derived": True}
+            },
+            "cubes": [{
                 "element": "crunch:cube",
-                "dimensions": [
-                    {
-                        "references": "449b421",
-                        "type": "etc."
-                    },
-                    {
-                        "references": "de85b32",
-                        "type": "etc."
+                "dimensions": [{"definition": "449b421"}, {"definition": "de85b32"}],
+                "measures": {
+                    "count": {
+                        "data": [23],
+                        "metadata": {"definition": "count"},
+                        "n_missing": 2
                     }
-                ],
-                "measures": {...}
-            }
-        },
-        {
-            "query": {},
-            "result": {
+                }
+            }, {
                 "element": "crunch:cube",
                 "dimensions": [
                     {
@@ -356,11 +325,7 @@ The result will be an array of output cubes:
                     }
                 ],
                 "measures": {...}
-            }
-        },
-        {
-            "query": {},
-            "result": {
+            }, {
                 "element": "crunch:cube",
                 "dimensions": [
                     {
@@ -373,7 +338,7 @@ The result will be an array of output cubes:
                     }
                 ],
                 "measures": {...}
-            }
+            }]
         }
     ]
 }
@@ -503,6 +468,95 @@ In a saved analysis the transforms are an array in `display_settings` with the s
 }
 ```
 
+### Transforming analyses for presentation
+
+The `transform` member of an analysis specification (or multitable definition)
+provides a way to transform that dimension's results after computation. The 
+cube result dimension will always be derived from the `query` part of the
+request (`{variable: $variableId})`, `{function: f, args: [$variableId, …]}`, &c.
+
+### Structure
+
+A `transform` is an array of target transforms for output-dimension elements. 
+Therefore to create a valid `transform` it is generally necessary to make a cube query, inspect
+the result dimension, and proceed from there. For categorical and multiple response
+variables, elements may also be obtained from the variable entity.
+
+Transforms are designed for variables that are more stable than not, with element ids
+that inhere in the underlying elements, such as category or subvariable ids. Dynamic
+elements such as results of `bin`ning a numeric variable, may not be transformed.
+
+Consider the following example result dimension:
+
+| Name       | missing | id |
+|------------|---------|----|
+| Element A  |         | 0  |
+| Element B  |         | 1  |
+| Element C  |         | 2  |
+| Don’t know |         | 3  |
+| Not asked  | true    | 4  |
+
+A full `transform` can specify a new order of output elements, new names, 
+and in the future, bases for hypothesis testing, result sorting, and 
+aggregation of results. A `transform` has elements that look generally like
+the dimension's extent, with some optional properties: 
+
+- **id**: (required) id or array of ids in the target row/column
+- **name**: name of new target column
+- **sort**: `-1` or `1` indicating to sort results descending or ascending by this element
+- **compare**: `neq`, `leq`, `geq` indicating to test other rows/columns against
+the hypothesis that they are ≠, ≤, or ≥ to the present element
+- **combine**: `sum` (or `mean`?) — combine the indices in `[i]` to produce this target row/column
+- **hide**: suppress this element's row/column from displaying at all. Defaults to false for valid elements, true for missing, so that if an element is added, it will be present until a transform with `hide: true` is added to suppress it.
+
+A `transform` with object members can do lots of things. Suppose we want to put _Element C_ first, 
+hide the _Don’t know_, and more compactly represent the result as just _C, A, B_:
+
+```json
+transform: [
+    {'id': 2, 'name': 'C'},
+    {'id': 0, 'name': 'A'},
+    {'id': 1, 'name': 'B'},
+    {'id': 3, 'hide': true}
+]
+```
+
+#### In the future: `combine`
+
+Suppose we want to combine results in _A_ and _B_ into _Others_:
+
+```json
+transform: [
+    {'id': 2, 'name': 'C'},
+    {'id': [0,1], 'name': 'Others', 'combine': 'sum'},
+    {'id': 3, 'hide': true}
+]
+```
+
+#### Order of transform operations
+
+1. Combine
+1. Name
+1. Order
+2. Hide
+
+#### Example transform in a saved analysis
+
+In a saved analysis the transforms are an array in `display_settings` with the same extents output dimensions (as well as, of course, the query used to generate them). This syntax makes a univariate table of a multitple response variable and re-orders the result.
+
+
+```json
+"query": {
+    "dimensions": [{"function": "selected_array", "args":[{"variable": "../variables/398620f/"}]}, {"variable": "../variables/398620f/"}],
+    "measures": {"count": {
+        "function": "cube_count", args: []
+    }}
+},
+"display_settings": {
+    "transform": [{"id": "f007", "value": "My preferred first item"}, {"id": "fee7", "value": "The zeroth response"}, {"id": "c001", "name": "Third response"}]
+}
+```
+
 #### Example transform in a multitable template
 
 In a multitable, the `transform` is part of each dimension definition object in the `template` array.
@@ -532,3 +586,4 @@ In a multitable, the `transform` is part of each dimension definition object in 
     ]
 }
 ```
+
