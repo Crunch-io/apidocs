@@ -298,38 +298,6 @@ the existing order. Personal variables are allowed here.
 Behaves sames as PATCH.
 
 
-### Weights
-
-`/datasets/{id}/variables/weights/`
-
-#### GET
-
-Returns a Shoji order with a flat list of URLs for that variables that have been 
-designated as possible weight variables.
-
-#### PATCH
-
-Receives a `shoji:order` payload and will store the variable URLs indicated
-on the `graph` attribute as the weight variables. 
-The submitted list of variables must always be a flat order and can only
-contain numeric variables from the current dataset. The current order
-will be overwritten with the new list.
-
-If the currently configured weight is not on the current list it will be
-added as the first element.
-
-```json
-{
-  "element": "shoji:order",
-  "graph": ["https://app.crunch.io/api/datasets/42d0a3/variables/42229f"]
-}
-```
-
-<aside class="warning">
-It is only possible to submit variables that belong to the main dataset. That
-is, variables from joined datasets cannot be set as weight.
-</aside>
-
 ### Entity
 
 `/datasets/{id}/variables/{id}/`

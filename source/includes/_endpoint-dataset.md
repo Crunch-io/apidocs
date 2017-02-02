@@ -744,7 +744,7 @@ All the URLs will refer to entities on the source dataset.
                 "alias": "Variable alias",
                 "owner_url": null,
                 "owner_name": null
-            }, 
+            } 
         },
         "filters": {
             "https://app.crunch.io/filters/abcd/": {
@@ -1159,3 +1159,90 @@ See [Versions](#versions).
 See [Variables](#variables).
 
 ##### Weight variables
+
+`/datasets/{id}/weight_variables/`
+
+Returns a read variable order that includes the current list of variables 
+that are allowed to be used as weights.
+
+###### GET
+
+A `shoji:catalog` that is a subset of the main variable catalog containing
+only the list of variables allowed to be used as weight. Note that this is
+an unordered catalog just like any other `shoji:catalog`.
+
+
+```json
+{
+  "element": "shoji:catalog",
+  "index": {
+    "9e4c84/": {
+        "name": "Weight",
+        "derived": false,
+        "discarded": false,
+        "alias": "weight",
+        "type": "numeric",
+        "id": "9e4c84",
+        "notes": "Variable to be used as weight",
+        "description": "Default weight variable"
+    }
+  }
+}
+```
+
+###### PATCH
+
+Use PATCH to add or remove variables from the list.
+
+To include new variables on the list, they should be included in the payload
+with an empty object as their value. 
+
+To remove variables from the list they should be sent with `null` as their
+payload value.
+
+The following example will add the variable with `123456/` and remove `9e4c84/`
+from the current list of weight variables.
+
+```json
+{
+  "element": "shoji:catalog",
+  "index": {
+    "9e4c84/": null,
+    "123456/": {}
+  }
+}
+```
+
+
+
+###### Order
+
+`/datasets/{id}/weight_variables/order/`
+
+####### GET
+
+Returns a Shoji order with a flat list of URLs for that variables that have been 
+designated as possible weight variables.
+
+####### PATCH
+
+Receives a `shoji:order` payload and will store the variable URLs indicated
+on the `graph` attribute as the weight variables. 
+The submitted list of variables must always be a flat order and can only
+contain numeric variables from the current dataset. The current order
+will be overwritten with the new list.
+
+If the currently configured weight is not on the current list it will be
+added as the first element.
+
+```json
+{
+  "element": "shoji:order",
+  "graph": ["https://app.crunch.io/api/datasets/42d0a3/variables/42229f"]
+}
+```
+
+<aside class="warning">
+It is only possible to submit variables that belong to the main dataset. That
+is, variables from joined datasets cannot be set as weight.
+</aside>
