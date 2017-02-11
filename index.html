@@ -1717,7 +1717,7 @@ Pepsi       o           o      o      o       o
 
 <h3 id="non-uniform-basis">Non-uniform basis</h3>
 
-<p>As presented above, multiple response variables assume that subvariables have a consistent, uniform basis or number of rows in each subvariable. In some cases, the number of valid and missing entries may be wildly different from one subvariable to the next. In a survey example, a new response may be added to a longer-running series, or different responses may be presented to subsets of respondents in the context of an experiment. The boolean field <code class="prettyprint">uniform_basis</code>, if <code class="prettyprint">false</code>, provides a hint to users that rather than requesting the <code class="prettyprint">selected_array</code> mask in an analysis query, they should instead request <code class="prettyprint">each</code> subvariable and all categories, and calculate the basis per-subvariable by summing the valid nonmissing categories (typically something such as ‘selected’ and ‘not selected’ with other categories such as ‘not asked’ marked missing. The field’s default is <code class="prettyprint">true</code>.</p>
+<p>As presented above, multiple response variables assume that subvariables have a consistent, uniform basis or number of rows in each subvariable. In some cases, the number of valid and missing entries may be wildly different from one subvariable to the next. In a survey example, a new response may be added to a longer-running series, or different responses may be presented to subsets of respondents in the context of an experiment. The boolean field <code class="prettyprint">uniform_basis</code>, if <code class="prettyprint">false</code>, provides a hint to users that, rather than using the <code class="prettyprint">__any__</code> column (from the <code class="prettyprint">selections</code> function output) in an analysis query, they should instead calculate the basis per subvariable by summing the ‘selected’ and ‘not selected’ categories. The field’s default is <code class="prettyprint">true</code>.</p>
 
 <h3 id="adding-new-subvariables">Adding new subvariables</h3>
 
@@ -1745,10 +1745,12 @@ Pepsi       o           o      o      o       o
 <p>Each dimension of an analysis can be simply one variable, a function over it, a traversal of its subvariables (for array variables), or even a combination of multiple variables (e.g. A + B). Any expression you can use in a &ldquo;select&rdquo; command can be used as a dimension. The big difference is that the system will consider the distinct values rather than all values of the result. Variables which are already &ldquo;categorical&rdquo; or &ldquo;enumerated&rdquo; will simply use their &ldquo;categories&rdquo; or &ldquo;elements&rdquo; as the extent. Other variables form their extents from their distinct values.</p>
 
 <p>For example, if &ldquo;3ffd45&rdquo; is a categorical variable with three categories (one of which is &ldquo;No Data&rdquo;: -1), then the following dimension expressions:</p>
-<pre class="highlight json"><code><span class="s2">"dimensions"</span><span class="err">:</span><span class="w"> </span><span class="p">[</span><span class="w">
-    </span><span class="p">{</span><span class="nt">"variable"</span><span class="p">:</span><span class="w"> </span><span class="s2">"datasets/ab8832/variables/3ffd45/"</span><span class="p">},</span><span class="w">
-    </span><span class="p">{</span><span class="nt">"function"</span><span class="p">:</span><span class="w"> </span><span class="s2">"+"</span><span class="p">,</span><span class="w"> </span><span class="nt">"args"</span><span class="p">:</span><span class="w"> </span><span class="p">[{</span><span class="nt">"variable"</span><span class="p">:</span><span class="w"> </span><span class="s2">"datasets/ab8832/variables/2098f1/"</span><span class="p">},</span><span class="w"> </span><span class="p">{</span><span class="nt">"value"</span><span class="p">:</span><span class="w"> </span><span class="mi">5</span><span class="p">}]}</span><span class="w">
-</span><span class="p">]</span><span class="w">
+<pre class="highlight json"><code><span class="p">{</span><span class="w">
+    </span><span class="nt">"dimensions"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
+        </span><span class="p">{</span><span class="nt">"variable"</span><span class="p">:</span><span class="w"> </span><span class="s2">"datasets/ab8832/variables/3ffd45/"</span><span class="p">},</span><span class="w">
+        </span><span class="p">{</span><span class="nt">"function"</span><span class="p">:</span><span class="w"> </span><span class="s2">"+"</span><span class="p">,</span><span class="w"> </span><span class="nt">"args"</span><span class="p">:</span><span class="w"> </span><span class="p">[{</span><span class="nt">"variable"</span><span class="p">:</span><span class="w"> </span><span class="s2">"datasets/ab8832/variables/2098f1/"</span><span class="p">},</span><span class="w"> </span><span class="p">{</span><span class="nt">"value"</span><span class="p">:</span><span class="w"> </span><span class="mi">5</span><span class="p">}]}</span><span class="w">
+    </span><span class="p">]</span><span class="w">
+</span><span class="p">}</span><span class="w">
 </span></code></pre>
 
 <p>&hellip;would form a result cube with two dimensions: one using the categories of variable &ldquo;3ffd45&rdquo;, and one using the distinct values of (variable &ldquo;2098f1&rdquo; + 5). If variable &ldquo;2098f1&rdquo; has the distinct values [5, 15, 25, 35], then we would obtain a cube with the following extents:</p>
@@ -1805,18 +1807,17 @@ Pepsi       o           o      o      o       o
 <li>categorical_array:
 
 <ul>
-<li>One dimension for the categories: {&ldquo;variable&rdquo;: url}</li>
 <li>One dimension for the subvariables: {&ldquo;each&rdquo;: url}</li>
+<li>One dimension for the categories: {&ldquo;variable&rdquo;: url}</li>
 </ul></li>
 <li>multiple response:
 
 <ul>
-<li>One dimension for the selected categories, which means transforming the array from a set of categorical variables to a set of boolean (true/false) variables via:
+<li>One dimension for the subvariables: {&ldquo;each&rdquo;: url}</li>
+<li>One dimension for the selected-ness, which means transforming the array from a set of arbitrary categories to a standard &ldquo;selected&rdquo; set of categories (1, 0, -1) via:
 
 <ul>
-<li>{&ldquo;function&rdquo;: &ldquo;selected_array&rdquo;, &ldquo;args&rdquo;: [{&ldquo;variable&rdquo;: url}]}</li>
-<li>Note that, because this input dimension is now a boolean, it will not add an output dimension. Instead, it will filter the calculation to only consider those entries (for each subvariable) which are true, which means they were selected categories. If you wish to have a separate output dimension including each distinct category (whether selected or not), do not apply the &ldquo;selected_array&rdquo; function; instead, just supply the variable reference as-is.
-One dimension for the subvariables: {&ldquo;each&rdquo;: url}</li>
+<li>{&ldquo;function&rdquo;: &ldquo;selections&rdquo;, &ldquo;args&rdquo;: [{&ldquo;variable&rdquo;: url}]}</li>
 </ul></li>
 </ul></li>
 </ul>
@@ -1824,14 +1825,14 @@ One dimension for the subvariables: {&ldquo;each&rdquo;: url}</li>
 <h3 id="measures">Measures</h3>
 
 <p>A set of named functions to populate each cell of the cube. You can request multiple functions over the same dimensions (such as “cube_mean” and “cube_stddev”) or more commonly just one (like “cube_count”). For example:</p>
-<pre class="highlight json"><code><span class="s2">"measures"</span><span class="err">:</span><span class="w"> </span><span class="p">{</span><span class="nt">"count"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="nt">"function"</span><span class="p">:</span><span class="w"> </span><span class="s2">"cube_count"</span><span class="p">,</span><span class="w"> </span><span class="nt">"args"</span><span class="p">:</span><span class="w"> </span><span class="p">[]}}</span><span class="w">
+<pre class="highlight json"><code><span class="p">{</span><span class="nt">"measures"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="nt">"count"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="nt">"function"</span><span class="p">:</span><span class="w"> </span><span class="s2">"cube_count"</span><span class="p">,</span><span class="w"> </span><span class="nt">"args"</span><span class="p">:</span><span class="w"> </span><span class="p">[]}}}</span><span class="w">
 </span></code></pre>
 
 <p>or:</p>
-<pre class="highlight json"><code><span class="w">    </span><span class="s2">"measures"</span><span class="err">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+<pre class="highlight json"><code><span class="w">    </span><span class="p">{</span><span class="nt">"measures"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
         </span><span class="nt">"mean"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="nt">"function"</span><span class="p">:</span><span class="w"> </span><span class="s2">"cube_mean"</span><span class="p">,</span><span class="w"> </span><span class="nt">"args"</span><span class="p">:</span><span class="w"> </span><span class="p">[{</span><span class="nt">"variable"</span><span class="p">:</span><span class="w"> </span><span class="s2">"datasets/1/variables/3"</span><span class="p">}]},</span><span class="w">
         </span><span class="nt">"stddev"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="nt">"function"</span><span class="p">:</span><span class="w"> </span><span class="s2">"cube_stddev"</span><span class="p">,</span><span class="w"> </span><span class="nt">"args"</span><span class="p">:</span><span class="w"> </span><span class="p">[{</span><span class="nt">"variable"</span><span class="p">:</span><span class="w"> </span><span class="s2">"datasets/1/variables/3/"</span><span class="p">}]}</span><span class="w">
-    </span><span class="p">}</span><span class="w">
+    </span><span class="p">}}</span><span class="w">
 </span></code></pre>
 
 <p>When applied to the dimensions we defined above, this second example might fill the table thusly for the &ldquo;mean&rdquo; measure:</p>
@@ -1873,7 +1874,7 @@ One dimension for the subvariables: {&ldquo;each&rdquo;: url}</li>
 <p>&hellip;and produce a similar one for the &ldquo;stddev&rdquo; measure. You can think of multiple measures as producing &ldquo;overlays&rdquo; over the same dimensions. However, the actual output format (in JSON) is more compact in that the dimensions are not repeated; see Object Reference:Cube output for details.</p>
 
 <p>ZCL expressions are composable. If you need, for example, to find the mean of a categorical variable&rsquo;s &ldquo;numeric_value&rdquo; attributes, cast the variable to the &ldquo;numeric&rdquo; type class before including it as the cube argument:</p>
-<pre class="highlight json"><code><span class="s2">"measures"</span><span class="err">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+<pre class="highlight json"><code><span class="p">{</span><span class="nt">"measures"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
     </span><span class="nt">"mean"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
         </span><span class="nt">"function"</span><span class="p">:</span><span class="w"> </span><span class="s2">"cube_mean"</span><span class="p">,</span><span class="w">
         </span><span class="nt">"args"</span><span class="p">:</span><span class="w"> </span><span class="p">[{</span><span class="w">
@@ -1884,7 +1885,7 @@ One dimension for the subvariables: {&ldquo;each&rdquo;: url}</li>
             </span><span class="p">]</span><span class="w">
         </span><span class="p">}]</span><span class="w">
     </span><span class="p">}</span><span class="w">
-</span><span class="p">}</span><span class="w">
+</span><span class="p">}}</span><span class="w">
 </span></code></pre>
 
 <h3 id="comparisons">Comparisons</h3>
@@ -1996,12 +1997,6 @@ One dimension for the subvariables: {&ldquo;each&rdquo;: url}</li>
 <p>We POST the above to datasets/{id}/comparisons/ and can obtain the overlay output at datasets/{id}/comparisons/{comparison_id}/cube/. See the Endpoint Reference for details.</p>
 
 <h3 id="multitables">Multitables</h3>
-
-<p>Analyses as described above are truly multidimensional; when you add another variable, the resulting cube obtains another dimension. Sometimes, however, you want to compare analyses side by side, typically looking at several (even <em>all</em>) variables against a common set of conditioning variables. For example, you might nominate &ldquo;Gender&rdquo;, &ldquo;Age&rdquo;, and &ldquo;Race&rdquo; as the conditioning variables and cross every other variable with those, in order to quickly discover common correlations.</p>
-
-<p>Multi-table definitions mainly provide a <code class="prettyprint">template</code> member that clients can use to construct a valid query with the variable(s) of interest.</p>
-
-<p>Crunch provides a separate catalog where you can define and manage these common sets of variables. Like most catalogs, you can GET it to see which multitables are defined:</p>
 <pre class="highlight http"><code><span class="nf">GET</span> <span class="nn">datasets/{id}/multitables/</span> <span class="k">HTTP</span><span class="o">/</span><span class="m">1.1</span>
 
 200 OK
@@ -2013,8 +2008,6 @@ One dimension for the subvariables: {&ldquo;each&rdquo;: url}</li>
     }
 }
 </code></pre>
-
-<p>&hellip;POST a new overview:</p>
 <pre class="highlight http"><code><span class="nf">POST</span> <span class="nn">datasets/{id}/multitables/</span> <span class="k">HTTP</span><span class="o">/</span><span class="m">1.1</span>
 
 {
@@ -2023,7 +2016,6 @@ One dimension for the subvariables: {&ldquo;each&rdquo;: url}</li>
         "name": "Geographical indicators",
         "template": [
             {
-                "variable": "../variables/de85b32/",
                 "query": [
                     {
                         "variable": "../variables/de85b32/"
@@ -2031,7 +2023,6 @@ One dimension for the subvariables: {&ldquo;each&rdquo;: url}</li>
                 ]
             },
             {
-                "variable": "../variables/398620f/",
                 "query": [
                     {
                         "variable": "../variables/398620f/"
@@ -2039,7 +2030,6 @@ One dimension for the subvariables: {&ldquo;each&rdquo;: url}</li>
                 ]
             },
             {
-                "variable": "../variables/c116a77/",
                 "query": [
                     {
                         "function": "bin",
@@ -2060,7 +2050,18 @@ One dimension for the subvariables: {&ldquo;each&rdquo;: url}</li>
 Location: datasets/{id}/multitables/3/
 </code></pre>
 
-<p>&hellip;or GET an individual multitable:</p>
+<p>Analyses as described above are truly multidimensional; when you add another variable, the resulting cube obtains another dimension. Sometimes, however, you want to compare analyses side by side, typically looking at several (even <em>all</em>) variables against a common set of conditioning variables. For example, you might nominate &ldquo;Gender&rdquo;, &ldquo;Age&rdquo;, and &ldquo;Race&rdquo; as the conditioning variables and cross every other variable with those, in order to quickly discover common correlations.</p>
+
+<p>Multi-table definitions mainly provide a <code class="prettyprint">template</code> member that clients can use to construct a valid query with the variable(s) of interest.</p>
+
+<p>Crunch provides a separate catalog where you can define and manage these common sets of variables. Like most catalogs, you can <a href="#multitables162">GET it</a> to see which multitables are defined.</p>
+
+<h4 id="template-query">Template query</h4>
+
+<p>A multitable is a set of queries that form groups of ‘columns’ for different later chosen ‘row’ variables.
+It is defined by a <strong>name</strong> and a <strong>template</strong>. At minimum the template must contain a <code class="prettyprint">query</code> fragment:
+this will be later inserted after some function of a row variable to form the <a href="#dimensions">dimension</a>
+of a result. Each template dimension can currently only be a function of one variable.</p>
 <pre class="highlight http"><code><span class="nf">GET</span> <span class="nn">datasets/{id}/multitable/3/</span> <span class="k">HTTP</span><span class="o">/</span><span class="m">1.1</span>
 
 {
@@ -2069,7 +2070,6 @@ Location: datasets/{id}/multitables/3/
         "name": "Geographical indicators",
         "template": [
             {
-                "variable": "../variables/de85b32/",
                 "query": [
                     {
                         "variable": "../variables/de85b32/"
@@ -2077,7 +2077,6 @@ Location: datasets/{id}/multitables/3/
                 ]
             },
             {
-                "variable": "../variables/398620f/",
                 "query": [
                     {
                         "variable": "../variables/398620f/"
@@ -2085,7 +2084,6 @@ Location: datasets/{id}/multitables/3/
                 ]
             },
             {
-                "variable": "../variables/c116a77/",
                 "query": [
                     {
                         "function": "bin",
@@ -2104,122 +2102,17 @@ Location: datasets/{id}/multitables/3/
 
 <p>Each multi-table template may be a list of variable references and other information used to construct the dimension and transform its output.</p>
 
-<h3 id="more-complex-multitable-templates">More complex multitable templates</h3>
-
-<p>The template may contain in addition to variable references and their query arguments, an optional <code class="prettyprint">transform</code>: \
-To obtain their multiple output cubes, you <code class="prettyprint">GET datasets/{id}/cube?query=&lt;q&gt;</code> where <code class="prettyprint">&lt;q&gt;</code> is a ZCL object in JSON format (which must then be URI encoded for inclusion in the querystring). Use the &ldquo;each&rdquo; function to iterate over the overview variables’ <code class="prettyprint">query</code>, producing one output cube for each one as &ldquo;variable x&rdquo;. For example, to cross each of the above 3 variables against another variable &ldquo;449b421&rdquo;:</p>
-<pre class="highlight json"><code><span class="p">{</span><span class="w">
-    </span><span class="nt">"function"</span><span class="p">:</span><span class="w"> </span><span class="s2">"each"</span><span class="p">,</span><span class="w">
-    </span><span class="nt">"args"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
-        </span><span class="p">{</span><span class="w">
-            </span><span class="nt">"value"</span><span class="p">:</span><span class="w"> </span><span class="s2">"x"</span><span class="w">
-        </span><span class="p">},</span><span class="w">
-        </span><span class="p">[</span><span class="w">
-            </span><span class="p">{</span><span class="w">
-                </span><span class="nt">"variable"</span><span class="p">:</span><span class="w"> </span><span class="s2">"de85b32"</span><span class="w">
-            </span><span class="p">},</span><span class="w">
-            </span><span class="p">{</span><span class="w">
-                </span><span class="nt">"variable"</span><span class="p">:</span><span class="w"> </span><span class="s2">"398620f"</span><span class="w">
-            </span><span class="p">},</span><span class="w">
-            </span><span class="p">{</span><span class="w">
-                </span><span class="nt">"variable"</span><span class="p">:</span><span class="w"> </span><span class="s2">"c116a77"</span><span class="w">
-            </span><span class="p">}</span><span class="w">
-        </span><span class="p">]</span><span class="w">
-    </span><span class="p">],</span><span class="w">
-    </span><span class="nt">"block"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
-        </span><span class="nt">"function"</span><span class="p">:</span><span class="w"> </span><span class="s2">"cube"</span><span class="p">,</span><span class="w">
-        </span><span class="nt">"args"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
-            </span><span class="p">[</span><span class="w">
-                </span><span class="p">{</span><span class="w">
-                    </span><span class="nt">"variable"</span><span class="p">:</span><span class="w"> </span><span class="s2">"449b421"</span><span class="w">
-                </span><span class="p">},</span><span class="w">
-                </span><span class="p">{</span><span class="w">
-                    </span><span class="nt">"variable"</span><span class="p">:</span><span class="w"> </span><span class="s2">"x"</span><span class="w">
-                </span><span class="p">}</span><span class="w">
-            </span><span class="p">],</span><span class="w">
-            </span><span class="p">{</span><span class="w">
-                </span><span class="nt">"map"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
-                    </span><span class="nt">"count"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
-                        </span><span class="nt">"function"</span><span class="p">:</span><span class="w"> </span><span class="s2">"cube_count"</span><span class="p">,</span><span class="w">
-                        </span><span class="nt">"args"</span><span class="p">:</span><span class="w"> </span><span class="p">[]</span><span class="w">
-                    </span><span class="p">}</span><span class="w">
-                </span><span class="p">}</span><span class="w">
-            </span><span class="p">},</span><span class="w">
-            </span><span class="p">{</span><span class="w">
-                </span><span class="nt">"value"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="w">
-            </span><span class="p">}</span><span class="w">
-        </span><span class="p">]</span><span class="w">
-    </span><span class="p">}</span><span class="w">
-</span><span class="p">}</span><span class="w">
-</span></code></pre>
-
-<p>The result will be an array of output cubes:</p>
-<pre class="highlight json"><code><span class="p">{</span><span class="w">
-    </span><span class="nt">"element"</span><span class="p">:</span><span class="w"> </span><span class="s2">"shoji:view"</span><span class="p">,</span><span class="w">
-    </span><span class="nt">"value"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
-        </span><span class="p">{</span><span class="w">
-            </span><span class="nt">"query"</span><span class="p">:</span><span class="w"> </span><span class="p">{},</span><span class="w">
-            </span><span class="nt">"result"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
-                </span><span class="nt">"element"</span><span class="p">:</span><span class="w"> </span><span class="s2">"crunch:cube"</span><span class="p">,</span><span class="w">
-                </span><span class="nt">"dimensions"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
-                    </span><span class="p">{</span><span class="w">
-                        </span><span class="nt">"references"</span><span class="p">:</span><span class="w"> </span><span class="s2">"449b421"</span><span class="p">,</span><span class="w">
-                        </span><span class="nt">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"etc."</span><span class="w">
-                    </span><span class="p">},</span><span class="w">
-                    </span><span class="p">{</span><span class="w">
-                        </span><span class="nt">"references"</span><span class="p">:</span><span class="w"> </span><span class="s2">"de85b32"</span><span class="p">,</span><span class="w">
-                        </span><span class="nt">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"etc."</span><span class="w">
-                    </span><span class="p">}</span><span class="w">
-                </span><span class="p">],</span><span class="w">
-                </span><span class="nt">"measures"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="err">...</span><span class="p">}</span><span class="w">
-            </span><span class="p">}</span><span class="w">
-        </span><span class="p">},</span><span class="w">
-        </span><span class="p">{</span><span class="w">
-            </span><span class="nt">"query"</span><span class="p">:</span><span class="w"> </span><span class="p">{},</span><span class="w">
-            </span><span class="nt">"result"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
-                </span><span class="nt">"element"</span><span class="p">:</span><span class="w"> </span><span class="s2">"crunch:cube"</span><span class="p">,</span><span class="w">
-                </span><span class="nt">"dimensions"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
-                    </span><span class="p">{</span><span class="w">
-                        </span><span class="nt">"references"</span><span class="p">:</span><span class="w"> </span><span class="s2">"449b421"</span><span class="p">,</span><span class="w">
-                        </span><span class="nt">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"etc."</span><span class="w">
-                    </span><span class="p">},</span><span class="w">
-                    </span><span class="p">{</span><span class="w">
-                        </span><span class="nt">"references"</span><span class="p">:</span><span class="w"> </span><span class="s2">"398620f"</span><span class="p">,</span><span class="w">
-                        </span><span class="nt">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"etc."</span><span class="w">
-                    </span><span class="p">}</span><span class="w">
-                </span><span class="p">],</span><span class="w">
-                </span><span class="nt">"measures"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="err">...</span><span class="p">}</span><span class="w">
-            </span><span class="p">}</span><span class="w">
-        </span><span class="p">},</span><span class="w">
-        </span><span class="p">{</span><span class="w">
-            </span><span class="nt">"query"</span><span class="p">:</span><span class="w"> </span><span class="p">{},</span><span class="w">
-            </span><span class="nt">"result"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
-                </span><span class="nt">"element"</span><span class="p">:</span><span class="w"> </span><span class="s2">"crunch:cube"</span><span class="p">,</span><span class="w">
-                </span><span class="nt">"dimensions"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
-                    </span><span class="p">{</span><span class="w">
-                        </span><span class="nt">"references"</span><span class="p">:</span><span class="w"> </span><span class="s2">"449b421"</span><span class="p">,</span><span class="w">
-                        </span><span class="nt">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"etc."</span><span class="w">
-                    </span><span class="p">},</span><span class="w">
-                    </span><span class="p">{</span><span class="w">
-                        </span><span class="nt">"references"</span><span class="p">:</span><span class="w"> </span><span class="s2">"c116a77"</span><span class="p">,</span><span class="w">
-                        </span><span class="nt">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"etc."</span><span class="w">
-                    </span><span class="p">}</span><span class="w">
-                </span><span class="p">],</span><span class="w">
-                </span><span class="nt">"measures"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="err">...</span><span class="p">}</span><span class="w">
-            </span><span class="p">}</span><span class="w">
-        </span><span class="p">}</span><span class="w">
-    </span><span class="p">]</span><span class="w">
-</span><span class="p">}</span><span class="w">
-</span></code></pre>
-
 <h3 id="transforming-analyses-for-presentation">Transforming analyses for presentation</h3>
 
 <p>The <code class="prettyprint">transform</code> member of an analysis specification (or multitable definition)
-provides a way to transform that dimension&rsquo;s results after computation. The
-cube result dimension will always be derived from the <code class="prettyprint">query</code> part of the
-request (<code class="prettyprint">{variable: $variableId})</code>, <code class="prettyprint">{function: f, args: [$variableId, …]}</code>, &amp;c.</p>
+is a declarative definition of what the dimension should look like after
+computation. The cube result dimension itself will always be derived from the
+<code class="prettyprint">query</code> part of the request
+(<code class="prettyprint">{variable: $variableId})</code>, <code class="prettyprint">{function: f, args: [$variableId, …]}</code>, &amp;c.,
+after which clients should do what is necessary to arrive at the transformed
+result — changing element names, orders, etc.</p>
 
-<h3 id="structure">Structure</h3>
+<h4 id="structure">Structure</h4>
 
 <p>A <code class="prettyprint">transform</code> can contain <code class="prettyprint">elements</code> or <code class="prettyprint">categoriees</code>, which is an array of
 target transforms for output-dimension elements. Therefore to create a valid
@@ -2235,7 +2128,7 @@ elements such as results of <code class="prettyprint">bin</code>ning a numeric v
 that variable. They may be shorter, alternate versions of category names, or
 contain insertions, described below.</p>
 
-<h3 id="insertions">Insertions</h3>
+<h4 id="insertions">Insertions</h4>
 
 <p>In addition to transforming the categories or elements already defined on
 a cube ‘dimension’, it is possible to insert headings and subtotals to the
@@ -2312,37 +2205,30 @@ the hypothesis that they are ≠, ≤, or ≥ to the present element</li>
 
 <p>A <code class="prettyprint">transform</code> with object members can do lots of things. Suppose we want to put <em>Element C</em> first,
 hide the <em>Don’t know</em>, and more compactly represent the result as just <em>C, A, B</em>:</p>
-<pre class="highlight json"><code><span class="err">transform:</span><span class="w"> </span><span class="p">{</span><span class="nt">"categories"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
-    </span><span class="p">{</span><span class="nt">"id"</span><span class="p">:</span><span class="w"> </span><span class="mi">2</span><span class="p">,</span><span class="w"> </span><span class="nt">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"C"</span><span class="p">},</span><span class="w">
-    </span><span class="p">{</span><span class="nt">"id"</span><span class="p">:</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="nt">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"A"</span><span class="p">},</span><span class="w">
-    </span><span class="p">{</span><span class="nt">"id"</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="nt">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"B"</span><span class="p">},</span><span class="w">
-    </span><span class="p">{</span><span class="nt">"id"</span><span class="p">:</span><span class="w"> </span><span class="mi">3</span><span class="p">,</span><span class="w"> </span><span class="nt">"hide"</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">}</span><span class="w">
-</span><span class="p">]}</span><span class="w">
+<pre class="highlight json"><code><span class="p">{</span><span class="w">
+    </span><span class="nt">"transform"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="nt">"categories"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
+        </span><span class="p">{</span><span class="nt">"id"</span><span class="p">:</span><span class="w"> </span><span class="mi">2</span><span class="p">,</span><span class="w"> </span><span class="nt">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"C"</span><span class="p">},</span><span class="w">
+        </span><span class="p">{</span><span class="nt">"id"</span><span class="p">:</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="nt">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"A"</span><span class="p">},</span><span class="w">
+        </span><span class="p">{</span><span class="nt">"id"</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="nt">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"B"</span><span class="p">},</span><span class="w">
+        </span><span class="p">{</span><span class="nt">"id"</span><span class="p">:</span><span class="w"> </span><span class="mi">3</span><span class="p">,</span><span class="w"> </span><span class="nt">"hide"</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">}</span><span class="w">
+    </span><span class="p">]}</span><span class="w">
+</span><span class="p">}</span><span class="w">
 </span></code></pre>
 
 <h4 id="example-transform-in-a-saved-analysis">Example transform in a saved analysis</h4>
 
-<p>In a saved analysis the transforms are an array in <code class="prettyprint">display_settings</code> with the same extents output dimensions (as well as, of course, the query used to generate them). This syntax makes a univariate table of a multitple response variable and re-orders the result.</p>
+<p>In a saved analysis the transforms are an array in <code class="prettyprint">display_settings</code> with the same extents output dimensions (as well as, of course, the query used to generate them). This syntax makes a univariate table of a multiple response variable and re-orders the result.</p>
 <pre class="highlight json"><code><span class="p">{</span><span class="w">
     </span><span class="nt">"query"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
         </span><span class="nt">"dimensions"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
             </span><span class="p">{</span><span class="w">
-                </span><span class="nt">"function"</span><span class="p">:</span><span class="w"> </span><span class="s2">"selected_array"</span><span class="p">,</span><span class="w">
-                </span><span class="nt">"args"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
-                    </span><span class="p">{</span><span class="w">
-                        </span><span class="nt">"variable"</span><span class="p">:</span><span class="w"> </span><span class="s2">"../variables/398620f/"</span><span class="w">
-                    </span><span class="p">}</span><span class="w">
-                </span><span class="p">]</span><span class="w">
+                </span><span class="nt">"function"</span><span class="p">:</span><span class="w"> </span><span class="s2">"selections"</span><span class="p">,</span><span class="w">
+                </span><span class="nt">"args"</span><span class="p">:</span><span class="w"> </span><span class="p">[{</span><span class="nt">"variable"</span><span class="p">:</span><span class="w"> </span><span class="s2">"../variables/398620f/"</span><span class="p">}]</span><span class="w">
             </span><span class="p">},</span><span class="w">
-            </span><span class="p">{</span><span class="w">
-                </span><span class="nt">"variable"</span><span class="p">:</span><span class="w"> </span><span class="s2">"../variables/398620f/"</span><span class="w">
-            </span><span class="p">}</span><span class="w">
+            </span><span class="p">{</span><span class="nt">"variable"</span><span class="p">:</span><span class="w"> </span><span class="s2">"../variables/398620f/"</span><span class="p">}</span><span class="w">
         </span><span class="p">],</span><span class="w">
         </span><span class="nt">"measures"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
-            </span><span class="nt">"count"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
-                </span><span class="nt">"function"</span><span class="p">:</span><span class="w"> </span><span class="s2">"cube_count"</span><span class="p">,</span><span class="w">
-                </span><span class="nt">"args"</span><span class="p">:</span><span class="w"> </span><span class="p">[]</span><span class="w">
-            </span><span class="p">}</span><span class="w">
+            </span><span class="nt">"count"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="nt">"function"</span><span class="p">:</span><span class="w"> </span><span class="s2">"cube_count"</span><span class="p">,</span><span class="w"> </span><span class="nt">"args"</span><span class="p">:</span><span class="w"> </span><span class="p">[]}</span><span class="w">
         </span><span class="p">}</span><span class="w">
     </span><span class="p">},</span><span class="w">
     </span><span class="nt">"display_settings"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
@@ -2373,32 +2259,144 @@ hide the <em>Don’t know</em>, and more compactly represent the result as just 
 <pre class="highlight json"><code><span class="p">{</span><span class="w">
     </span><span class="nt">"template"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
         </span><span class="p">{</span><span class="w">
-            </span><span class="nt">"variable"</span><span class="p">:</span><span class="w"> </span><span class="s2">"A"</span><span class="p">,</span><span class="w">
             </span><span class="nt">"query"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
-                </span><span class="p">{</span><span class="w">
-                    </span><span class="nt">"variable"</span><span class="p">:</span><span class="w"> </span><span class="s2">"A"</span><span class="w">
-                </span><span class="p">}</span><span class="w">
+                </span><span class="p">{</span><span class="nt">"variable"</span><span class="p">:</span><span class="w"> </span><span class="s2">"A"</span><span class="p">}</span><span class="w">
             </span><span class="p">],</span><span class="w">
-            </span><span class="nt">"transform"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
-                </span><span class="p">{},</span><span class="w">
-                </span><span class="p">{}</span><span class="w">
-            </span><span class="p">]</span><span class="w">
+            </span><span class="nt">"transform"</span><span class="p">:</span><span class="w"> </span><span class="p">[{},</span><span class="w"> </span><span class="p">{}]</span><span class="w">
         </span><span class="p">},</span><span class="w">
         </span><span class="p">{</span><span class="w">
-            </span><span class="nt">"variable"</span><span class="p">:</span><span class="w"> </span><span class="s2">"B"</span><span class="p">,</span><span class="w">
             </span><span class="nt">"query"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
                 </span><span class="p">{</span><span class="w">
                     </span><span class="nt">"function"</span><span class="p">:</span><span class="w"> </span><span class="s2">"rollup"</span><span class="p">,</span><span class="w">
                     </span><span class="nt">"args"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
-                        </span><span class="p">{</span><span class="w">
-                            </span><span class="nt">"value"</span><span class="p">:</span><span class="w"> </span><span class="s2">"M"</span><span class="w">
-                        </span><span class="p">},</span><span class="w">
-                        </span><span class="p">{</span><span class="w">
-                            </span><span class="nt">"variable"</span><span class="p">:</span><span class="w"> </span><span class="s2">"B"</span><span class="w">
-                        </span><span class="p">}</span><span class="w">
+                        </span><span class="p">{</span><span class="nt">"value"</span><span class="p">:</span><span class="w"> </span><span class="s2">"M"</span><span class="p">},</span><span class="w">
+                        </span><span class="p">{</span><span class="nt">"variable"</span><span class="p">:</span><span class="w"> </span><span class="s2">"B"</span><span class="p">}</span><span class="w">
                     </span><span class="p">]</span><span class="w">
                 </span><span class="p">}</span><span class="w">
             </span><span class="p">]</span><span class="w">
+        </span><span class="p">}</span><span class="w">
+    </span><span class="p">]</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre>
+
+<h3 id="more-complex-multitable-templates">More complex multitable templates</h3>
+
+<p>The template may contain in addition to variable references and their query arguments, an optional <code class="prettyprint">transform</code>:
+To obtain their multiple output cubes, you <code class="prettyprint">GET datasets/{id}/cube?query=&lt;q&gt;</code> where <code class="prettyprint">&lt;q&gt;</code> is a ZCL object in JSON format (which must then be URI encoded for inclusion in the querystring). Use the &ldquo;each&rdquo; function to iterate over the overview variables’ <code class="prettyprint">query</code>, producing one output cube for each one as &ldquo;variable x&rdquo;. For example, to cross each of the above 3 variables against another variable &ldquo;449b421&rdquo;:</p>
+<pre class="highlight json"><code><span class="p">{</span><span class="w">
+    </span><span class="nt">"function"</span><span class="p">:</span><span class="w"> </span><span class="s2">"each"</span><span class="p">,</span><span class="w">
+    </span><span class="nt">"args"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
+        </span><span class="p">{</span><span class="w">
+            </span><span class="nt">"value"</span><span class="p">:</span><span class="w"> </span><span class="s2">"x"</span><span class="w">
+        </span><span class="p">},</span><span class="w">
+        </span><span class="p">[</span><span class="w">
+            </span><span class="p">{</span><span class="w">
+                </span><span class="nt">"variable"</span><span class="p">:</span><span class="w"> </span><span class="s2">"de85b32"</span><span class="w">
+            </span><span class="p">},</span><span class="w">
+            </span><span class="p">{</span><span class="w">
+                </span><span class="nt">"variable"</span><span class="p">:</span><span class="w"> </span><span class="s2">"398620f"</span><span class="w">
+            </span><span class="p">},</span><span class="w">
+            </span><span class="p">{</span><span class="w">
+                </span><span class="nt">"variable"</span><span class="p">:</span><span class="w"> </span><span class="s2">"c116a77"</span><span class="w">
+            </span><span class="p">}</span><span class="w">
+        </span><span class="p">]</span><span class="w">
+    </span><span class="p">],</span><span class="w">
+    </span><span class="nt">"block"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+        </span><span class="nt">"function"</span><span class="p">:</span><span class="w"> </span><span class="s2">"cube"</span><span class="p">,</span><span class="w">
+        </span><span class="nt">"args"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
+            </span><span class="p">[</span><span class="w">
+                </span><span class="p">{</span><span class="w">
+                    </span><span class="nt">"variable"</span><span class="p">:</span><span class="w"> </span><span class="s2">"449b421"</span><span class="w">
+                </span><span class="p">},</span><span class="w">
+                </span><span class="p">{</span><span class="w">
+                    </span><span class="nt">"variable"</span><span class="p">:</span><span class="w"> </span><span class="s2">"x"</span><span class="w">
+                </span><span class="p">}</span><span class="w">
+            </span><span class="p">],</span><span class="w">
+            </span><span class="p">{</span><span class="w">
+                </span><span class="nt">"map"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+                    </span><span class="nt">"count"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+                        </span><span class="nt">"function"</span><span class="p">:</span><span class="w"> </span><span class="s2">"cube_count"</span><span class="p">,</span><span class="w">
+                        </span><span class="nt">"args"</span><span class="p">:</span><span class="w"> </span><span class="p">[]</span><span class="w">
+                    </span><span class="p">}</span><span class="w">
+                </span><span class="p">}</span><span class="w">
+            </span><span class="p">},</span><span class="w">
+            </span><span class="p">{</span><span class="w">
+                </span><span class="nt">"value"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="w">
+            </span><span class="p">}</span><span class="w">
+        </span><span class="p">]</span><span class="w">
+    </span><span class="p">}</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre>
+
+<p>The result will be an array of output cubes:</p>
+<pre class="highlight json"><code><span class="p">{</span><span class="w">
+    </span><span class="nt">"element"</span><span class="p">:</span><span class="w"> </span><span class="s2">"shoji:view"</span><span class="p">,</span><span class="w">
+    </span><span class="nt">"value"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
+        </span><span class="p">{</span><span class="w">
+            </span><span class="nt">"query"</span><span class="p">:</span><span class="w"> </span><span class="p">{},</span><span class="w">
+            </span><span class="nt">"result"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+                </span><span class="nt">"element"</span><span class="p">:</span><span class="w"> </span><span class="s2">"crunch:cube"</span><span class="p">,</span><span class="w">
+                </span><span class="nt">"dimensions"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
+                    </span><span class="p">{</span><span class="w">
+                        </span><span class="nt">"references"</span><span class="p">:</span><span class="w"> </span><span class="s2">"449b421"</span><span class="p">,</span><span class="w">
+                        </span><span class="nt">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"etc."</span><span class="w">
+                    </span><span class="p">},</span><span class="w">
+                    </span><span class="p">{</span><span class="w">
+                        </span><span class="nt">"references"</span><span class="p">:</span><span class="w"> </span><span class="s2">"de85b32"</span><span class="p">,</span><span class="w">
+                        </span><span class="nt">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"etc."</span><span class="w">
+                    </span><span class="p">}</span><span class="w">
+                </span><span class="p">],</span><span class="w">
+                </span><span class="nt">"measures"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+                    </span><span class="nt">"count"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+                        </span><span class="nt">"function"</span><span class="p">:</span><span class="w"> </span><span class="s2">"cube_count"</span><span class="p">,</span><span class="w">
+                        </span><span class="nt">"args"</span><span class="p">:</span><span class="w"> </span><span class="p">[]</span><span class="w">
+                    </span><span class="p">}</span><span class="w">
+                </span><span class="p">}</span><span class="w">
+            </span><span class="p">}</span><span class="w">
+        </span><span class="p">},</span><span class="w">
+        </span><span class="p">{</span><span class="w">
+            </span><span class="nt">"query"</span><span class="p">:</span><span class="w"> </span><span class="p">{},</span><span class="w">
+            </span><span class="nt">"result"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+                </span><span class="nt">"element"</span><span class="p">:</span><span class="w"> </span><span class="s2">"crunch:cube"</span><span class="p">,</span><span class="w">
+                </span><span class="nt">"dimensions"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
+                    </span><span class="p">{</span><span class="w">
+                        </span><span class="nt">"references"</span><span class="p">:</span><span class="w"> </span><span class="s2">"449b421"</span><span class="p">,</span><span class="w">
+                        </span><span class="nt">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"etc."</span><span class="w">
+                    </span><span class="p">},</span><span class="w">
+                    </span><span class="p">{</span><span class="w">
+                        </span><span class="nt">"references"</span><span class="p">:</span><span class="w"> </span><span class="s2">"398620f"</span><span class="p">,</span><span class="w">
+                        </span><span class="nt">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"etc."</span><span class="w">
+                    </span><span class="p">}</span><span class="w">
+                </span><span class="p">],</span><span class="w">
+                </span><span class="nt">"measures"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+                    </span><span class="nt">"count"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+                        </span><span class="nt">"function"</span><span class="p">:</span><span class="w"> </span><span class="s2">"cube_count"</span><span class="p">,</span><span class="w">
+                        </span><span class="nt">"args"</span><span class="p">:</span><span class="w"> </span><span class="p">[]</span><span class="w">
+                    </span><span class="p">}</span><span class="w">
+                </span><span class="p">}</span><span class="w">
+            </span><span class="p">}</span><span class="w">
+        </span><span class="p">},</span><span class="w">
+        </span><span class="p">{</span><span class="w">
+            </span><span class="nt">"query"</span><span class="p">:</span><span class="w"> </span><span class="p">{},</span><span class="w">
+            </span><span class="nt">"result"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+                </span><span class="nt">"element"</span><span class="p">:</span><span class="w"> </span><span class="s2">"crunch:cube"</span><span class="p">,</span><span class="w">
+                </span><span class="nt">"dimensions"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
+                    </span><span class="p">{</span><span class="w">
+                        </span><span class="nt">"references"</span><span class="p">:</span><span class="w"> </span><span class="s2">"449b421"</span><span class="p">,</span><span class="w">
+                        </span><span class="nt">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"etc."</span><span class="w">
+                    </span><span class="p">},</span><span class="w">
+                    </span><span class="p">{</span><span class="w">
+                        </span><span class="nt">"references"</span><span class="p">:</span><span class="w"> </span><span class="s2">"c116a77"</span><span class="p">,</span><span class="w">
+                        </span><span class="nt">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"etc."</span><span class="w">
+                    </span><span class="p">}</span><span class="w">
+                </span><span class="p">],</span><span class="w">
+                </span><span class="nt">"measures"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+                    </span><span class="nt">"count"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+                        </span><span class="nt">"function"</span><span class="p">:</span><span class="w"> </span><span class="s2">"cube_count"</span><span class="p">,</span><span class="w">
+                        </span><span class="nt">"args"</span><span class="p">:</span><span class="w"> </span><span class="p">[]</span><span class="w">
+                    </span><span class="p">}</span><span class="w">
+                </span><span class="p">}</span><span class="w">
+            </span><span class="p">}</span><span class="w">
         </span><span class="p">}</span><span class="w">
     </span><span class="p">]</span><span class="w">
 </span><span class="p">}</span><span class="w">
@@ -3510,7 +3508,7 @@ dataset Shoji entity.</p>
 </tr>
 <tr>
 <td>multitables</td>
-<td>Similar to filters, displays all available multitables</td>
+<td>Similar to filters, displays all available multitables. See <a href="#mulitables">Multitables</a></td>
 </tr>
 <tr>
 <td>comparisons</td>
@@ -3609,13 +3607,13 @@ these entities will display their name, alias and owner (if personal).</p>
                 </span><span class="nt">"alias"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Variable alias"</span><span class="p">,</span><span class="w">
                 </span><span class="nt">"owner_url"</span><span class="p">:</span><span class="w"> </span><span class="s2">"https://app.crunch.io/users/qwe/"</span><span class="p">,</span><span class="w">
                 </span><span class="nt">"owner_name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Angus MacGyver"</span><span class="w">
-            </span><span class="p">},</span><span class="w"> 
+            </span><span class="p">},</span><span class="w">
             </span><span class="nt">"https://app.crunch.io/dataset/1234/variables/cde/"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
                 </span><span class="nt">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Variable name"</span><span class="p">,</span><span class="w">
                 </span><span class="nt">"alias"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Variable alias"</span><span class="p">,</span><span class="w">
                 </span><span class="nt">"owner_url"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span><span class="w">
                 </span><span class="nt">"owner_name"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="w">
-            </span><span class="p">},</span><span class="w"> 
+            </span><span class="p">},</span><span class="w">
         </span><span class="err">}</span><span class="p">,</span><span class="w">
         </span><span class="nt">"filters"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
             </span><span class="nt">"https://app.crunch.io/filters/abcd/"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
@@ -3748,6 +3746,18 @@ be downloaded; GET that URL to download the file.</p>
 <td>{&ldquo;use_category_ids&rdquo;: true}</td>
 </tr>
 <tr>
+<td>spss</td>
+<td>var_label_field</td>
+<td>Use the variable&rsquo;s name/description as SPSS variable label</td>
+<td>{&ldquo;var_label_field&rdquo;: &ldquo;name&rdquo;}</td>
+</tr>
+<tr>
+<td>spss</td>
+<td>prefix_subvariables</td>
+<td>When True, will only export subvariables and not group them as arrays</td>
+<td>{&ldquo;prefix_subvariables&rdquo;: true}</td>
+</tr>
+<tr>
 <td>all</td>
 <td>include_personal</td>
 <td>Will include the user&rsquo;s personal variables on the exported file</td>
@@ -3760,11 +3770,17 @@ be downloaded; GET that URL to download the file.</p>
 
 <h6 id="spss">SPSS</h6>
 
-<p>Categorical-array and multiple-response variables will be exported as &ldquo;mrsets&rdquo;, as supported by SPSS.</p>
+<p>Categorical-array and multiple-response variables will be exported as &ldquo;mrsets&rdquo;, as supported by SPSS. If
+the <code class="prettyprint">prefix_subvariables</code> option is set to <code class="prettyprint">true</code>, then the subvariables&rsquo; labels will be prefixed with the 
+parent&rsquo;s label.</p>
+
+<p>To pick which variable field to use on the <code class="prettyprint">label</code> field on the SPSS variables, use the <code class="prettyprint">var_label_field</code> in the
+<code class="prettyprint">options</code> attribute in the POST body. The only valid fields are <code class="prettyprint">description</code> and <code class="prettyprint">name</code>.</p>
 
 <h6 id="csv">CSV</h6>
 
-<p>Categorical variable values will be exported as the category name by default. To use the category ids as data values, include <code class="prettyprint">&quot;use_category_ids&quot;: true</code> in the <code class="prettyprint">&quot;options&quot;</code> attribute of the POST body.</p>
+<p>Categorical variable values will be exported as the category name by default.
+To use the category ids as data values, include <code class="prettyprint">&quot;use_category_ids&quot;: true</code> in the <code class="prettyprint">&quot;options&quot;</code> attribute of the POST body.</p>
 
 <h5 id="summary">Summary</h5>
 
@@ -5902,31 +5918,112 @@ one analysis left.</p>
 <p>Attempting to delete the last analysis of a slide will cause a 409 response
 from the server indicating the problem.</p>
 
-          <h2 id="tab-books">Tab books</h2>
+          <h2 id="multitables">Multitables</h2>
 
-<p>The <code class="prettyprint">tabbook</code> view of a multitable will generate an excel (.xlsx) workbook 
-containing each variable in the dataset crosstabbed with a given multitable. </p>
+<h3 id="catalog">Catalog</h3>
 
-<p>A POST request to <code class="prettyprint">/datasets/{id}/multitables/{id}/tabbook/</code> will generate a download 
-location to which the exporter will write this file when it is done computing 
-(it may take some time for large datasets). Clients should note the download url, 
-monitor progress, and when complete, GET the download location.</p>
+<p><code class="prettyprint">/datasets/{dataset_id}/multitables/</code></p>
 
-<p>The server will return a 202 response indicating that the export job started with
-a Location header indicating where the final exported file will be available.</p>
+<h4 id="get">GET</h4>
+<pre class="highlight json"><code><span class="p">{</span><span class="w">
+    </span><span class="nt">"element"</span><span class="p">:</span><span class="w"> </span><span class="s2">"shoji:catalog"</span><span class="p">,</span><span class="w">
+    </span><span class="nt">"self"</span><span class="p">:</span><span class="w"> </span><span class="s2">"/api/datasets/123/multitables/"</span><span class="p">,</span><span class="w">
+    </span><span class="nt">"specification"</span><span class="p">:</span><span class="w"> </span><span class="s2">"/api/specifications/multitables/"</span><span class="p">,</span><span class="w">
+    </span><span class="nt">"description"</span><span class="p">:</span><span class="w"> </span><span class="s2">"List of multitable definitions for this dataset"</span><span class="p">,</span><span class="w">
+    </span><span class="nt">"index"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+        </span><span class="nt">"/api/datasets/123/multitables/7ab1e/"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+            </span><span class="nt">"is_public"</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="p">,</span><span class="w">
+            </span><span class="nt">"owner_id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"/api/users/b055/"</span><span class="p">,</span><span class="w">
+            </span><span class="nt">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Basic Demographics"</span><span class="p">,</span><span class="w">
+            </span><span class="nt">"id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"7ab1e"</span><span class="w">
+        </span><span class="p">}</span><span class="w">
+    </span><span class="p">}</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre>
 
-<p>The response&rsquo;s body will contain the URL for the progress url where to query
-the state of the export job.</p>
+<p>GET on this resource returns a Shoji Catalog with the list of Multitables that the
+current user can use on this Dataset.</p>
 
-<p>Requesting the same job, if still in progress, will return the same 202 response 
+<p>This index contains two kinds of multitables: those that belong to the dataset, denoted by the <code class="prettyprint">is_public</code> tuple attribute; and those that belong to the current user. Personal multitables are those created by the authenticated user, and they cannot be accessed by other users. Dataset multitables are available to all users who are authorized to view the dataset.</p>
+
+<h4 id="post">POST</h4>
+
+<p>POST a Shoji Entity to this catalog to create a new multitable definition. Entities must include a <code class="prettyprint">name</code> and <code class="prettyprint">template</code>; the <a href="#template-query">template</a> must contain a series of objects with a <code class="prettyprint">query</code> and optionally <a href="#transforming-analyses-for-presentation"><code class="prettyprint">transform</code></a>. If omitted, <code class="prettyprint">is_public</code> defaults to <code class="prettyprint">false</code>. A successful POST yields a 201 response
+that will contain a Location header with the URL of the newly created multitable.</p>
+
+<p>All users with access to the dataset can create personal multitable definitions; however, only the current dataset editor can create public multitables (<code class="prettyprint">is_public: true</code>) which everyone with access to the dataset can see. Attempting to create a public multitable when not the current dataset editor results in a 403 response.</p>
+
+<h4 id="patch">PATCH</h4>
+
+<p>There are no elements of the catalog that can be changed via PATCH.</p>
+
+<h3 id="entity">Entity</h3>
+
+<p><code class="prettyprint">/datasets/{dataset_id}/multitables/{multitable_id}/</code></p>
+
+<h4 id="get">GET</h4>
+<pre class="highlight json"><code><span class="p">{</span><span class="w">
+    </span><span class="nt">"element"</span><span class="p">:</span><span class="w"> </span><span class="s2">"shoji:entity"</span><span class="p">,</span><span class="w">
+    </span><span class="nt">"self"</span><span class="p">:</span><span class="w"> </span><span class="s2">"datasets/123/multitables/7ab1e/"</span><span class="p">,</span><span class="w">
+    </span><span class="nt">"views"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+        </span><span class="nt">"tabbook"</span><span class="p">:</span><span class="w"> </span><span class="s2">"/datasets/123/multitables/7ab1e/tabbook/"</span><span class="w">
+    </span><span class="p">},</span><span class="w">
+    </span><span class="nt">"specification"</span><span class="p">:</span><span class="w"> </span><span class="s2">"https://app.crunch.io/api/specifications/multitables/"</span><span class="p">,</span><span class="w">
+    </span><span class="nt">"description"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Detail information for one multitable definition"</span><span class="p">,</span><span class="w">
+    </span><span class="nt">"body"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+        </span><span class="nt">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Basic Demographics"</span><span class="p">,</span><span class="w">
+        </span><span class="nt">"user"</span><span class="p">:</span><span class="w"> </span><span class="s2">"/api/users/b055/"</span><span class="p">,</span><span class="w">
+        </span><span class="nt">"template"</span><span class="p">:</span><span class="w"> </span><span class="p">[{</span><span class="w">
+            </span><span class="nt">"query"</span><span class="p">:</span><span class="w"> </span><span class="p">[{</span><span class="w">
+                </span><span class="nt">"variable"</span><span class="p">:</span><span class="w"> </span><span class="s2">"/datasets/123/variables/abc/"</span><span class="w">
+            </span><span class="p">}]</span><span class="w">
+        </span><span class="p">},</span><span class="w"> </span><span class="p">{</span><span class="w">
+            </span><span class="nt">"query"</span><span class="p">:</span><span class="w"> </span><span class="p">[{</span><span class="w">
+                </span><span class="nt">"variable"</span><span class="p">:</span><span class="w"> </span><span class="s2">"/datasets/123/variables/def/"</span><span class="w">
+            </span><span class="p">}]</span><span class="w">
+        </span><span class="p">}],</span><span class="w">
+        </span><span class="nt">"is_public"</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="p">,</span><span class="w">
+        </span><span class="nt">"id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"7ab1e"</span><span class="w">
+    </span><span class="p">}</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre>
+
+<p>GET on this resource returns a Shoji entity containing the requested multitable definition.</p>
+
+<h4 id="patch">PATCH</h4>
+
+<p>PATCH the entity to edit its <code class="prettyprint">name</code>, <code class="prettyprint">template</code>, or <code class="prettyprint">is_public</code> attributes. Successful PATCH requests
+return 204 status. As with the POSTing new entities to the catalog, only the dataset&rsquo;s current editor can alter <code class="prettyprint">is_public</code>.</p>
+
+<p>The <code class="prettyprint">template</code> attribute must contain a valid multitable definition.</p>
+
+<h4 id="views">Views</h4>
+
+<p>Multitable entities have a &ldquo;tabbook&rdquo; view. See below.</p>
+
+          <h3 id="tab-books">Tab books</h3>
+
+<p><code class="prettyprint">/datasets/{dataset_id}/multitables/{multitable_id}/tabbook/</code></p>
+
+<p>The default <code class="prettyprint">tabbook</code> view of a multitable will generate an excel (.xlsx) workbook
+containing each variable in the dataset crosstabbed with a given multitable.</p>
+
+<h4 id="post">POST</h4>
+
+<p>A successful POST request to <code class="prettyprint">/datasets/{dataset_id}/multitables/{multitable_id}/tabbook/</code> will generate a download
+location to which the exporter will write this file when it is done computing
+(it may take some time for large datasets). The server will return a 202 response indicating that the export job started with
+a Location header indicating where the final exported file will be available. The response&rsquo;s body will contain the URL for the progress URL where to query
+the state of the export job. Clients should note the download URL,
+monitor progress, and when complete, GET the download location. See <a href="#progress">Progress</a> for details.</p>
+
+<p>Requesting the same job, if still in progress, will return the same 202 response
 indicating the original progress to check. If the export is finished, the server
 will 302 redirect to the destination for download.</p>
 
-<p>If there have been changes on the dataset attributes, a new tabbook will be
+<p>If there have been changes on the dataset attributes, a new tab book will be
 generated regardless of the status of any other pending exports.</p>
-
-<h4 id="post">POST</h4>
-<pre class="highlight http"><code><span class="nf">POST</span> <span class="nn">/api/datasets/a598c7/multitables/45fd58/tabbook/</span> <span class="k">HTTP</span><span class="o">/</span><span class="m">1.1</span>
+<pre class="highlight http"><code><span class="nf">POST</span> <span class="nn">/api/datasets/a598c7/multitables/7ab1e/tabbook/</span> <span class="k">HTTP</span><span class="o">/</span><span class="m">1.1</span>
 </code></pre>
 
 <hr>
@@ -5940,7 +6037,12 @@ generated regardless of the status of any other pending exports.</p>
 </span><span class="p">}</span><span class="w">
 </span></code></pre>
 
-<h4 id="endpoint-parameters">Endpoint Parameters</h4>
+<p>Alternatively, you can request a JSON output for your tab book by adding an Accept request header.</p>
+<pre class="highlight http"><code><span class="nf">POST</span> <span class="nn">/api/datasets/a598c7/multitables/7ab1e/tabbook/</span> <span class="k">HTTP</span><span class="o">/</span><span class="m">1.1</span>
+<span class="na">Accept</span><span class="p">:</span> <span class="s">application/json</span>
+</code></pre>
+
+<h4 id="post-body-parameters">POST body parameters</h4>
 
 <p>At the top level, the tab book endpoint can take filtering and variable limiting parameters.</p>
 
@@ -5956,14 +6058,14 @@ generated regardless of the status of any other pending exports.</p>
 <tr>
 <td>filter</td>
 <td>object</td>
-<td>None</td>
+<td>null</td>
 <td>Filter by Crunch Expression.  Variables used in the filter should be fully-expressed urls.</td>
 <td>[{&ldquo;filter&rdquo;:&ldquo;https://app.crunch.io/api/datasets/45fc0d5ca0a945dab7d05444efa3310a/filters/5f14133582f34b8b85b408830f4b4a9b/&rdquo;}]</td>
 </tr>
 <tr>
 <td>where</td>
 <td>object</td>
-<td>None</td>
+<td>null</td>
 <td>Crunch Expression signifying which variables to use</td>
 <td>{<br>&ldquo;function&rdquo;: &ldquo;select&rdquo;,<br>&ldquo;args&rdquo;: [<br>{<br>&ldquo;map&rdquo;: {<br>&ldquo;https://app.crunch.io/api/datasets/45fc0d5ca0a945dab7d05444efa3310a/variables/000004/&rdquo;: {<br>&ldquo;variable&rdquo;: &ldquo;https://app.crunch.io/api/datasets/45fc0d5ca0a945dab7d05444efa3310a/variables/000004/&rdquo;<br>},<br>&ldquo;https://app.crunch.io/api/datasets/45fc0d5ca0a945dab7d05444efa3310a/variables/000003/&rdquo;: {<br>&ldquo;variable&rdquo;: &ldquo;https://app.crunch.io/api/datasets/45fc0d5ca0a945dab7d05444efa3310a/variables/000003/&rdquo;<br>}<br>}<br>}<br>]<br>}</td>
 </tr>
@@ -5973,6 +6075,13 @@ generated regardless of the status of any other pending exports.</p>
 <td>{}</td>
 <td>further options defining the tabbook output.</td>
 <td></td>
+</tr>
+<tr>
+<td>weight</td>
+<td>url</td>
+<td>null</td>
+<td>Provide a weight for the tabbook generation, if the weight is omitted from the request, the currently selected weight is used. If &ldquo;null&rdquo; is provided, then the tabbook generation will be unweighted.</td>
+<td>&ldquo;http://app.crunch.io/api/datasets/45fc0d5ca0a945dab7d05444efa3310a/variables/5f14133582f34b8b85b408830f4b4a9b/&rdquo;</td>
 </tr>
 </tbody></table>
 
@@ -5997,11 +6106,11 @@ generated regardless of the status of any other pending exports.</p>
 <td>See Below.</td>
 </tr>
 <tr>
-<td>weight</td>
-<td>url</td>
-<td>None</td>
-<td>&ldquo;&quot;http://app.crunch.io/api/datasets/45fc0d5ca0a945dab7d05444efa3310a/variables/5f14133582f34b8b85b408830f4b4a9b/&rdquo;</td>
-<td></td>
+<td>layout</td>
+<td>string</td>
+<td>many_sheets</td>
+<td>&ldquo;many_sheets&rdquo; indicates each variable should have its own Sheet in the  xls spreadsheet.  &ldquo;single_sheet&rdquo; indicates all output should be in the same sheet.</td>
+<td>single_sheet</td>
 </tr>
 </tbody></table>
 
@@ -6878,7 +6987,7 @@ lacking, response will instead be 404.</p>
 
 <h4 id="get">GET</h4>
 
-<p><code class="prettyprint">GET /datasets/{dataset_id}/savepoints/?limit,skip</code></p>
+<p><code class="prettyprint">GET /datasets/{dataset_id}/savepoints/?limit,offset</code></p>
 
 <p>When authenticated, GET returns 200 status with a (paginated) Shoji Catalog of versions to which the dataset can be reverted. Catalog tuples contain the following attributes:</p>
 
@@ -6941,11 +7050,11 @@ lacking, response will instead be 404.</p>
 <tr>
 <td>limit</td>
 <td>integer</td>
-<td>10</td>
+<td>1000</td>
 <td>How many versions to include in the catalog response</td>
 </tr>
 <tr>
-<td>skip</td>
+<td>offset</td>
 <td>integer</td>
 <td>0</td>
 <td>How many versions to skip before returning <code class="prettyprint">limit</code> versions</td>
@@ -9040,6 +9149,7 @@ to compose an expression.</p>
 
 <ul>
 <li><code class="prettyprint">array</code> Return the given Frame materialized as an array.</li>
+<li><code class="prettyprint">as_selected</code> Return the given variable reduced to the [1, 0, -1] &ldquo;selections&rdquo; type.</li>
 <li><code class="prettyprint">bin</code> Return column&rsquo;s values broken into equidistant bins.</li>
 <li><code class="prettyprint">case</code> Evaluate the given conditions in order, selecting the corresponding choice.</li>
 <li><code class="prettyprint">cast</code> Return a Column of column&rsquo;s values cast to the given type.</li>
@@ -9055,7 +9165,9 @@ to compose an expression.</p>
 <li><code class="prettyprint">row</code> Return a Numeric column with row indices.</li>
 <li><code class="prettyprint">selected_array</code> Return a bool Array from the given categorical, plus None/<strong>none</strong>/<strong>any</strong> .</li>
 <li><code class="prettyprint">selected_depth</code> Return a numeric column containing the number of selected categories in each row of the given array.</li>
+<li><code class="prettyprint">selections</code> Return the given array, reduced to the [1, 0, -1] &ldquo;selections&rdquo; type, plus an <code class="prettyprint">__any__</code> magic subvariable.</li>
 <li><code class="prettyprint">subvariables</code> Return a Frame containing subvariables of the given array.</li>
+<li><code class="prettyprint">tiered</code> Return a variable formed by collapsing the given array&rsquo;s subvariables in the given category tiers.</li>
 <li><code class="prettyprint">typeof</code> Return (a copy of) the Type of the given column.</li>
 <li><code class="prettyprint">unmissing</code> Return the given column with user missing replaced by valid values.</li>
 </ul>
