@@ -4662,8 +4662,8 @@ is, variables from joined datasets cannot be set as weight.
 </tr>
 <tr>
 <td>subreferences</td>
-<td>array of objects</td>
-<td>For array variables, an ordered array of {&ldquo;name&rdquo;: &hellip;, &ldquo;alias&rdquo;: &hellip;, &hellip;} objects, one per subvariable</td>
+<td>object of objects</td>
+<td>For array variables, an object of {&ldquo;name&rdquo;: &hellip;, &ldquo;alias&rdquo;: &hellip;, &hellip;} objects keyed by subvariable</td>
 </tr>
 <tr>
 <td>resolution</td>
@@ -4823,6 +4823,33 @@ variable entities:</p>
 </ul>
 
 <p>Variable &ldquo;id&rdquo; and &ldquo;dataset_id&rdquo; are immutable.</p>
+
+<p>Example:</p>
+<pre class="highlight json"><code><span class="p">{</span><span class="w">
+  </span><span class="nt">"subvariables"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
+    </span><span class="s2">"http://app.crunch.io/api/datasets/d4db9831e08a4922b054e49b47a0045c/variables/00000c/subvariables/0008/"</span><span class="p">,</span><span class="w">
+    </span><span class="s2">"http://app.crunch.io/api/datasets/d4db9831e08a4922b054e49b47a0045c/variables/00000c/subvariables/0007/"</span><span class="p">,</span><span class="w">
+    </span><span class="s2">"http://app.crunch.io/api/datasets/d4db9831e08a4922b054e49b47a0045c/variables/00000c/subvariables/0009/"</span><span class="w">
+  </span><span class="p">],</span><span class="w">
+  </span><span class="nt">"subreferences"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+    </span><span class="nt">"http://app.crunch.io/api/datasets/d4db9831e08a4922b054e49b47a0045c/variables/00000c/subvariables/0008/"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+      </span><span class="nt">"alias"</span><span class="p">:</span><span class="w"> </span><span class="s2">"subvar_2"</span><span class="p">,</span><span class="w">
+      </span><span class="nt">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"v2_new_name"</span><span class="p">,</span><span class="w">
+      </span><span class="nt">"description"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="w">
+    </span><span class="p">},</span><span class="w">
+    </span><span class="nt">"http://app.crunch.io/api/datasets/d4db9831e08a4922b054e49b47a0045c/variables/00000c/subvariables/0007/"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+      </span><span class="nt">"alias"</span><span class="p">:</span><span class="w"> </span><span class="s2">"subvar_1_new_name"</span><span class="p">,</span><span class="w">
+      </span><span class="nt">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"v1_new_name"</span><span class="p">,</span><span class="w">
+      </span><span class="nt">"description"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="w">
+    </span><span class="p">},</span><span class="w">
+    </span><span class="nt">"http://app.crunch.io/api/datasets/d4db9831e08a4922b054e49b47a0045c/variables/00000c/subvariables/0009/"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+      </span><span class="nt">"alias"</span><span class="p">:</span><span class="w"> </span><span class="s2">"subvar_3"</span><span class="p">,</span><span class="w">
+      </span><span class="nt">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"subvar_3"</span><span class="p">,</span><span class="w">
+      </span><span class="nt">"description"</span><span class="p">:</span><span class="w"> </span><span class="s2">"new description"</span><span class="w">
+    </span><span class="p">}</span><span class="w">
+  </span><span class="p">}</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre>
 
 <h4 id="post">POST</h4>
 
