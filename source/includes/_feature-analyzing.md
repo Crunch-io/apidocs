@@ -67,7 +67,7 @@ When applied to the dimensions we defined above, this second example might fill 
 | 25|72.4|4.2|55.5|
 | 35|8.9|9.1|0.4|
 
-...and produce a similar one for the "stddev" measure. You can think of multiple measures as producing "overlays" over the same dimensions. However, the actual output format (in JSON) is more compact in that the dimensions are not repeated; see Object Reference:Cube output for details.
+...and produce a similar one for the "stddev" measure. You can think of multiple measures as producing "overlays" over the same dimensions. However, the actual output format (in JSON) is more compact in that the dimensions are not repeated; see ["Cube output"](#crunch-objects) in the Object Reference for details.
 
 ZCL expressions are composable. If you need, for example, to find the mean of a categorical variable's "numeric_value" attributes, cast the variable to the "numeric" type class before including it as the cube argument:
 
