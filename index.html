@@ -1041,7 +1041,7 @@ an existing filter entity URL (from the right-side dataset), wrapped as <code cl
         </span><span class="nt">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Education (3 category)"</span><span class="p">,</span><span class="w">
         </span><span class="nt">"description"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Combined from six-category education"</span><span class="p">,</span><span class="w">
         </span><span class="nt">"alias"</span><span class="p">:</span><span class="w"> </span><span class="s2">"educ3"</span><span class="p">,</span><span class="w">
-        </span><span class="nt">"expr"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+        </span><span class="nt">"derivation"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
             </span><span class="nt">"function"</span><span class="p">:</span><span class="w"> </span><span class="s2">"combine_categories"</span><span class="p">,</span><span class="w">
             </span><span class="nt">"args"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
                 </span><span class="p">{</span><span class="w">
@@ -1161,7 +1161,7 @@ an existing filter entity URL (from the right-side dataset), wrapped as <code cl
         </span><span class="nt">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Aided awareness by region"</span><span class="p">,</span><span class="w">
         </span><span class="nt">"description"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Combined from aided brand awareness"</span><span class="p">,</span><span class="w">
         </span><span class="nt">"alias"</span><span class="p">:</span><span class="w"> </span><span class="s2">"aided_region"</span><span class="p">,</span><span class="w">
-        </span><span class="nt">"expr"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+        </span><span class="nt">"derivation"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
             </span><span class="nt">"function"</span><span class="p">:</span><span class="w"> </span><span class="s2">"combine_responses"</span><span class="p">,</span><span class="w">
             </span><span class="nt">"args"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
                 </span><span class="p">{</span><span class="w">
@@ -1209,7 +1209,7 @@ an existing filter entity URL (from the right-side dataset), wrapped as <code cl
         </span><span class="nt">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Market segmentation"</span><span class="p">,</span><span class="w">
         </span><span class="nt">"description"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Super-scientific classification of people"</span><span class="p">,</span><span class="w">
         </span><span class="nt">"alias"</span><span class="p">:</span><span class="w"> </span><span class="s2">"segments"</span><span class="p">,</span><span class="w">
-        </span><span class="nt">"expr"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+        </span><span class="nt">"derivation"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
             </span><span class="nt">"function"</span><span class="p">:</span><span class="w"> </span><span class="s2">"case"</span><span class="p">,</span><span class="w">
             </span><span class="nt">"args"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
                 </span><span class="p">{</span><span class="w">
@@ -1382,16 +1382,32 @@ subvariables <code class="prettyprint">ca1-subvar-1</code> and <code class="pret
 The <code class="prettyprint">references</code> attribute is used to indicate specific name/alias for these
 subvariables.</p>
 
+<aside class="warning">
+Note that when making an array with this method its subvariables catalog
+and subvariables will return 405 on PATCH attempts. The correct way to make
+modifications to them (add/remove subvariable, edit subvariable attributes) is
+to update the new array variable&rsquo;s entity `derivation` attribute with the 
+updated expression indicating the desired subvariable modifications.
+</aside>
+
 <h3 id="weights">Weights</h3>
 
-<p>A numeric variable suitable for use as row weights can be constructed from one or more categorical variables and target proportions of their categories. The sample distribution is “raked” iteratively to each categorical marginal target to produce a set of joint values that can be used as weights. Note that available weight variables are shared by all; you may not create private weights. To create a weight variable, POST a JSON variable definition to the variables catalog describing the properties of the weight variable, with an &ldquo;expr&rdquo; member indicating to use the &ldquo;rake&rdquo; function, which takes a &ldquo;targets&rdquo; argument containing an array of Crunch Tables of targets:</p>
+<p>A numeric variable suitable for use as row weights can be constructed from one 
+or more categorical variables and target proportions of their categories. The 
+sample distribution is “raked” iteratively to each categorical marginal target 
+to produce a set of joint values that can be used as weights. Note that 
+available weight variables are shared by all; you may not create private 
+weights. To create a weight variable, POST a JSON variable definition to the 
+variables catalog describing the properties of the weight variable, with an 
+&ldquo;derivation&rdquo; member indicating to use the &ldquo;rake&rdquo; function, which takes a 
+&ldquo;targets&rdquo; argument containing an array of Crunch Tables of targets:</p>
 <pre class="highlight shell"><code>POST /api/datasets/<span class="o">{</span>datasetid<span class="o">}</span>/variables/ HTTP/1.1
 Content-Type: application/shoji
 Content-Length: 739
 <span class="o">{</span>
     <span class="s2">"name"</span>: <span class="s2">"weight"</span>,
     <span class="s2">"description"</span>: <span class="s2">"my raked weight"</span>,
-    <span class="s2">"expr"</span>: <span class="o">{</span>
+    <span class="s2">"derivation"</span>: <span class="o">{</span>
         <span class="s2">"function"</span>: <span class="s2">"rake"</span>,
         <span class="s2">"args"</span>: <span class="o">{</span>
             <span class="s2">"targets"</span>: <span class="o">[</span>
@@ -1452,7 +1468,7 @@ Location: /api/datasets/<span class="o">{</span>datasetid<span class="o">}</span
         </span><span class="nt">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Cola likes"</span><span class="p">,</span><span class="w">
         </span><span class="nt">"description"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Cola preferences"</span><span class="p">,</span><span class="w">
         </span><span class="nt">"alias"</span><span class="p">:</span><span class="w"> </span><span class="s2">"cola_likes"</span><span class="p">,</span><span class="w">
-        </span><span class="nt">"expr"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+        </span><span class="nt">"derivation"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
             </span><span class="nt">"function"</span><span class="p">:</span><span class="w"> </span><span class="s2">"select_categories"</span><span class="p">,</span><span class="w">
             </span><span class="nt">"args"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
                 </span><span class="p">{</span><span class="nt">"variable"</span><span class="p">:</span><span class="w"> </span><span class="s2">"https://app.crunch.io/api/datasets/3ad42c/variables/0000f5/"</span><span class="p">},</span><span class="w">
@@ -3724,9 +3740,7 @@ from the Crunch system and responds with 204 status.</p>
 </span><span class="p">}</span><span class="w">
 </span></code></pre>
 
-<p>A POST request on any of the export views will return 202 status with a <code class="prettyprint">shoji:view</code>,
-containing an attribute <code class="prettyprint">url</code> pointing to the location of the exported file to
-be downloaded; GET that URL to download the file.</p>
+<p>A POST request on any of the export views will return 202 status with a Progress response in the body and a Location header pointing to the location of the exported file to be downloaded. Poll the progress URL for status on the completion of the export. When complete, GET the Location URL from the original response to download the file.</p>
 <pre class="highlight http"><code><span class="nf">POST</span> <span class="nn">`/api/datasets/f2364cc66e604d63a3be3e8811fc902f/export/spss/`</span> <span class="k">HTTP</span><span class="o">/</span><span class="m">1.1</span>
 </code></pre>
 <pre class="highlight json"><code><span class="w">    </span><span class="p">{</span><span class="w">
@@ -3804,37 +3818,40 @@ be downloaded; GET that URL to download the file.</p>
 <tr>
 <td>csv</td>
 <td>use_category_ids</td>
-<td>Instead of category names export the fields as their numeric ids</td>
-<td>{&ldquo;use_category_ids&rdquo;: false}</td>
+<td>Export categorical data as its numeric IDs instead of category names?</td>
+<td>false</td>
 </tr>
 <tr>
 <td>csv</td>
 <td>missing_values</td>
-<td>If present, will use such string as for missing values. Else will use the reasons</td>
+<td>If present, will use the specified string to indicate missing values. If omitted, will use the missing reason strings</td>
 <td><em>omitted</em></td>
+</tr>
+<tr>
+<td>csv</td>
+<td>header_field</td>
+<td>Use the variable&rsquo;s alias/name/description in the CSV header row,  or <code class="prettyprint">null</code> for no header row</td>
+<td>&ldquo;alias&rdquo;</td>
 </tr>
 <tr>
 <td>spss</td>
 <td>var_label_field</td>
 <td>Use the variable&rsquo;s name/description as SPSS variable label</td>
-<td>{&ldquo;var_label_field&rdquo;: &ldquo;description&rdquo;}</td>
+<td>&ldquo;description&rdquo;</td>
 </tr>
 <tr>
 <td>spss</td>
 <td>prefix_subvariables</td>
-<td>When True, subvariables names will have the parent array&rsquo;s name prefixed</td>
-<td>{&ldquo;prefix_subvariables&rdquo;: false}</td>
+<td>Prefix subvariable labels with the parent array variable&rsquo;s label?</td>
+<td>false</td>
 </tr>
 <tr>
 <td>all</td>
 <td>include_personal</td>
-<td>Will include the user&rsquo;s personal variables on the exported file</td>
-<td>{&ldquo;include_personal&rdquo;: false}</td>
+<td>Include the user&rsquo;s personal variables in the exported file?</td>
+<td>false</td>
 </tr>
 </tbody></table>
-
-<p>For both types of responses, the &ldquo;location&rdquo; header is set to the location for the download, whether completed or not.  Besides
- looking for a 100 percent completion with progress requests, the user may also look for a non-404 response on this location.</p>
 
 <h6 id="spss">SPSS</h6>
 
@@ -3853,6 +3870,15 @@ and missing values will use their corresponding reason string for all variables.
 <p>The missing values will be exported with their configured missing reason in
 the CSV file. If specified on the <code class="prettyprint">missing_values</code> export option, then all
 missing values on all columns will use such string instead of the reason.</p>
+
+<p>To control the output of the header row, use the <code class="prettyprint">header_field</code> option. Valid values for this option are:</p>
+
+<ul>
+<li>alias (default)</li>
+<li>name</li>
+<li>description</li>
+<li><code class="prettyprint">null</code> - Sending <code class="prettyprint">null</code> will make the resulting CSV without a header row.</li>
+</ul>
 
 <p>Refer to the options described on the table above for the <code class="prettyprint">csv</code> format to change this behavior.</p>
 
@@ -5150,6 +5176,12 @@ variables catalog.</p>
 so include the URL of another variable (currently existing on the dataset) on
 the payload with an empty tuple and such variable will be converted into a
 subvariable and added at the end.</p>
+
+<p>In the case of derived arrays, an attempt to PATCH this catalog will return a
+405 response. This is because the list of subvariables for this array is
+a function of its derivation expression. The correct way to make modifications
+to derived arrays&rsquo; subvariables is by editing its <code class="prettyprint">derivation</code> attribute with 
+the desired expressions for each of them.</p>
 
 <h4 id="values">Values</h4>
 
@@ -7423,6 +7455,11 @@ lacking, response will instead be 404.</p>
 <td>A Crunch expression indicating which variables to include in the CrunchBox</td>
 <td></td>
 </tr>
+<tr>
+<td>creation_time</td>
+<td>string</td>
+<td>A timestamp of the date when this CrunchBox was created</td>
+</tr>
 </tbody></table>
 <pre class="highlight json"><code><span class="p">{</span><span class="w">
     </span><span class="nt">"element"</span><span class="p">:</span><span class="w"> </span><span class="s2">"shoji:catalog"</span><span class="p">,</span><span class="w">
@@ -7435,6 +7472,7 @@ lacking, response will instead be 404.</p>
             </span><span class="nt">"title"</span><span class="p">:</span><span class="w"> </span><span class="s2">"z and str"</span><span class="p">,</span><span class="w">
             </span><span class="nt">"dataset"</span><span class="p">:</span><span class="w"> </span><span class="s2">"https://beta.crunch.io/api/datasets/e7834a8b5aa84c50bcb868fc3b44fd22/"</span><span class="p">,</span><span class="w">
             </span><span class="nt">"header"</span><span class="p">:</span><span class="w"> </span><span class="s2">"This is for the header"</span><span class="p">,</span><span class="w">
+            </span><span class="nt">"creation_time"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2017-03-14T00:13:42.024000+00:00"</span><span class="p">,</span><span class="w">
             </span><span class="nt">"filters"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
                 </span><span class="nt">"function"</span><span class="p">:</span><span class="w"> </span><span class="s2">"identify"</span><span class="p">,</span><span class="w">
                 </span><span class="nt">"args"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
@@ -7464,6 +7502,7 @@ lacking, response will instead be 404.</p>
             </span><span class="nt">"title"</span><span class="p">:</span><span class="w"> </span><span class="s2">"xz"</span><span class="p">,</span><span class="w">
             </span><span class="nt">"dataset"</span><span class="p">:</span><span class="w"> </span><span class="s2">"https://beta.crunch.io/api/datasets/e7834a8b5aa84c50bcb868fc3b44fd22/"</span><span class="p">,</span><span class="w">
             </span><span class="nt">"filters"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span><span class="w">
+            </span><span class="nt">"creation_time"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2017-03-14T00:13:42.024000+00:00"</span><span class="p">,</span><span class="w">
             </span><span class="nt">"where"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
                 </span><span class="nt">"function"</span><span class="p">:</span><span class="w"> </span><span class="s2">"identify"</span><span class="p">,</span><span class="w">
                 </span><span class="nt">"args"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
@@ -7538,26 +7577,73 @@ lacking, response will instead be 404.</p>
     </span><span class="nt">"body"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
         </span><span class="nt">"where"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
             </span><span class="nt">"function"</span><span class="p">:</span><span class="w"> </span><span class="s2">"select"</span><span class="p">,</span><span class="w">
-            </span><span class="nt">"args"</span><span class="p">:</span><span class="w"> </span><span class="p">[{</span><span class="nt">"map"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="nt">"000002"</span><span class="p">:</span><span class="w"> 
-                        </span><span class="p">{</span><span class="nt">"variable"</span><span class="p">:</span><span class="w"> </span><span class="s2">"https://beta.crunch.io/api/datasets/e7834a8b5aa84c50bcb868fc3b44fd22/variables/000002/"</span><span class="p">},</span><span class="w">
-                              </span><span class="nt">"000003"</span><span class="p">:</span><span class="w">
-                        </span><span class="p">{</span><span class="nt">"variable"</span><span class="p">:</span><span class="w"> </span><span class="s2">"https://beta.crunch.io/api/datasets/e7834a8b5aa84c50bcb868fc3b44fd22/variables/000003/"</span><span class="p">}</span><span class="w">
-                        </span><span class="p">}</span><span class="w">
-                    </span><span class="p">}]</span><span class="w">
+            </span><span class="nt">"args"</span><span class="p">:</span><span class="w"> </span><span class="p">[{</span><span class="w">
+                </span><span class="nt">"map"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+                  </span><span class="nt">"000002"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="nt">"variable"</span><span class="p">:</span><span class="w"> </span><span class="s2">"https://beta.crunch.io/api/datasets/e7834a8b5aa84c50bcb868fc3b44fd22/variables/000002/"</span><span class="p">},</span><span class="w">
+                  </span><span class="nt">"000003"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="nt">"variable"</span><span class="p">:</span><span class="w"> </span><span class="s2">"https://beta.crunch.io/api/datasets/e7834a8b5aa84c50bcb868fc3b44fd22/variables/000003/"</span><span class="p">}</span><span class="w">
                 </span><span class="p">}</span><span class="w">
-            </span><span class="err">]</span><span class="w">
+            </span><span class="p">}]</span><span class="w">
         </span><span class="p">},</span><span class="w">
-        </span><span class="nt">"filters"</span><span class="p">:</span><span class="w"> </span><span class="p">[{</span><span class="nt">"filter"</span><span class="p">:</span><span class="w"> </span><span class="s2">"https://beta.crunch.io/api/datasets/e7834a8b5aa84c50bcb868fc3b44fd22/filters/da9d86e43381443d9d708dc29c0c6308/"</span><span class="p">},</span><span class="w">
-                    </span><span class="p">{</span><span class="nt">"filter"</span><span class="p">:</span><span class="w"> </span><span class="s2">"https://beta.crunch.io/api/datasets/e7834a8b5aa84c50bcb868fc3b44fd22/filters/80638457c8bd4731990eebdc3baee839/"</span><span class="p">}</span><span class="w">
-                    </span><span class="p">],</span><span class="w">
+        </span><span class="nt">"filters"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
+          </span><span class="p">{</span><span class="nt">"filter"</span><span class="p">:</span><span class="w"> </span><span class="s2">"https://beta.crunch.io/api/datasets/e7834a8b5aa84c50bcb868fc3b44fd22/filters/da9d86e43381443d9d708dc29c0c6308/"</span><span class="p">},</span><span class="w">
+          </span><span class="p">{</span><span class="nt">"filter"</span><span class="p">:</span><span class="w"> </span><span class="s2">"https://beta.crunch.io/api/datasets/e7834a8b5aa84c50bcb868fc3b44fd22/filters/80638457c8bd4731990eebdc3baee839/"</span><span class="p">}</span><span class="w">
+        </span><span class="p">],</span><span class="w">
         </span><span class="nt">"force"</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="p">,</span><span class="w">
         </span><span class="nt">"title"</span><span class="p">:</span><span class="w"> </span><span class="s2">"z and str"</span><span class="p">,</span><span class="w">
         </span><span class="nt">"notes"</span><span class="p">:</span><span class="w"> </span><span class="s2">"just a couple of variables"</span><span class="p">,</span><span class="w">
         </span><span class="nt">"header"</span><span class="p">:</span><span class="w"> </span><span class="s2">"This is for the header"</span><span class="p">,</span><span class="w">
         </span><span class="nt">"footer"</span><span class="p">:</span><span class="w"> </span><span class="s2">"This is for the footer"</span><span class="w">
     </span><span class="p">}</span><span class="w">
-</span><span class="err">}</span><span class="w">
+</span><span class="p">}</span><span class="w">
 </span></code></pre>
+
+<h3 id="entity">Entity</h3>
+
+<p><code class="prettyprint">/datasets/{id}/boxdata/{id}/</code></p>
+
+<p>This endpoint represents each of the boxdata entities listed in the catalog.</p>
+
+<p>The body of any of the entities is the same as the catalog&rsquo;s tuple:</p>
+
+<h4 id="get">GET</h4>
+
+<p>Returns the body of the boxdata entity</p>
+<pre class="highlight json"><code><span class="p">{</span><span class="w">
+    </span><span class="nt">"user_id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"00002"</span><span class="p">,</span><span class="w">
+    </span><span class="nt">"footer"</span><span class="p">:</span><span class="w"> </span><span class="s2">"This is for the footer"</span><span class="p">,</span><span class="w">
+    </span><span class="nt">"notes"</span><span class="p">:</span><span class="w"> </span><span class="s2">"just a couple of variables"</span><span class="p">,</span><span class="w">
+    </span><span class="nt">"title"</span><span class="p">:</span><span class="w"> </span><span class="s2">"z and str"</span><span class="p">,</span><span class="w">
+    </span><span class="nt">"dataset"</span><span class="p">:</span><span class="w"> </span><span class="s2">"https://beta.crunch.io/api/datasets/e7834a8b5aa84c50bcb868fc3b44fd22/"</span><span class="p">,</span><span class="w">
+    </span><span class="nt">"header"</span><span class="p">:</span><span class="w"> </span><span class="s2">"This is for the header"</span><span class="p">,</span><span class="w">
+    </span><span class="nt">"filters"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+        </span><span class="nt">"function"</span><span class="p">:</span><span class="w"> </span><span class="s2">"identify"</span><span class="p">,</span><span class="w">
+        </span><span class="nt">"args"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
+            </span><span class="p">{</span><span class="w">
+                </span><span class="nt">"filter"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
+                    </span><span class="s2">"https://beta.crunch.io/api/datasets/e7834a8b5aa84c50bcb868fc3b44fd22/filters/da9d86e43381443d9d708dc29c0c6308/"</span><span class="p">,</span><span class="w">
+                    </span><span class="s2">"https://beta.crunch.io/api/datasets/e7834a8b5aa84c50bcb868fc3b44fd22/filters/80638457c8bd4731990eebdc3baee839/"</span><span class="w">
+                </span><span class="p">]</span><span class="w">
+            </span><span class="p">}</span><span class="w">
+        </span><span class="p">]</span><span class="w">
+    </span><span class="p">},</span><span class="w">
+    </span><span class="nt">"where"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+        </span><span class="nt">"function"</span><span class="p">:</span><span class="w"> </span><span class="s2">"identify"</span><span class="p">,</span><span class="w">
+        </span><span class="nt">"args"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
+            </span><span class="p">{</span><span class="w">
+                </span><span class="nt">"id"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
+                    </span><span class="s2">"https://beta.crunch.io/api/datasets/e7834a8b5aa84c50bcb868fc3b44fd22/variables/000002/"</span><span class="p">,</span><span class="w">
+                    </span><span class="s2">"https://beta.crunch.io/api/datasets/e7834a8b5aa84c50bcb868fc3b44fd22/variables/000003/"</span><span class="w">
+                </span><span class="p">]</span><span class="w">
+            </span><span class="p">}</span><span class="w">
+        </span><span class="p">]</span><span class="w">
+    </span><span class="p">},</span><span class="w">
+    </span><span class="nt">"id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"44a4d477d70c85da4b8298677e527ad8"</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre>
+
+<h4 id="delete">DELETE</h4>
+
+<p>Deletes the boxdata entity. Returns 204.</p>
 
           <h2 id="comparisons">Comparisons</h2>
 
