@@ -2674,6 +2674,74 @@ an action cannot be replayed on the original dataset (typically because it has
 
           <h2 id="public">Public</h2>
 
+<h3 id="crunchbox">Crunchbox</h3>
+
+<p>A CrunchBox represents a snapshot of a crunch dataset. These snapshots are
+intended for public proliferation and therefore the endpoints for interacting with
+this data is housed under the unauthed API path.</p>
+
+<h4 id="share">Share</h4>
+
+<p>The share endpoint is for retrieving the HTML code for rendering the share page, complete
+with the meta data utilized by social sharing platform crawlers in constructing
+a share-preview. Among this metadata is a url to a preview image of the rendered crunchbox.</p>
+<pre class="highlight http"><code><span class="nf">GET</span> <span class="nn">/crunchbox/share/</span> <span class="k">HTTP</span><span class="o">/</span><span class="m">1.1</span>
+</code></pre>
+
+<p>Required parameters for this endpoint:</p>
+
+<table><thead>
+<tr>
+<th>Parameter</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>data</td>
+<td>string</td>
+<td>crunchbox widget url (URL encoded)<br>e.g. &ldquo;https%3A%2F%2Fs.crunch.io%2Fwidget%2Findex.html%23%2Fds%2Fa1b2c3d4e5f6g7h8%2Frow%2F000001%2Fcolumn%2F000000&rdquo; (the encoded string of &ldquo;https://s.crunch.io/widget/index.html#/ds/a1b2c3d4e5f6g7h8/row/000001/column/000000&rdquo;)</td>
+</tr>
+</tbody></table>
+
+<p>Optional parameters for this endpoint:</p>
+
+<table><thead>
+<tr>
+<th>Parameter</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>ref</td>
+<td>string</td>
+<td>referring url (URL encoded) to pull content from the referring page for inclusion on the crunchbox share page and provide a link back to the referrer<br>e.g. &ldquo;http%3A%2F%2Fcrunch.io%2Fcrunching-the-data-of-politics&rdquo; (the encoded string of &ldquo;http://crunch.io/crunching-the-data-of-politics&rdquo;)</td>
+</tr>
+</tbody></table>
+
+<h4 id="preview">Preview</h4>
+
+<p>The preview endpoint is used to preemptively initiate rendering a given crunchbox configuration to a raster image. This image will be requested by social network platform crawlers during construction of the post share preview. The preview-rendering process can be time-consuming. Therefore, it is preferable to initiate it as soon as is reasonable before a request for the image data.</p>
+
+<p>This endpoint returns no data.</p>
+<pre class="highlight http"><code><span class="nf">POST</span> <span class="nn">/crunchbox/preview/</span> <span class="k">HTTP</span><span class="o">/</span><span class="m">1.1</span>
+</code></pre>
+
+<table><thead>
+<tr>
+<th>Parameter</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>data</td>
+<td>string</td>
+<td>crunchbox widget url (URL encoded)<br>e.g. &ldquo;https%3A%2F%2Fs.crunch.io%2Fwidget%2Findex.html%23%2Fds%2Fa1b2c3d4e5f6g7h8%2Frow%2F000001%2Fcolumn%2F000000&rdquo; (the encoded string of &ldquo;https://s.crunch.io/widget/index.html#/ds/a1b2c3d4e5f6g7h8/row/000001/column/000000&rdquo;)</td>
+</tr>
+</tbody></table>
+
           <h2 id="datasets">Datasets</h2>
 
 <p>Datasets are the primary containers of statistical data in Crunch. Datasets
@@ -4130,6 +4198,104 @@ equivalent to deleting the primary key for a dataset.</p>
 success, this method returns no body and a 204 response code.</p>
 
 <h4 id="catalogs">Catalogs</h4>
+
+<h5 id="users">Users</h5>
+
+<p><code class="prettyprint">/datasets/{dataset_id}/users/</code></p>
+
+<p>This catalog exposes the full list of users that have access to the dataset
+via the different sources:</p>
+
+<ul>
+<li>When the dataset belongs to a project, as project members</li>
+<li>Members of teams that are shared with the dataset</li>
+<li>Direct shares to specific users</li>
+</ul>
+
+<p>This endpoint only supports GET, the response will be a catalog with each user
+as member with the tuple indicating the coalesced permissions and information
+about the type of access:</p>
+
+<table><thead>
+<tr>
+<th>Attribute</th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>name</td>
+<td>Name of the user</td>
+</tr>
+<tr>
+<td>email</td>
+<td>Email of the user</td>
+</tr>
+<tr>
+<td>teams</td>
+<td>URLs of teams with dataset access this user belongs to</td>
+</tr>
+<tr>
+<td>last_accessed</td>
+<td>Timestamp of last access to dataset via web app</td>
+</tr>
+<tr>
+<td>project_member</td>
+<td>If dataset is part of a project and this user too</td>
+</tr>
+<tr>
+<td>coalesced_permissions</td>
+<td>Permissions this user has to this access, combining all sources</td>
+</tr>
+</tbody></table>
+<pre class="highlight json"><code><span class="w">
+</span><span class="p">{</span><span class="w">
+  </span><span class="nt">"https://app.crunch.io/api/users/411aa32a075b4b57bf25a4ace1baf920/"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+    </span><span class="nt">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Jean-Luc Picard"</span><span class="p">,</span><span class="w"> 
+    </span><span class="nt">"last_accessed"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2017-02-25T00:00:00+00:00"</span><span class="p">,</span><span class="w">
+    </span><span class="nt">"teams"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
+      </span><span class="s2">"https://app.crunch.io/api/teams/c6dbeb7c57e34dd08ab2316f3363e895/"</span><span class="p">,</span><span class="w"> 
+      </span><span class="s2">"https://app.crunch.io/api/teams/d0abf4e933fc44e38190247ae4d593f9/"</span><span class="w">
+    </span><span class="p">],</span><span class="w"> 
+    </span><span class="nt">"project_member"</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="p">,</span><span class="w"> 
+    </span><span class="nt">"email"</span><span class="p">:</span><span class="w"> </span><span class="s2">"jeanluc@crunch.io"</span><span class="p">,</span><span class="w"> 
+    </span><span class="nt">"coalesced_permissions"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+      </span><span class="nt">"edit"</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span><span class="w"> 
+      </span><span class="nt">"change_permissions"</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span><span class="w"> 
+      </span><span class="nt">"view"</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="w">
+    </span><span class="p">}</span><span class="w">
+  </span><span class="p">},</span><span class="w"> 
+  </span><span class="nt">"https://app.crunch.io/api/users/60f18c51699b4ba992721197743286a4/"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+    </span><span class="nt">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"William Riker"</span><span class="p">,</span><span class="w"> 
+    </span><span class="nt">"last_accessed"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span><span class="w"> 
+    </span><span class="nt">"teams"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
+      </span><span class="s2">"https://app.crunch.io/api/teams/d0abf4e933fc44e38190247ae4d593f9/"</span><span class="w">
+    </span><span class="p">],</span><span class="w"> 
+    </span><span class="nt">"project_member"</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="p">,</span><span class="w"> 
+    </span><span class="nt">"email"</span><span class="p">:</span><span class="w"> </span><span class="s2">"number1@crunch.io"</span><span class="p">,</span><span class="w"> 
+    </span><span class="nt">"coalesced_permissions"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+      </span><span class="nt">"edit"</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="p">,</span><span class="w"> 
+      </span><span class="nt">"change_permissions"</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="p">,</span><span class="w"> 
+      </span><span class="nt">"view"</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="w">
+    </span><span class="p">}</span><span class="w">
+  </span><span class="p">},</span><span class="w"> 
+  </span><span class="nt">"https://app.crunch.io/api/users/80d89e4e876344ecb46c528a910e3877/"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+    </span><span class="nt">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Geordi La Forge"</span><span class="p">,</span><span class="w"> 
+    </span><span class="nt">"last_accessed"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2017-01-31T00:00:00+00:00"</span><span class="p">,</span><span class="w"> 
+    </span><span class="nt">"teams"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
+      </span><span class="s2">"https://app.crunch.io/api/teams/c6dbeb7c57e34dd08ab2316f3363e895/"</span><span class="p">,</span><span class="w"> 
+      </span><span class="s2">"https://app.crunch.io/api/teams/d0abf4e933fc44e38190247ae4d593f9/"</span><span class="w">
+    </span><span class="p">],</span><span class="w"> 
+    </span><span class="nt">"project_member"</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span><span class="w"> 
+    </span><span class="nt">"email"</span><span class="p">:</span><span class="w"> </span><span class="s2">"geordilf@crunch.io"</span><span class="p">,</span><span class="w"> 
+    </span><span class="nt">"coalesced_permissions"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+      </span><span class="nt">"edit"</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span><span class="w"> 
+      </span><span class="nt">"change_permissions"</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span><span class="w"> 
+      </span><span class="nt">"view"</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="w">
+    </span><span class="p">}</span><span class="w">
+  </span><span class="p">}</span><span class="w">
+</span><span class="p">}</span><span class="w">
+
+</span></code></pre>
 
 <h5 id="actions">Actions</h5>
 
