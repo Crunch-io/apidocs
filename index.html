@@ -4741,8 +4741,8 @@ line 24.</p>
 <li>If &ldquo;type&rdquo; is &ldquo;datetime&rdquo;: <strong>resolution</strong>: a string, such as &ldquo;Y&rdquo;, &ldquo;M&rdquo;, &ldquo;D&rdquo;, &ldquo;h&rdquo;, &ldquo;m&rdquo;, &ldquo;s&rdquo;, &ldquo;ms&rdquo;, that indicates the unit size of the datetime data.</li>
 </ul>
 
-<p>See Variable Definitions for more details and examples of valid attributes, and
-Feature Guide: Arrays for more information on the various cases for creating
+<p>See <a href="#variable-definitions">Variable Definitions</a> for more details and examples of valid attributes, and
+<a href="#array-variables">Feature Guide: Arrays</a> for more information on the various cases for creating
 array variables.</p>
 
 <p>It is encouraged, but not required, to include an &ldquo;alias&rdquo; in the body. If
@@ -4815,7 +4815,7 @@ makes changes to it.</p>
 
 <p>The allowed variables on this order are:
  * Any public variable available on the variable catalog
- * Any personal variable or subvariable for the logged user
+ * Any personal variable or subvariable for the authenticated user
  * Any subvariable of an array variable on the variable catalog</p>
 
 <h4 id="get">GET</h4>
@@ -4837,7 +4837,7 @@ the existing order. Personal variables are allowed here.</p>
 
 <h4 id="get">GET</h4>
 
-<p>GET a <code class="prettyprint">shoji:order</code> that contains the urls of the variables that have been 
+<p>GET a <code class="prettyprint">shoji:order</code> that contains the urls of the variables that have been
 designated as possible weight variables.</p>
 
 <h4 id="patch">PATCH</h4>
@@ -4849,12 +4849,12 @@ be a flat list of URLs, any nesting will be rejected with a 400 response.</p>
 <p>If the dataset has a default weight variable configured, it will always
 be present on the response even if it wasn&rsquo;t included on a PATCH request.</p>
 
-<p>Removing variables from this list will have the side effect of changing any 
+<p>Removing variables from this list will have the side effect of changing any
 user&rsquo;s preference that had such variables set as their weight to the current
 dataset&rsquo;s default weight.</p>
 
-<p>Only numeric variables are allowed to be used as weight. If a variable of 
-another type is included in the list, the server will abort and return a 409 
+<p>Only numeric variables are allowed to be used as weight. If a variable of
+another type is included in the list, the server will abort and return a 409
 response.</p>
 <pre class="highlight json"><code><span class="p">{</span><span class="w">
   </span><span class="nt">"graph"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">"https://app.crunch.io/api/datasets/42d0a3/variables/42229f"</span><span class="p">]</span><span class="w">
@@ -5346,7 +5346,7 @@ subvariable and added at the end.</p>
 <p>In the case of derived arrays, an attempt to PATCH this catalog will return a
 405 response. This is because the list of subvariables for this array is
 a function of its derivation expression. The correct way to make modifications
-to derived arrays&rsquo; subvariables is by editing its <code class="prettyprint">derivation</code> attribute with 
+to derived arrays&rsquo; subvariables is by editing its <code class="prettyprint">derivation</code> attribute with
 the desired expressions for each of them.</p>
 
 <h4 id="values">Values</h4>
@@ -9672,7 +9672,7 @@ variable at hand (generally category <code class="prettyprint">name</code>s).</p
 
           <h1 id="object-reference">Object Reference</h1>
 
-<p>version 0.14</p>
+<p>version 0.15</p>
 
 <p>The Crunch REST API takes a decidedly column-oriented approach to data. A &ldquo;column&rdquo; is simply a sequence of values of the same type. A &ldquo;variable&rdquo; binds a name (and other metadata) to the column, and indeed may possess a series of columns over its lifetime as inserts and updates are made to it. A &ldquo;dataset&rdquo; is a set of variables. Each variable in the dataset is sorted the same way; the variables together form a relation. Reading the N&#39;th item from each variable produces a row.</p>
 
@@ -9688,9 +9688,9 @@ variable at hand (generally category <code class="prettyprint">name</code>s).</p
 Its principal attribute is the <code class="prettyprint">body</code> key, which is an object containing the
 attributes that describe the entity.</p>
 
-<h3 id="shoji-catalog">Shoji Catalog</h3>
+<h3 id="shoji-catalog">Shoji catalog</h3>
 
-<p>A catalog is identifidied by its <code class="prettyprint">element</code> key having value <code class="prettyprint">shoji:catalog</code> with
+<p>A catalog is identified by its <code class="prettyprint">element</code> key having value <code class="prettyprint">shoji:catalog</code> with
 its principal attribute being <code class="prettyprint">index</code> that contains an object keyed by the URLs
 of the entities it contains and for each key an object (tuple) with attributes
 from the referenced entity.</p>
@@ -9704,19 +9704,19 @@ provide an <code class="prettyprint">orders</code> set of Shoji order resources.
 its principal attribute being <code class="prettyprint">value</code>. This can contain any arbitrary JSON
 object.</p>
 
-<h3 id="shoji-order">Shoji Order</h3>
+<h3 id="shoji-order">Shoji order</h3>
 
 <p>Shoji orders are identified by the <code class="prettyprint">element</code> key having a value <code class="prettyprint">shoji:order</code>.
 Their principal attribute is the <code class="prettyprint">graph</code> key which is an array containing the
 order of present resources.</p>
 
-<p>A shoji order may be associated to a catalog. In such case it will contain a
+<p>A shoji order may be associated with a catalog. In such case it will contain a
 subset or totality of the entities present in the catalog. The catalog remains
 as the authoritative source of available entities.</p>
 
-<p>Any entity not present on the order but present in the catalog should be
+<p>Any entity not present on the order but present in the catalog may be
 considered to belong at the bottom of the root of the graph in an arbitrary
-order.</p>
+order, or may be excluded from view.</p>
 
 <h2 id="statistical-data">Statistical data</h2>
 
@@ -9782,9 +9782,7 @@ order.</p>
 
 <h3 id="variable-definitions">Variable Definitions</h3>
 
-<p>This section describes the metadata of a variable as exposed across HTTP, both expected response values and valid input values.</p>
-
-<p>Crunch operates on the principle that analytic users proceed through a series of steps where they both refine existing data and transform existing variables into new variables. Therefore, it employs a structural type system, not a nominative one. Practically, this means that, although we may know the &ldquo;type&rdquo; of a variable (numeric, text, categorical, etc) even before data is input, we learn more about the metadata of a variable as time goes on. The variable definition therefore includes more knowledge than just the type name; we also learn details about range, precision, missing values and reasons, order, etc. Both definitions and types, therefore, are complete objects, not just names. For example:</p>
+<p>Crunch employs a structural type system rather than a nominative one. The variable definition includes more knowledge than just the type name (numeric, text, categorical, etc); we also learn details about range, precision, missing values and reasons, order, etc. For example:</p>
 <pre class="highlight json"><code><span class="p">{</span><span class="w">
     </span><span class="nt">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"categorical"</span><span class="p">,</span><span class="w">
     </span><span class="nt">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Party ID"</span><span class="p">,</span><span class="w">
@@ -9812,6 +9810,8 @@ order.</p>
 </span><span class="p">}</span><span class="w">
 </span></code></pre>
 
+<p>This section describes the metadata of a variable as exposed across HTTP, both expected response values and valid input values.</p>
+
 <h4 id="variable-types">Variable types</h4>
 
 <p>The &ldquo;type&rdquo; of a Variable is a string which defines the superset of values from which the variable may draw. The type governs not only the set of values but also their syntax. (See below.)</p>
@@ -9829,9 +9829,11 @@ order.</p>
 
 <h4 id="variable-names">Variable names</h4>
 
-<p>Crunch takes a principled stand that variable &ldquo;names&rdquo; should be for people, not for computers.</p>
+<p>Variables in Crunch have multiple attributes that provide identifying information: &ldquo;name&rdquo;, &ldquo;alias&rdquo;, and &ldquo;description&rdquo;.</p>
 
 <h5 id="name">name</h5>
+
+<p>Crunch takes a principled stand that variable &ldquo;names&rdquo; should be for people, not for computers.</p>
 
 <p>You may be used to domains that have variable &ldquo;name&rdquo;, &ldquo;label&rdquo;, and &ldquo;description&rdquo;. Name is some short, unique, machine-friendlier ID like &ldquo;Q2&rdquo;; label is short and human-friendly, something like &ldquo;Brand awareness&rdquo;, and description is where you might put question wording if you have survey data. Crunch has &ldquo;alias&rdquo;, &ldquo;name&rdquo;, and &ldquo;description&rdquo;. What you may be used to thinking of as a variable name, we consider as an alias: something for more internal use, not something appropriate for a polished dataset ready to share with people who didn&rsquo;t create the dataset (See more in the &ldquo;Alias&rdquo; section below). In Crunch, the variable&rsquo;s &ldquo;name&rdquo; is what you may be used to thinking of as a label.</p>
 
@@ -9853,27 +9855,27 @@ order.</p>
 
 <h4 id="type-specific-attributes">Type-specific attributes</h4>
 
-<p>These keys must be present for the specified variable types when creating a variable, but they are not defined for other types.</p>
+<p>These attributes must be present for the specified variable types when creating a variable, but they are not defined for other types.</p>
 
 <h5 id="categories">categories</h5>
 
 <p>Categorical variables must contain an array of Category objects, each of which includes:</p>
 
-<p>name: the string name which applications should use to identify the category.
-numeric_value: the numeric value bound to each name. If no numeric value should be bound, this should be null.
-id: a read-only integer identifier for the category. These correspond to the data values.
-missing: boolean indicating whether this category should be interpreted as missing values.
-selected: (optional) boolean indicating whether this category corresponds to a selected value for a dichotomized variable, i.e. part of a multiple response variable. Not required for regular categorical variables, and defaults to <code class="prettyprint">false</code> if omitted.</p>
+<ul>
+<li><strong>id</strong>: a read-only integer identifier for the category. These correspond to the data values.</li>
+<li><strong>name</strong>: the string name which applications should use to identify the category.</li>
+<li><strong>numeric_value</strong>: the numeric value bound to each name. If no numeric value should be bound, this should be null. numeric_values need not be unique, and they may be <code class="prettyprint">null</code>.</li>
+<li><strong>missing</strong>: boolean indicating whether the data corresponding to this category should be interpreted as missing.</li>
+<li><strong>selected</strong>: (optional) boolean indicating whether this category corresponds to a selected value for a dichotomized variable, i.e. part of a multiple response variable. Not required for regular categorical variables, and defaults to <code class="prettyprint">false</code> if omitted. There also is no requirement for Categories in a multiple-response variable that only one Category be marked &ldquo;selected&rdquo;.</li>
+</ul>
 
 <p>Categories are valid if:</p>
 
 <ul>
 <li>Category names are unique within the set</li>
 <li>Category ids are unique within the set</li>
-<li>Category ids for user-defined categories are nonnegative. Negative ids are reserved for system missing reasons. See &ldquo;missing_reasons&rdquo; below.</li>
+<li>Category ids for user-defined categories are positive integers no greater than 32767. Negative ids are reserved for system missing reasons. See &ldquo;missing_reasons&rdquo; below.</li>
 </ul>
-
-<p>numeric_values need not be unique. There also is no requirement for Categories in a dichotomized subvariable that only one Category be marked &ldquo;selected&rdquo;.</p>
 
 <p>The order of the array defines the order of the categories, and thus the order in which aggregate data will be presented. This order can be changed by saving a reordered set of Categories.</p>
 
@@ -9948,8 +9950,7 @@ selected: (optional) boolean indicating whether this category corresponds to a s
 <li>show_codes: For categorical types only. If true, numeric values are shown.</li>
 <li>show_counts: If true, show counts; if false, show percents.</li>
 <li>include_missing: For categorical types only. If true, include missing categories.</li>
-<li>column_width: For &ldquo;untyped&rdquo; Variables only. The selected display width of column data, in pixels, or None.</li>
-<li>include_noneoftheabove: For multipleresponse types only. If true, display a &ldquo;none of the above&rdquo; category in the requested summary or analysis.</li>
+<li>include_noneoftheabove: For multiple-response types only. If true, display a &ldquo;none of the above&rdquo; category in the requested summary or analysis.</li>
 <li>geodata: A list of associations of a variable to Crunch geodatm entities. PATCH a variable entity amending the <code class="prettyprint">view.geodata</code> in order to create, modify, or remove an association. An association is an object with required keys <code class="prettyprint">geodatum</code>, <code class="prettyprint">feature_key</code>, and optional <code class="prettyprint">match_field</code>. The geodatum must exist; <code class="prettyprint">feature_key</code> is the name of the property of each ‘feature’ in the geojson/topojson that corresponds to the <code class="prettyprint">match_field</code> of the variable (perhaps a dotted string for nested properties; e.g. ”properties.postal-code”). By default, <code class="prettyprint">match_field</code> is “name”: a categorical variable will match category names to the <code class="prettyprint">feature_key</code> present in the given geodatum.</li>
 </ul>
 
@@ -9957,11 +9958,11 @@ selected: (optional) boolean indicating whether this category corresponds to a s
 
 <p>Discarded is a boolean value indicating whether the variable should be viewed as part of the dataset. Hiding variables by setting discarded to True is like a soft, restorable delete method.</p>
 
-<p>Default is &ldquo;False&rdquo;.</p>
+<p>Default is <code class="prettyprint">false</code>.</p>
 
 <h5 id="private">private</h5>
 
-<p>If True, the variable will not show in the common variable catalog; instead, it will be included in the private variables catalog. Such variables may have their ids included in the variable order.</p>
+<p>If <code class="prettyprint">true</code>, the variable will not show in the common variable catalog; instead, it will be included in the personal variables catalog. </p>
 
 <h5 id="missing_reasons">missing_reasons</h5>
 
