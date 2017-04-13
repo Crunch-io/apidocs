@@ -2592,7 +2592,7 @@ its value where the asynchronous job&rsquo;s status can be observed.</p>
 
 <p>A common pattern when collaborating on a dataset is for one person to make changes on their own and then, when all is ready, share the whole set of changes back to the other collaborators. Crunch implements this with two mechanisms: the ability to &ldquo;fork&rdquo; a dataset to make a copy, and then &ldquo;merge&rdquo; any changes made to it back to the original dataset.</p>
 
-<p>To fork a dataset, POST a new fork entity to the dataset&rsquo;s forks catalog. The 201 response will include a Location header with the URL of the new dataset that has been forked from the current one.</p>
+<p>To fork a dataset, POST a new fork entity to the dataset&rsquo;s forks catalog.</p>
 <pre class="highlight python"><code><span class="o">&gt;&gt;&gt;</span> <span class="n">ds</span><span class="o">.</span><span class="n">forks</span><span class="o">.</span><span class="n">index</span>
 <span class="p">{}</span>
 <span class="o">&gt;&gt;&gt;</span> <span class="n">forked_ds</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">forks</span><span class="o">.</span><span class="n">create</span><span class="p">({</span><span class="s">"body"</span><span class="p">:</span> <span class="p">{</span><span class="s">"name"</span><span class="p">:</span> <span class="s">"My fork"</span><span class="p">}})</span><span class="o">.</span><span class="n">refresh</span><span class="p">()</span>
@@ -2601,6 +2601,9 @@ its value where the asynchronous job&rsquo;s status can be observed.</p>
 <span class="o">&gt;&gt;&gt;</span> <span class="n">ds</span><span class="o">.</span><span class="n">forks</span><span class="o">.</span><span class="n">index</span><span class="p">[</span><span class="n">forked_ds</span><span class="o">.</span><span class="bp">self</span><span class="p">][</span><span class="s">"name"</span><span class="p">]</span>
 <span class="s">"My fork"</span>
 </code></pre>
+
+<p>The response will be a 201 response if the fork could happen in the allotted time limit for the request or a 202 if the fork requires too much time and is going to continue in background.
+Both cases will include a Location header with the URL of the new dataset that has been forked from the current one.</p>
 <pre class="highlight http"><code><span class="nf">POST</span> <span class="nn">/api/datasets/{id}/forks/</span> <span class="k">HTTP</span><span class="o">/</span><span class="m">1.1</span>
 <span class="na">Host</span><span class="p">:</span> <span class="s">app.crunch.io</span>
 <span class="na">Content-Type</span><span class="p">:</span> <span class="s">application/json</span>
@@ -2615,6 +2618,29 @@ its value where the asynchronous job&rsquo;s status can be observed.</p>
 
 </span><span class="err">HTTP/</span><span class="mf">1.1</span><span class="w"> </span><span class="mi">201</span><span class="w"> </span><span class="err">Created</span><span class="w">
 </span><span class="err">Location:</span><span class="w"> </span><span class="err">https://app.crunch.io/api/datasets/</span><span class="p">{</span><span class="err">forked_id</span><span class="p">}</span><span class="err">/</span><span class="w">
+</span></code></pre>
+
+<p>In case of a 202, in addition to the Location headers with the URL of the fork that is going to be created, the response will contain a Shoji view with the url of the endpoint that can be polled
+to track fork completion</p>
+<pre class="highlight http"><code><span class="nf">POST</span> <span class="nn">/api/datasets/{id}/forks/</span> <span class="k">HTTP</span><span class="o">/</span><span class="m">1.1</span>
+<span class="na">Host</span><span class="p">:</span> <span class="s">app.crunch.io</span>
+<span class="na">Content-Type</span><span class="p">:</span> <span class="s">application/json</span>
+<span class="na">Content-Length</span><span class="p">:</span> <span class="s">231</span>
+
+<span class="p">{</span><span class="w">
+    </span><span class="nt">"element"</span><span class="p">:</span><span class="w"> </span><span class="s2">"shoji:entity"</span><span class="p">,</span><span class="w">
+    </span><span class="nt">"body"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="nt">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"My fork"</span><span class="p">}</span><span class="w">
+</span><span class="p">}</span><span class="w">
+
+</span><span class="err">----</span><span class="w">
+
+</span><span class="err">HTTP/</span><span class="mf">1.1</span><span class="w"> </span><span class="mi">202</span><span class="w"> </span><span class="err">Accepted</span><span class="w">
+</span><span class="err">Location:</span><span class="w"> </span><span class="err">https://app.crunch.io/api/datasets/</span><span class="p">{</span><span class="err">forked_id</span><span class="p">}</span><span class="err">/</span><span class="w">
+</span><span class="err">...</span><span class="w">
+</span><span class="p">{</span><span class="w">
+    </span><span class="nt">"element"</span><span class="p">:</span><span class="w"> </span><span class="s2">"shoji:view"</span><span class="p">,</span><span class="w">
+    </span><span class="nt">"value"</span><span class="p">:</span><span class="w"> </span><span class="s2">"/progress/{progress_id}/"</span><span class="w">
+</span><span class="p">}</span><span class="w">
 </span></code></pre>
 
 <p>The forked dataset can then be viewed and altered like the original; however, those changes do not alter the original until you merge them back with a POST to <code class="prettyprint">datasets/{id}/actions/</code>.</p>
