@@ -8122,7 +8122,9 @@ lacking, response will instead be 404.</p>
 
 <p><code class="prettyprint">/datasets/{id}/batches/</code></p>
 
-<p>A GET on this resource returns a Shoji Catalog enumerating the batches present in the Dataset. Each tuple in the index includes a &ldquo;status&rdquo; member, which may be one of &ldquo;analyzing&rdquo;, &ldquo;conflict&rdquo;, &ldquo;error&rdquo;, &ldquo;importing&rdquo;, &ldquo;imported&rdquo;, or &ldquo;appended&rdquo;.</p>
+<h4 id="get">GET</h4>
+
+<p>A GET request on this resource returns a Shoji Catalog enumerating the batches present in the Dataset. Each tuple in the index includes a &ldquo;status&rdquo; member, which may be one of &ldquo;analyzing&rdquo;, &ldquo;conflict&rdquo;, &ldquo;error&rdquo;, &ldquo;importing&rdquo;, &ldquo;imported&rdquo;, or &ldquo;appended&rdquo;.</p>
 <pre class="highlight json"><code><span class="p">{</span><span class="w">
     </span><span class="nt">"element"</span><span class="p">:</span><span class="w"> </span><span class="s2">"shoji:catalog"</span><span class="p">,</span><span class="w">
     </span><span class="nt">"self"</span><span class="p">:</span><span class="w"> </span><span class="s2">"...datasets/837498a/batches/"</span><span class="p">,</span><span class="w">
@@ -8134,17 +8136,19 @@ lacking, response will instead be 404.</p>
 </span><span class="p">}</span><span class="w">
 </span></code></pre>
 
-<p>A POST to this resource adds a new batch. The payload can be be a Crunch Table (with variable metadata, row data, or both), the URI of a Source, or the URI of another dataset (provided that the authenticated user has view permissions). All added rows regardless of source obtain the same batch id. A 201 indicates success, and returns the URL of the new batch in the Location header.</p>
+<h4 id="post">POST</h4>
 
-<p>If the append operation takes more than two minutes, 202 is returned instead and the batch will continue being appended in the background. The Location header is still returned, pointing to the new batch&rsquo;s URL. The client can GET that URL to query its status.</p>
+<p>A POST to this resource adds a new batch. The request payload can contain (1) the URL of another Dataset, (2) the URL of a Source object, or (3) a Crunch Table definition with variable metadata, row data, or both.</p>
 
-<p>Batches are created in <code class="prettyprint">analyzing</code> status and will be advanced through <code class="prettyprint">importing</code>, <code class="prettyprint">imported</code>, and <code class="prettyprint">appended</code> status if there are no problems. If there was a problem in processing it, its status will be <code class="prettyprint">conflict</code> or <code class="prettyprint">error</code>.</p>
+<p>A successful request will return either 201 status, if sufficiently fast, or 202, if the task is large enough to require processing outside of the request cycle. In both cases, the newly created batch entity&rsquo;s URL is returned in the Location header. The 202 response contains a body with a Progress resource in it; poll that URL for updates on the completion of the append. See <a href="#progress">Progress</a>.</p>
 
-<p>Note that the status code will always be 202 for asynchronous or 201 for synchronous creation of the batch whether there were conflicts or not. So you need to GET the new batch&rsquo;s URL to see if the data is good to go (status <code class="prettyprint">appended</code>).</p>
+<p>Batches are created in <code class="prettyprint">analyzing</code> state and will be advanced through <code class="prettyprint">importing</code>, <code class="prettyprint">imported</code>, and <code class="prettyprint">appended</code> states if there are no problems. If there was a problem in processing it, its status will be <code class="prettyprint">conflict</code> or <code class="prettyprint">error</code>. Note that the response status code will always be 202 for asynchronous or 201 for synchronous creation of the batch whether there were conflicts or not. So you need to GET the new batch&rsquo;s URL to see if the data is good to go (status <code class="prettyprint">appended</code>).</p>
 
-<h4 id="appending-a-dataset">Appending a dataset</h4>
+<p>If an append is already in process on the dataset, the POST request will return 409 status.</p>
 
-<p>Must contain the URL of a dataset that the current user can read. This action will create a Source entity mapping to such dataset. Its name and description will match the dataset&rsquo;s name and description respectively at that moment.</p>
+<h5 id="appending-a-dataset">Appending a dataset</h5>
+
+<p>To append a Dataset, POST a Shoji Entity with a dataset URL. You must have at least view (read) permissions on this dataset. Internally, this action will create a Source entity pointing to that dataset.</p>
 <pre class="highlight json"><code><span class="p">{</span><span class="w">
   </span><span class="nt">"element"</span><span class="p">:</span><span class="w"> </span><span class="s2">"shoji:entity"</span><span class="p">,</span><span class="w">
   </span><span class="nt">"body"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
@@ -8153,25 +8157,59 @@ lacking, response will instead be 404.</p>
 </span><span class="p">}</span><span class="w">
 </span></code></pre>
 
-<p>If you wish to include only certain variables from the source dataset you&rsquo;re appending from, you can include an <code class="prettyprint">function</code> in the body of the entity.  The function should be a ZCL function name.  Its arguments should be present in the <code class="prettyprint">args</code> key in the body.</p>
+<p>The variables from the incoming dataset to be included by default will depend
+on the current user&rsquo;s permissions. Those with edit permissions on the incoming dataset will
+append all public and hidden (<code class="prettyprint">discarded = true</code>) variables. Those with only view permissions will
+ just include public variables that aren&rsquo;t hidden.</p>
+
+<p>To append only certain variables from the incoming dataset, include an <code class="prettyprint">where</code> attribute in the entity body. See <a href="#frame-functions">Frame functions</a> for how to compose the <code class="prettyprint">where</code> expression.</p>
 <pre class="highlight json"><code><span class="p">{</span><span class="w">
   </span><span class="nt">"element"</span><span class="p">:</span><span class="w"> </span><span class="s2">"shoji:entity"</span><span class="p">,</span><span class="w">
   </span><span class="nt">"body"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
-      </span><span class="nt">"dataset"</span><span class="p">:</span><span class="w"> </span><span class="s2">"&lt;url&gt;"</span><span class="w">
-      </span><span class="s2">"function"</span><span class="err">:</span><span class="s2">"select"</span><span class="p">,</span><span class="w">
-      </span><span class="nt">"args"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
+      </span><span class="nt">"dataset"</span><span class="p">:</span><span class="w"> </span><span class="s2">"&lt;url&gt;"</span><span class="p">,</span><span class="w">
+      </span><span class="nt">"where"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+          </span><span class="nt">"function"</span><span class="p">:</span><span class="s2">"select"</span><span class="p">,</span><span class="w">
+          </span><span class="nt">"args"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
                 </span><span class="p">{</span><span class="nt">"map"</span><span class="p">:</span><span class="w">
-                    </span><span class="p">{</span><span class="nt">"000001"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="err">'variable':</span><span class="w"> </span><span class="nt">"&lt;url&gt;"</span><span class="err">}</span><span class="p">,</span><span class="w">
-                     </span><span class="nt">"000002"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="err">'variable':</span><span class="w"> </span><span class="nt">"&lt;url&gt;"</span><span class="err">}</span><span class="p">}</span><span class="w">
+                    </span><span class="p">{</span><span class="nt">"000001"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="nt">"variable"</span><span class="p">:</span><span class="w"> </span><span class="s2">"&lt;url&gt;"</span><span class="p">},</span><span class="w">
+                     </span><span class="nt">"000002"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="nt">"variable"</span><span class="p">:</span><span class="w"> </span><span class="s2">"&lt;url&gt;"</span><span class="p">}}</span><span class="w">
                 </span><span class="p">}</span><span class="w">
-                </span><span class="p">],</span><span class="w">
-  </span><span class="err">}</span><span class="w">
+          </span><span class="p">]</span><span class="w">
+      </span><span class="p">}</span><span class="w">
+  </span><span class="p">}</span><span class="w">
 </span><span class="p">}</span><span class="w">
 </span></code></pre>
 
-<h4 id="appending-a-source">Appending a source</h4>
+<p>Users with edit permissions on the incoming dataset can select hidden variables to be included, but viewers cannot. Editors and viewers can however both specify their personal variables to be included.</p>
 
-<p>Must contain the URL of a source that a user can read.</p>
+<p>To select a subset of rows to append, include an <code class="prettyprint">filter</code> attribute in the entity body, containing a Crunch filter expression.</p>
+<pre class="highlight json"><code><span class="p">{</span><span class="w">
+  </span><span class="nt">"element"</span><span class="p">:</span><span class="w"> </span><span class="s2">"shoji:entity"</span><span class="p">,</span><span class="w">
+  </span><span class="nt">"body"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+      </span><span class="nt">"dataset"</span><span class="p">:</span><span class="w"> </span><span class="s2">"&lt;url&gt;"</span><span class="p">,</span><span class="w">
+      </span><span class="nt">"where"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+          </span><span class="nt">"function"</span><span class="p">:</span><span class="s2">"select"</span><span class="p">,</span><span class="w">
+          </span><span class="nt">"args"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
+                </span><span class="p">{</span><span class="nt">"map"</span><span class="p">:</span><span class="w">
+                    </span><span class="p">{</span><span class="nt">"000001"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="nt">"variable"</span><span class="p">:</span><span class="w"> </span><span class="s2">"&lt;url&gt;"</span><span class="p">},</span><span class="w">
+                     </span><span class="nt">"000002"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="nt">"variable"</span><span class="p">:</span><span class="w"> </span><span class="s2">"&lt;url&gt;"</span><span class="p">}}</span><span class="w">
+                </span><span class="p">}</span><span class="w">
+          </span><span class="p">]</span><span class="w">
+      </span><span class="p">},</span><span class="w">
+      </span><span class="nt">"filter"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+          </span><span class="nt">"function"</span><span class="p">:</span><span class="s2">"&lt;"</span><span class="p">,</span><span class="w">
+          </span><span class="nt">"args"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
+                </span><span class="p">{</span><span class="nt">"variable"</span><span class="p">:</span><span class="w"> </span><span class="s2">"&lt;url&gt;"</span><span class="p">},</span><span class="w">
+                </span><span class="p">{</span><span class="nt">"value"</span><span class="p">:</span><span class="w"> </span><span class="s2">"&lt;value&gt;"</span><span class="p">}</span><span class="w">
+          </span><span class="p">]</span><span class="w">
+      </span><span class="p">}</span><span class="w">  
+  </span><span class="p">}</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre>
+
+<h5 id="appending-a-source">Appending a source</h5>
+
+<p>POST a Shoji Entity with a Source URL. The user must have permission to view the Source entity. Use Source appending to send data in CSV format that matches the schema of the Dataset.</p>
 <pre class="highlight json"><code><span class="p">{</span><span class="w">
   </span><span class="nt">"element"</span><span class="p">:</span><span class="w"> </span><span class="s2">"shoji:entity"</span><span class="p">,</span><span class="w">
   </span><span class="nt">"body"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
@@ -8180,7 +8218,7 @@ lacking, response will instead be 404.</p>
 </span><span class="p">}</span><span class="w">
 </span></code></pre>
 
-<h4 id="appending-a-crunch-table">Appending a Crunch Table</h4>
+<h5 id="appending-a-crunch-table">Appending a Crunch Table</h5>
 
 <p>The variables IDs must match those of the target dataset since their types will be matched based on ID. The data is expected to match the target dataset&rsquo;s variable types. This action will create a new Source entity, its name and description will match those provided on the JSON response, if not provided they&rsquo;ll default to empty string.</p>
 <pre class="highlight json"><code><span class="p">{</span><span class="w">
@@ -8194,12 +8232,12 @@ lacking, response will instead be 404.</p>
 </span><span class="p">}</span><span class="w">
 </span></code></pre>
 
-<h4 id="managing-append-failures">Managing Append Failures</h4>
+<h5 id="managing-append-failures">Managing Append Failures</h5>
 
 <p>In case of failures while appending the batch, the dataset will be automatically reverted
 back to the state it was before the append and the batch is automatically deleted.</p>
 
-<p>This behaviour can be changed by providing a <code class="prettyprint">autorollback: false</code> value into the POST
+<p>This behavior can be changed by providing a <code class="prettyprint">autorollback: false</code> value into the POST
 performed to append the data. When <code class="prettyprint">autorollback: false</code> is provided a savepoint to which
 user can revert to is still created, but the dataset is left in errored state for inspection.
 The user can then manually revert to the savepoint and delete the associated batch.</p>
@@ -8238,7 +8276,7 @@ the batches compare endpoint.</p>
 <pre class="highlight plaintext"><code>GET /datasets/4bc6af/batches/compare/?dataset=http://app.crunch.io/api/datasets/3e2cfb/
 </code></pre>
 
-<p>The response will contain a conflicts key that can contain either <code class="prettyprint">current</code>, 
+<p>The response will contain a conflicts key that can contain either <code class="prettyprint">current</code>,
 <code class="prettyprint">incoming</code> or <code class="prettyprint">union</code> depending on the type and location of the problem. The response status
 will always be 200, with conflicts, described below, or an empty body.</p>
 
@@ -8273,7 +8311,7 @@ will always be 200, with conflicts, described below, or an empty body.</p>
 </ul>
 
 <p>For each of these, a list of variable IDs will be made available indicating the
-conflicting entities. <em>Union</em> conflicting ids generally refer to variables in 
+conflicting entities. <em>Union</em> conflicting ids generally refer to variables in
 the <em>current</em> dataset and may be referenced by alias in <em>incoming</em>.</p>
 
 <h3 id="entity">Entity</h3>
@@ -8316,7 +8354,7 @@ the <em>current</em> dataset and may be referenced by alias in <em>incoming</em>
 </span><span class="p">}</span><span class="w">
 </span></code></pre>
 
-<p>Each conflict has four attributes: <code class="prettyprint">metadata</code> about the variable on the target dataset (unless it is a variable that only exists on the source dataset), <code class="prettyprint">source_id</code> and <code class="prettyprint">source_metadata</code>, which describe the corresponding variable in the source frame (if any), and a <code class="prettyprint">conflicts</code> member. The <code class="prettyprint">conflicts</code> member contains an array with a list of individual conflicts that indicate what situations were found during batch preparation. </p>
+<p>Each conflict has four attributes: <code class="prettyprint">metadata</code> about the variable on the target dataset (unless it is a variable that only exists on the source dataset), <code class="prettyprint">source_id</code> and <code class="prettyprint">source_metadata</code>, which describe the corresponding variable in the source frame (if any), and a <code class="prettyprint">conflicts</code> member. The <code class="prettyprint">conflicts</code> member contains an array with a list of individual conflicts that indicate what situations were found during batch preparation.</p>
 
 <p>If there are conflicts in your batch, address the conflicting issues in your datasets, DELETE the batch entity from the failed append attempt, and POST a new one.</p>
 
