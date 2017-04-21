@@ -1481,6 +1481,52 @@ Location: /api/datasets/<span class="o">{</span>datasetid<span class="o">}</span
 
 <p>&hellip;results in a private multiple_response variable where the &ldquo;Frequently&rdquo; and &ldquo;Always&rdquo; categories are selected.</p>
 
+<h3 id="text-analysis">Text Analysis</h3>
+
+<h4 id="sentiment-analysis">Sentiment Analysis</h4>
+
+<p>The &ldquo;sentiment&rdquo; function allows you to derive a categorical variable from text variable data, which is classified and accumulated in three categories (positive, negative, and neutral).  It takes one parameter: </p>
+
+<ul>
+<li>A reference to a text variable</li>
+</ul>
+
+<p>Given a variable such as:</p>
+<pre class="highlight json"><code><span class="p">{</span><span class="w">
+    </span><span class="nt">"element"</span><span class="p">:</span><span class="w"> </span><span class="s2">"shoji:entity"</span><span class="p">,</span><span class="w">
+    </span><span class="nt">"self"</span><span class="p">:</span><span class="w"> </span><span class="s2">"https://app.crunch.io/api/datasets/3ad42c/variables/0000f5/"</span><span class="p">,</span><span class="w">
+    </span><span class="nt">"body"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+        </span><span class="nt">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Zest"</span><span class="p">,</span><span class="w">
+        </span><span class="nt">"alias"</span><span class="p">:</span><span class="w"> </span><span class="s2">"zest"</span><span class="p">,</span><span class="w">
+        </span><span class="nt">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"text"</span><span class="p">,</span><span class="w">
+        </span><span class="nt">"values"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
+            </span><span class="s2">"Zest is best"</span><span class="p">,</span><span class="w">
+            </span><span class="s2">"Zest I can take it or leave it"</span><span class="p">,</span><span class="w">
+            </span><span class="s2">"Zest is the worst"</span><span class="w">
+        </span><span class="p">]</span><span class="w">
+    </span><span class="p">}</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre>
+
+<p><code class="prettyprint">POST</code>ing to the private variables catalog a Shoji Entity containing a ZCL function like:</p>
+<pre class="highlight json"><code><span class="p">{</span><span class="w">
+    </span><span class="nt">"element"</span><span class="p">:</span><span class="w"> </span><span class="s2">"shoji:entity"</span><span class="p">,</span><span class="w">
+    </span><span class="nt">"body"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+        </span><span class="nt">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Zesty Sentiment"</span><span class="p">,</span><span class="w">
+        </span><span class="nt">"description"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Customer sentiment about Zest"</span><span class="p">,</span><span class="w">
+        </span><span class="nt">"alias"</span><span class="p">:</span><span class="w"> </span><span class="s2">"zest_sentiment"</span><span class="p">,</span><span class="w">
+        </span><span class="nt">"derivation"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+            </span><span class="nt">"function"</span><span class="p">:</span><span class="w"> </span><span class="s2">"sentiment"</span><span class="p">,</span><span class="w">
+            </span><span class="nt">"args"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
+                </span><span class="p">{</span><span class="nt">"variable"</span><span class="p">:</span><span class="w"> </span><span class="s2">"https://app.crunch.io/api/datasets/3ad42c/variables/0000f5/"</span><span class="p">}</span><span class="w">
+            </span><span class="p">]</span><span class="w">
+        </span><span class="p">}</span><span class="w">
+    </span><span class="p">}</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre>
+
+<p>Will result in a new categorical variable, where for each row the text variable is classified as “Negative”, “Neutral”, or “Positive” using the <a href="https://github.com/cjhutto/vaderSentiment">VADER</a> English social-media-tuned lexicon.</p>
+
 <h3 id="other-transformations">Other transformations</h3>
 
 <h4 id="arithmetic-operations">Arithmetic operations</h4>
