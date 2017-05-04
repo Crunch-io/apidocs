@@ -6351,10 +6351,41 @@ current user can use on this Dataset.</p>
 
 <h4 id="post">POST</h4>
 
-<p>POST a Shoji Entity to this catalog to create a new multitable definition. Entities must include a <code class="prettyprint">name</code> and <code class="prettyprint">template</code>; the <a href="#template-query">template</a> must contain a series of objects with a <code class="prettyprint">query</code> and optionally <a href="#transforming-analyses-for-presentation"><code class="prettyprint">transform</code></a>. If omitted, <code class="prettyprint">is_public</code> defaults to <code class="prettyprint">false</code>. A successful POST yields a 201 response
+<p>POST a Shoji Entity to this catalog to create a new multitable definition. 
+Entities must include a <code class="prettyprint">name</code> and <code class="prettyprint">template</code>; the <a href="#template-query">template</a> 
+must contain a series of objects with a <code class="prettyprint">query</code> and optionally 
+<a href="#transforming-analyses-for-presentation"><code class="prettyprint">transform</code></a>. If omitted, <code class="prettyprint">is_public</code> 
+defaults to <code class="prettyprint">false</code>. A successful POST yields a 201 response
 that will contain a Location header with the URL of the newly created multitable.</p>
 
-<p>All users with access to the dataset can create personal multitable definitions; however, only the current dataset editor can create public multitables (<code class="prettyprint">is_public: true</code>) which everyone with access to the dataset can see. Attempting to create a public multitable when not the current dataset editor results in a 403 response.</p>
+<p>All users with access to the dataset can create personal multitable definitions; 
+however, only the current dataset editor can create public multitables 
+(<code class="prettyprint">is_public: true</code>) which everyone with access to the dataset can see. 
+Attempting to create a public multitable when not the current dataset editor 
+results in a 403 response.</p>
+
+<h5 id="copying-multitables-between-datasets">Copying Multitables between datasets</h5>
+
+<p>It is possible to copy over a multitables between datasets as long as the 
+permissions allow it.</p>
+
+<p>Multitable copying requires that all the variables present in the <code class="prettyprint">template</code>
+of the origin multitable exist on the target dataset and that they all have
+the same type.</p>
+
+<p>POST a shoji entity to the catalog with indicating the URL of the multitable
+to copy:</p>
+<pre class="highlight json"><code><span class="p">{</span><span class="w">
+    </span><span class="nt">"element"</span><span class="p">:</span><span class="w"> </span><span class="s2">"shoji:catalog"</span><span class="p">,</span><span class="w">
+    </span><span class="nt">"body"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+        </span><span class="nt">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Name of my copy"</span><span class="p">,</span><span class="w">
+        </span><span class="nt">"multitable"</span><span class="p">:</span><span class="w"> </span><span class="s2">"/api/datasets/123/multitables/7ab1e/"</span><span class="w">
+    </span><span class="p">}</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre>
+
+<p>As shown in the example, it is possible to assign a new name to the copy.
+By default all copies will be private unless specified in the body.</p>
 
 <h4 id="patch">PATCH</h4>
 
