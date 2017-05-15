@@ -1399,8 +1399,8 @@ to produce a set of joint values that can be used as weights. Note that
 available weight variables are shared by all; you may not create private 
 weights. To create a weight variable, POST a JSON variable definition to the 
 variables catalog describing the properties of the weight variable, with an 
-&ldquo;derivation&rdquo; member indicating to use the &ldquo;rake&rdquo; function, which takes a 
-&ldquo;targets&rdquo; argument containing an array of Crunch Tables of targets:</p>
+&ldquo;derivation&rdquo; member indicating to use the &ldquo;rake&rdquo; function, which takes arguments
+ containing an array of variable targets:</p>
 <pre class="highlight shell"><code>POST /api/datasets/<span class="o">{</span>datasetid<span class="o">}</span>/variables/ HTTP/1.1
 Content-Type: application/shoji
 Content-Length: 739
@@ -1409,15 +1409,10 @@ Content-Length: 739
     <span class="s2">"description"</span>: <span class="s2">"my raked weight"</span>,
     <span class="s2">"derivation"</span>: <span class="o">{</span>
         <span class="s2">"function"</span>: <span class="s2">"rake"</span>,
-        <span class="s2">"args"</span>: <span class="o">{</span>
-            <span class="s2">"targets"</span>: <span class="o">[</span>
-                <span class="o">{</span>
-                    <span class="s2">"{variable1.id}"</span>: <span class="o">[</span>1, 2],
-                    <span class="s2">"target"</span>: <span class="o">[</span>49.1, 50.9]
-                <span class="o">}</span>,
-                …
-            <span class="o">]</span>
-        <span class="o">}</span>
+        <span class="s2">"args"</span>: <span class="o">[{</span>
+            <span class="s2">"variable"</span>: variabl1.id,
+            <span class="s2">"targets"</span>: <span class="o">[[</span>1, 0.491], <span class="o">[</span>2, 0.509]]
+        <span class="o">}]</span>
     <span class="o">}</span>
 <span class="o">}</span>
 ---------
@@ -6500,6 +6495,9 @@ generated regardless of the status of any other pending exports.</p>
                     </span><span class="nt">"showEmpty"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
                         </span><span class="nt">"value"</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="w">
                     </span><span class="p">},</span><span class="w">
+                    </span><span class="nt">"showNotes"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+                        </span><span class="nt">"value"</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="w">
+                    </span><span class="p">},</span><span class="w">
                     </span><span class="nt">"slicesOrGroups"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
                         </span><span class="nt">"value"</span><span class="p">:</span><span class="w"> </span><span class="s2">"groups"</span><span class="w">
                     </span><span class="p">},</span><span class="w">
@@ -7163,6 +7161,13 @@ generated regardless of the status of any other pending exports.</p>
 <td>row or column based percents</td>
 <td></td>
 <td>{value:colPct}</td>
+</tr>
+<tr>
+<td>showNotes</td>
+<td>object</td>
+<td>display variable notes in sheet header</td>
+<td></td>
+<td>{value:false}</td>
 </tr>
 <tr>
 <td>slicesOrGroups</td>
