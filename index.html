@@ -7816,44 +7816,40 @@ lacking, response will instead be 404.</p>
 <table><thead>
 <tr>
 <th>Name</th>
-<th>Type</th>
 <th>Description</th>
 </tr>
 </thead><tbody>
 <tr>
 <td>title</td>
-<td>string</td>
 <td>Human friendly identifier</td>
 </tr>
 <tr>
 <td>notes</td>
-<td>string</td>
 <td>Other information relevent for this CrunchBox</td>
 </tr>
 <tr>
 <td>header</td>
 <td>header information for the CrunchBox</td>
-<td></td>
 </tr>
 <tr>
 <td>footer</td>
 <td>footer information for the CrunchBox</td>
-<td></td>
 </tr>
 <tr>
 <td>dataset</td>
 <td>URL of the dataset associated with the CrunchBox</td>
-<td></td>
 </tr>
 <tr>
 <td>filters</td>
-<td>A Crunch expression indicating which filters to include in the CrunchBox</td>
-<td></td>
+<td>A Crunch expression indicating which <strong>filters</strong> to include</td>
 </tr>
 <tr>
 <td>where</td>
-<td>A Crunch expression indicating which variables to include in the CrunchBox</td>
-<td></td>
+<td>A Crunch expression indicating which <strong>variables</strong> to include</td>
+</tr>
+<tr>
+<td>display_settings</td>
+<td>Options to customize how it looks and behaves</td>
 </tr>
 </tbody></table>
 <pre class="highlight json"><code><span class="w">
@@ -7881,6 +7877,43 @@ lacking, response will instead be 404.</p>
     </span><span class="p">}</span><span class="w">
 </span><span class="p">}</span><span class="w">
 </span></code></pre>
+
+<h4 id="display-settings">Display Settings</h4>
+
+<p>The <code class="prettyprint">display_settings</code> member of a CrunchBox payload allows you to customize several aspects of how it will be displayed.</p>
+
+<p>A <code class="prettyprint">minBaseSize</code> member will suppress display of values in tables or graphs where the sample size is below a given threshold.</p>
+
+<p>To customize a CrunchBox’s color scheme, you may include an optional <code class="prettyprint">palette</code> member in the <code class="prettyprint">display_settings</code> of the body of the request to create or edit the boxdata. There are four types of customization available.</p>
+<pre class="highlight json"><code><span class="p">{</span><span class="nt">"display_settings"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+    </span><span class="nt">"minBaseSize"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="nt">"value"</span><span class="p">:</span><span class="w"> </span><span class="mi">50</span><span class="p">},</span><span class="w">
+    </span><span class="nt">"palette"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+        </span><span class="nt">"brand"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">"#111111"</span><span class="p">,</span><span class="w"> </span><span class="s2">"#222222"</span><span class="p">,</span><span class="w"> </span><span class="s2">"#333333"</span><span class="p">],</span><span class="w">
+        </span><span class="nt">"static_colors"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">"#444444"</span><span class="p">,</span><span class="w"> </span><span class="s2">"#555555"</span><span class="p">,</span><span class="w"> </span><span class="s2">"#666666"</span><span class="p">],</span><span class="w">
+        </span><span class="nt">"base"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">"#777777"</span><span class="p">,</span><span class="w"> </span><span class="s2">"#888888"</span><span class="p">,</span><span class="w"> </span><span class="s2">"#999999"</span><span class="p">],</span><span class="w">
+        </span><span class="nt">"category_lookup"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+            </span><span class="nt">"category name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"#aaaaaa"</span><span class="p">,</span><span class="w">
+            </span><span class="nt">"another category:"</span><span class="p">:</span><span class="w"> </span><span class="s2">"bbbbbb"</span><span class="w">
+        </span><span class="p">}</span><span class="w">
+    </span><span class="p">}</span><span class="w">
+</span><span class="p">}}</span><span class="w">
+</span></code></pre>
+
+<h5 id="brand">Brand</h5>
+
+<p>The CrunchBox interface uses three colors, in order. By default, these are Crunch brand colors of green, blue, and purple. These are used, for example, as the background colors at the top of the interface and the color of the filter selector.</p>
+
+<h5 id="static-colors">Static colors</h5>
+
+<p>Include an array of <code class="prettyprint">static_colors</code> and every categorical color will be taken from the list in order. If none of your variables have more categories than colors provided here, the generator (below) will never be used, but category lookup will be performed.</p>
+
+<h5 id="base">Base</h5>
+
+<p>If the number of categories exceeds the number of static colors, or no static colors are specified, “base” colors are used to generate a categorical palette. By default, these are also the Crunch green, blue, and purple, and are not overridden by <code class="prettyprint">brand</code>. Each color is interpolated in HCL space from itself to Hue + 100, Lightness + 20; and then colors are ordered to maximize sequential absolute distance in L*a*b* space so adjacent colors can be easily distinguished.</p>
+
+<h5 id="category-lookup">Category Lookup</h5>
+
+<p>Finally, you may include an object where keys are exact category names that should always be assigned a specific color. Using semantically resonant colors in this manner is a boon for interpretation and is highly recommended when possible. For example, to ensure that the Green Party is a verdant shade, include a member such as <code class="prettyprint">&quot;Green&quot;: &quot;#00dd00&quot;</code>. Building a category lookup list requires some attention to the specific categories in a dataset; they must match exactly, and not partially; to ensure that “Green Party” is also green, include an additional <code class="prettyprint">&quot;Green Party&quot;</code> key with the same value. Lookup values are processed <strong>last</strong>, replacing erstwhile static or generated colors.</p>
 
 <h3 id="entity">Entity</h3>
 
