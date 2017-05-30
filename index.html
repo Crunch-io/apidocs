@@ -256,8 +256,20 @@ or subvariables. </p>
 <span class="s">    "element": "shoji:entity",</span>
 <span class="s">    "body": {</span>
 <span class="s">      "name": "Dataset with derived arrays",</span>
+<span class="s">      "settings": {</span>
+<span class="s">        "viewers_can_export": true,</span>
+<span class="s">        "viewers_can_change_weight": false,</span>
+<span class="s">        "min_base_size": 3,</span>
+<span class="s">        "weight": "weight_variable"</span>
+<span class="s">      },</span>
 <span class="s">      "table": {</span>
 <span class="s">        "metadata": {</span>
+<span class="s">           "element": "crunch:table"</span>
+<span class="s">           "weight_variable": {</span>
+<span class="s">                "name": "weight variable",</span>
+<span class="s">                "alias": "weight_variable",</span>
+<span class="s">                "type": "numeric"</span>
+<span class="s">           },</span>
 <span class="s">           "combined": {</span>
 <span class="s">              "name": "combined CA", </span>
 <span class="s">              "derivation": {</span>
@@ -420,8 +432,7 @@ or subvariables. </p>
 <span class="s">              }</span>
 <span class="s">            ]</span>
 <span class="s">          }</span>
-<span class="s">        }, </span>
-<span class="s">        "element": "crunch:table"</span>
+<span class="s">        }</span>
 <span class="s">      }</span>
 <span class="s">    }</span>
 <span class="s"> }</span>
@@ -3462,7 +3473,7 @@ as discussed in the <a href="#metadata-document-csv">Feature Guide</a>. The full
 <tr>
 <td>weight_variables</td>
 <td>array</td>
-<td>Contains aliases of weight variables to start this dataset with; variables must be numeric type</td>
+<td>Contains aliases of weight variables to start this dataset with; variables must be numeric type.</td>
 </tr>
 <tr>
 <td>table</td>
@@ -3473,6 +3484,11 @@ as discussed in the <a href="#metadata-document-csv">Feature Guide</a>. The full
 <td>maintainer</td>
 <td>URL</td>
 <td>User URL that will be the maintainer of this dataset in case of system notifications; if omitted, the authenticated user will be the maintainer</td>
+</tr>
+<tr>
+<td>settings</td>
+<td>object</td>
+<td><a href="#settings">Settings object</a> containing <code class="prettyprint">weight</code>, <code class="prettyprint">viewers_can_export</code>, <code class="prettyprint">viewers_can_change_weight</code>, <code class="prettyprint">viewers_can_share</code>, and/or <code class="prettyprint">min_base_size</code> attributes. If a &ldquo;weight&rdquo; is specified, it will be automatically added to &ldquo;weight_variables&rdquo; if not already specified there.</td>
 </tr>
 </tbody></table>
 
@@ -3837,8 +3853,8 @@ these entities will display their name, alias and owner (if personal).</p>
                 </span><span class="nt">"alias"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Variable alias"</span><span class="p">,</span><span class="w">
                 </span><span class="nt">"owner_url"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span><span class="w">
                 </span><span class="nt">"owner_name"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="w">
-            </span><span class="p">},</span><span class="w">
-        </span><span class="err">}</span><span class="p">,</span><span class="w">
+            </span><span class="p">}</span><span class="w">
+        </span><span class="p">},</span><span class="w">
         </span><span class="nt">"filters"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
             </span><span class="nt">"https://app.crunch.io/filters/abcd/"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
                 </span><span class="nt">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"filter name"</span><span class="p">,</span><span class="w">
