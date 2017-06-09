@@ -256,20 +256,8 @@ or subvariables. </p>
 <span class="s">    "element": "shoji:entity",</span>
 <span class="s">    "body": {</span>
 <span class="s">      "name": "Dataset with derived arrays",</span>
-<span class="s">      "settings": {</span>
-<span class="s">        "viewers_can_export": true,</span>
-<span class="s">        "viewers_can_change_weight": false,</span>
-<span class="s">        "min_base_size": 3,</span>
-<span class="s">        "weight": "weight_variable"</span>
-<span class="s">      },</span>
 <span class="s">      "table": {</span>
 <span class="s">        "metadata": {</span>
-<span class="s">           "element": "crunch:table"</span>
-<span class="s">           "weight_variable": {</span>
-<span class="s">                "name": "weight variable",</span>
-<span class="s">                "alias": "weight_variable",</span>
-<span class="s">                "type": "numeric"</span>
-<span class="s">           },</span>
 <span class="s">           "combined": {</span>
 <span class="s">              "name": "combined CA", </span>
 <span class="s">              "derivation": {</span>
@@ -432,7 +420,8 @@ or subvariables. </p>
 <span class="s">              }</span>
 <span class="s">            ]</span>
 <span class="s">          }</span>
-<span class="s">        }</span>
+<span class="s">        }, </span>
+<span class="s">        "element": "crunch:table"</span>
 <span class="s">      }</span>
 <span class="s">    }</span>
 <span class="s"> }</span>
@@ -1461,11 +1450,11 @@ Location: /api/datasets/<span class="o">{</span>datasetid<span class="o">}</span
         </span><span class="p">],</span><span class="w">
         </span><span class="nt">"subvariables"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">"0001"</span><span class="p">,</span><span class="w"> </span><span class="s2">"0002"</span><span class="p">,</span><span class="w"> </span><span class="s2">"0003"</span><span class="p">],</span><span class="w">
         </span><span class="nt">"references"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
-            </span><span class="nt">"subreferences"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
-                </span><span class="nt">"0003"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="nt">"alias"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Coke"</span><span class="p">},</span><span class="w">
-                </span><span class="nt">"0002"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="nt">"alias"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Pepsi"</span><span class="p">},</span><span class="w">
-                </span><span class="nt">"0001"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="nt">"alias"</span><span class="p">:</span><span class="w"> </span><span class="s2">"RC"</span><span class="p">}</span><span class="w">
-            </span><span class="p">}</span><span class="w">
+            </span><span class="nt">"subreferences"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
+                </span><span class="p">{</span><span class="nt">"alias"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Coke"</span><span class="p">},</span><span class="w">
+                </span><span class="p">{</span><span class="nt">"alias"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Pepsi"</span><span class="p">},</span><span class="w">
+                </span><span class="p">{</span><span class="nt">"alias"</span><span class="p">:</span><span class="w"> </span><span class="s2">"RC"</span><span class="p">},</span><span class="w">
+            </span><span class="p">]</span><span class="w">
         </span><span class="p">}</span><span class="w">
     </span><span class="p">}</span><span class="w">
 </span><span class="p">}</span><span class="w">
@@ -1690,7 +1679,7 @@ of them. See <a href="#Combining-responses">Combining responses</a></p>
 
           <h2 id="array-variables">Array Variables</h2>
 
-<p>Simple variables have only one value per row; sometimes, however, it is convenient to consider multiple values (of the same type) as a single Variable. The Crunch system implements the data as a 2-dimensional array, but the array variable includes two additional attributes: &ldquo;subvariables&rdquo;, which is a list of subvariable URLs, and &ldquo;subreferences&rdquo;, which is an object of {name, alias, description, &hellip;} objects keyed by subvariable URL. There are two types of array variable: categorical array and multiple response.</p>
+<p>Simple variables have only one value per row; sometimes, however, it is convenient to consider multiple values (of the same type) as a single Variable. The Crunch system implements the data as a 2-dimensional array, but the array variable includes two additional attributes: &ldquo;subvariables&rdquo;, which is a list of sub-ids, and &ldquo;subreferences&rdquo;, which is a list of {name, alias, description, &hellip;} objects. There are two types of array variable: categorical array and multiple response.</p>
 
 <h3 id="categorical-arrays">Categorical arrays</h3>
 
@@ -1708,16 +1697,11 @@ Pepsi       o           o      o      o       o
     </span><span class="nt">"body"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
         </span><span class="nt">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Soft Drinks"</span><span class="p">,</span><span class="w">
         </span><span class="nt">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"categorical_array"</span><span class="p">,</span><span class="w">
-        </span><span class="nt">"subvariables"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
-            </span><span class="s2">"./subvariables/001/"</span><span class="p">,</span><span class="w"> 
-            </span><span class="s2">"./subvariables/002/"</span><span class="p">,</span><span class="w">
-            </span><span class="s2">"./subvariables/003/"</span><span class="w">
-         </span><span class="p">],</span><span class="w">
-        </span><span class="nt">"subreferences"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
-            </span><span class="nt">"./subvariables/002/"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="nt">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Coke"</span><span class="p">,</span><span class="w"> </span><span class="nt">"alias"</span><span class="p">:</span><span class="w"> </span><span class="s2">"coke"</span><span class="p">},</span><span class="w">
-            </span><span class="nt">"./subvariables/003/"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="nt">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Pepsi"</span><span class="p">,</span><span class="w"> </span><span class="nt">"alias"</span><span class="p">:</span><span class="w"> </span><span class="s2">"pepsi"</span><span class="p">},</span><span class="w">
-            </span><span class="nt">"./subvariables/001/"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="nt">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"RC"</span><span class="p">,</span><span class="w"> </span><span class="nt">"alias"</span><span class="p">:</span><span class="w"> </span><span class="s2">"rc"</span><span class="p">}</span><span class="w">
-        </span><span class="p">},</span><span class="w">
+        </span><span class="nt">"subreferences"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
+            </span><span class="p">{</span><span class="nt">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Coke"</span><span class="p">,</span><span class="w"> </span><span class="nt">"alias"</span><span class="p">:</span><span class="w"> </span><span class="s2">"coke"</span><span class="p">},</span><span class="w">
+            </span><span class="p">{</span><span class="nt">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Pepsi"</span><span class="p">,</span><span class="w"> </span><span class="nt">"alias"</span><span class="p">:</span><span class="w"> </span><span class="s2">"pepsi"</span><span class="p">},</span><span class="w">
+            </span><span class="p">{</span><span class="nt">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"RC"</span><span class="p">,</span><span class="w"> </span><span class="nt">"alias"</span><span class="p">:</span><span class="w"> </span><span class="s2">"rc"</span><span class="p">}</span><span class="w">
+        </span><span class="p">],</span><span class="w">
         </span><span class="nt">"categories"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
             </span><span class="p">{</span><span class="nt">"id"</span><span class="p">:</span><span class="w"> </span><span class="mi">-1</span><span class="p">,</span><span class="w"> </span><span class="nt">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"No Data"</span><span class="p">,</span><span class="w">    </span><span class="nt">"numeric_value"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span><span class="w"> </span><span class="nt">"missing"</span><span class="p">:</span><span class="w">  </span><span class="kc">true</span><span class="p">},</span><span class="w">
             </span><span class="p">{</span><span class="nt">"id"</span><span class="p">:</span><span class="w">  </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="nt">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Not at all"</span><span class="p">,</span><span class="w"> </span><span class="nt">"numeric_value"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span><span class="w"> </span><span class="nt">"missing"</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="p">},</span><span class="w">
@@ -1789,18 +1773,12 @@ Pepsi       o           o      o      o       o
     </span><span class="nt">"body"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
         </span><span class="nt">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Countries Visited"</span><span class="p">,</span><span class="w">
         </span><span class="nt">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"multiple_response"</span><span class="p">,</span><span class="w">
-        </span><span class="nt">"subvariables"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
-            </span><span class="s2">"./subvariables/001/"</span><span class="p">,</span><span class="w"> 
-            </span><span class="s2">"./subvariables/002/"</span><span class="p">,</span><span class="w">
-            </span><span class="s2">"./subvariables/003/"</span><span class="p">,</span><span class="w">
-            </span><span class="s2">"./subvariables/004/"</span><span class="w">
-         </span><span class="p">],</span><span class="w">
-        </span><span class="nt">"subreferences"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
-            </span><span class="nt">"./subvariables/002/"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="nt">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"USA"</span><span class="p">,</span><span class="w"> </span><span class="nt">"alias"</span><span class="p">:</span><span class="w"> </span><span class="s2">"visited_usa"</span><span class="p">},</span><span class="w">
-            </span><span class="nt">"./subvariables/004/"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="nt">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Germany"</span><span class="p">,</span><span class="w"> </span><span class="nt">"alias"</span><span class="p">:</span><span class="w"> </span><span class="s2">"visited_germany"</span><span class="p">},</span><span class="w">
-            </span><span class="nt">"./subvariables/001/"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="nt">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Japan"</span><span class="p">,</span><span class="w"> </span><span class="nt">"alias"</span><span class="p">:</span><span class="w"> </span><span class="s2">"visited_japan"</span><span class="p">},</span><span class="w">
-            </span><span class="nt">"./subvariables/003/"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="nt">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"None of the above"</span><span class="p">,</span><span class="w"> </span><span class="nt">"alias"</span><span class="p">:</span><span class="w"> </span><span class="s2">"visited_none_of_the_above"</span><span class="p">}</span><span class="w">
-        </span><span class="p">},</span><span class="w">
+        </span><span class="nt">"subreferences"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
+            </span><span class="p">{</span><span class="nt">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"USA"</span><span class="p">,</span><span class="w"> </span><span class="nt">"alias"</span><span class="p">:</span><span class="w"> </span><span class="s2">"visited_usa"</span><span class="p">},</span><span class="w">
+            </span><span class="p">{</span><span class="nt">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Germany"</span><span class="p">,</span><span class="w"> </span><span class="nt">"alias"</span><span class="p">:</span><span class="w"> </span><span class="s2">"visited_germany"</span><span class="p">},</span><span class="w">
+            </span><span class="p">{</span><span class="nt">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Japan"</span><span class="p">,</span><span class="w"> </span><span class="nt">"alias"</span><span class="p">:</span><span class="w"> </span><span class="s2">"visited_japan"</span><span class="p">},</span><span class="w">
+            </span><span class="p">{</span><span class="nt">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"None of the above"</span><span class="p">,</span><span class="w"> </span><span class="nt">"alias"</span><span class="p">:</span><span class="w"> </span><span class="s2">"visited_none_of_the_above"</span><span class="p">}</span><span class="w">
+        </span><span class="p">],</span><span class="w">
         </span><span class="nt">"categories"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
             </span><span class="p">{</span><span class="nt">"id"</span><span class="p">:</span><span class="w"> </span><span class="mi">-1</span><span class="p">,</span><span class="w"> </span><span class="nt">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"No Data"</span><span class="p">,</span><span class="w">     </span><span class="nt">"numeric_value"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span><span class="w"> </span><span class="nt">"missing"</span><span class="p">:</span><span class="w">  </span><span class="kc">true</span><span class="p">},</span><span class="w">
             </span><span class="p">{</span><span class="nt">"id"</span><span class="p">:</span><span class="w">  </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="nt">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Checked"</span><span class="p">,</span><span class="w">     </span><span class="nt">"numeric_value"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span><span class="w"> </span><span class="nt">"missing"</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="p">,</span><span class="w"> </span><span class="nt">"selected"</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">},</span><span class="w">
@@ -3488,7 +3466,7 @@ as discussed in the <a href="#metadata-document-csv">Feature Guide</a>. The full
 <tr>
 <td>weight_variables</td>
 <td>array</td>
-<td>Contains aliases of weight variables to start this dataset with; variables must be numeric type.</td>
+<td>Contains aliases of weight variables to start this dataset with; variables must be numeric type</td>
 </tr>
 <tr>
 <td>table</td>
@@ -3499,11 +3477,6 @@ as discussed in the <a href="#metadata-document-csv">Feature Guide</a>. The full
 <td>maintainer</td>
 <td>URL</td>
 <td>User URL that will be the maintainer of this dataset in case of system notifications; if omitted, the authenticated user will be the maintainer</td>
-</tr>
-<tr>
-<td>settings</td>
-<td>object</td>
-<td><a href="#settings">Settings object</a> containing <code class="prettyprint">weight</code>, <code class="prettyprint">viewers_can_export</code>, <code class="prettyprint">viewers_can_change_weight</code>, <code class="prettyprint">viewers_can_share</code>, and/or <code class="prettyprint">min_base_size</code> attributes. If a &ldquo;weight&rdquo; is specified, it will be automatically added to &ldquo;weight_variables&rdquo; if not already specified there.</td>
 </tr>
 </tbody></table>
 
@@ -3868,8 +3841,8 @@ these entities will display their name, alias and owner (if personal).</p>
                 </span><span class="nt">"alias"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Variable alias"</span><span class="p">,</span><span class="w">
                 </span><span class="nt">"owner_url"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span><span class="w">
                 </span><span class="nt">"owner_name"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="w">
-            </span><span class="p">}</span><span class="w">
-        </span><span class="p">},</span><span class="w">
+            </span><span class="p">},</span><span class="w">
+        </span><span class="err">}</span><span class="p">,</span><span class="w">
         </span><span class="nt">"filters"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
             </span><span class="nt">"https://app.crunch.io/filters/abcd/"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
                 </span><span class="nt">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"filter name"</span><span class="p">,</span><span class="w">
@@ -4581,12 +4554,12 @@ by variable ID with the corresponding entry under <code class="prettyprint">data
       </span><span class="nt">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"categorical_array"</span><span class="p">,</span><span class="w">
       </span><span class="nt">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"categorical_array"</span><span class="p">,</span><span class="w">
       </span><span class="nt">"subvariables"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">"000007"</span><span class="p">,</span><span class="w"> </span><span class="s2">"000008"</span><span class="p">,</span><span class="w"> </span><span class="s2">"000009"</span><span class="p">],</span><span class="w">
-      </span><span class="nt">"subreferences"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
-        </span><span class="nt">"000009"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="nt">"alias"</span><span class="p">:</span><span class="w"> </span><span class="s2">"ca_subvar_1"</span><span class="p">,</span><span class="w"> </span><span class="nt">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"ca_subvar_1"</span><span class="p">,</span><span class="w"> </span><span class="nt">"description"</span><span class="p">:</span><span class="w"> </span><span class="s2">""</span><span class="p">},</span><span class="w">
-        </span><span class="nt">"000007"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="nt">"alias"</span><span class="p">:</span><span class="w"> </span><span class="s2">"ca_subvar_2"</span><span class="p">,</span><span class="w"> </span><span class="nt">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"ca_subvar_2"</span><span class="p">,</span><span class="w"> </span><span class="nt">"description"</span><span class="p">:</span><span class="w"> </span><span class="s2">""</span><span class="p">},</span><span class="w">
-        </span><span class="nt">"000008"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="nt">"alias"</span><span class="p">:</span><span class="w"> </span><span class="s2">"ca_subvar_3"</span><span class="p">,</span><span class="w"> </span><span class="nt">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"ca_subvar_3"</span><span class="p">,</span><span class="w"> </span><span class="nt">"description"</span><span class="p">:</span><span class="w"> </span><span class="s2">""</span><span class="p">}</span><span class="w">
-      </span><span class="p">},</span><span class="w">
-      </span><span class="nt">"categories"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
+      </span><span class="nt">"subreferences"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
+        </span><span class="p">{</span><span class="nt">"alias"</span><span class="p">:</span><span class="w"> </span><span class="s2">"ca_subvar_1"</span><span class="p">,</span><span class="w"> </span><span class="nt">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"ca_subvar_1"</span><span class="p">,</span><span class="w"> </span><span class="nt">"description"</span><span class="p">:</span><span class="w"> </span><span class="s2">""</span><span class="p">},</span><span class="w">
+        </span><span class="p">{</span><span class="nt">"alias"</span><span class="p">:</span><span class="w"> </span><span class="s2">"ca_subvar_2"</span><span class="p">,</span><span class="w"> </span><span class="nt">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"ca_subvar_2"</span><span class="p">,</span><span class="w"> </span><span class="nt">"description"</span><span class="p">:</span><span class="w"> </span><span class="s2">""</span><span class="p">},</span><span class="w">
+        </span><span class="p">{</span><span class="nt">"alias"</span><span class="p">:</span><span class="w"> </span><span class="s2">"ca_subvar_3"</span><span class="p">,</span><span class="w"> </span><span class="nt">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"ca_subvar_3"</span><span class="p">,</span><span class="w"> </span><span class="nt">"description"</span><span class="p">:</span><span class="w"> </span><span class="s2">""</span><span class="p">}</span><span class="w">
+      </span><span class="p">]</span><span class="w">
+      </span><span class="s2">"categories"</span><span class="err">:</span><span class="w"> </span><span class="p">[</span><span class="w">
         </span><span class="p">{</span><span class="w"> </span><span class="nt">"numeric_value"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span><span class="w"> </span><span class="nt">"selected"</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="p">,</span><span class="w"> </span><span class="nt">"id"</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="nt">"missing"</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="p">,</span><span class="w"> </span><span class="nt">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"a"</span><span class="w"> </span><span class="p">},</span><span class="w">
         </span><span class="p">{</span><span class="w"> </span><span class="nt">"numeric_value"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span><span class="w"> </span><span class="nt">"selected"</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="p">,</span><span class="w"> </span><span class="nt">"id"</span><span class="p">:</span><span class="w"> </span><span class="mi">2</span><span class="p">,</span><span class="w"> </span><span class="nt">"missing"</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="p">,</span><span class="w"> </span><span class="nt">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"b"</span><span class="w"> </span><span class="p">},</span><span class="w">
         </span><span class="p">{</span><span class="w"> </span><span class="nt">"numeric_value"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span><span class="w"> </span><span class="nt">"selected"</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="p">,</span><span class="w"> </span><span class="nt">"id"</span><span class="p">:</span><span class="w"> </span><span class="mi">3</span><span class="p">,</span><span class="w"> </span><span class="nt">"missing"</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="p">,</span><span class="w"> </span><span class="nt">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"c"</span><span class="w"> </span><span class="p">},</span><span class="w">
@@ -4877,7 +4850,7 @@ line 24.</p>
 <li><strong>type</strong></li>
 <li>If &ldquo;type&rdquo; is &ldquo;categorical&rdquo;, &ldquo;multiple_response&rdquo;, or &ldquo;categorical_array&rdquo;: <strong>categories</strong>: an array of category definitions</li>
 <li>If &ldquo;type&rdquo; is &ldquo;multiple_response&rdquo; or &ldquo;categorical_array&rdquo;: <strong>subvariables</strong>: an array of URLs of variables to be &ldquo;bound&rdquo; together to form the array variable</li>
-<li>If &ldquo;type&rdquo; is &ldquo;multiple_response&rdquo; or &ldquo;categorical_array&rdquo;: <strong>subreferences</strong>: an object keyed by each of the subvariable URLs where each value contains partial variable definitions, which will be created as categorical subvariables of the array. If included, the array definition must include &ldquo;categories&rdquo;, which are shared among the subvariables.</li>
+<li>If &ldquo;type&rdquo; is &ldquo;multiple_response&rdquo; or &ldquo;categorical_array&rdquo;: <strong>subreferences</strong>: an array of partial variable definitions, which will be created as categorical subvariables of the array. If included, the array definition must include &ldquo;categories&rdquo;, which are shared among the subvariables.</li>
 <li>If type is &ldquo;multiple_response&rdquo;, the definition may include <strong>selected_categories</strong>: an array of category names present in the subvariables. This will mark the specified category or categories as the &ldquo;selected&rdquo; response in the multiple response variable. If no &ldquo;selected_categories&rdquo; array is provided, the new variable will use any categories already flagged as &ldquo;selected&rdquo;: true. If no such category exists, the response will return a 400 status.</li>
 <li>If &ldquo;type&rdquo; is &ldquo;datetime&rdquo;: <strong>resolution</strong>: a string, such as &ldquo;Y&rdquo;, &ldquo;M&rdquo;, &ldquo;D&rdquo;, &ldquo;h&rdquo;, &ldquo;m&rdquo;, &ldquo;s&rdquo;, &ldquo;ms&rdquo;, that indicates the unit size of the datetime data.</li>
 </ul>
@@ -5091,7 +5064,7 @@ is, variables from joined datasets cannot be set as weight.
 <tr>
 <td>subreferences</td>
 <td>object of objects</td>
-<td>For array variables, an object of {&ldquo;name&rdquo;: &hellip;, &ldquo;alias&rdquo;: &hellip;, &hellip;} objects keyed by subvariable url</td>
+<td>For array variables, an object of {&ldquo;name&rdquo;: &hellip;, &ldquo;alias&rdquo;: &hellip;, &hellip;} objects keyed by subvariable</td>
 </tr>
 <tr>
 <td>resolution</td>
@@ -9934,258 +9907,6 @@ variable at hand (generally category <code class="prettyprint">name</code>s).</p
 </span><span class="p">}</span><span class="w">
 </span></code></pre>
 
-          <h2 id="accounts">Accounts</h2>
-
-<p>Accounts provide an organization-level scope for Crunch.io customers. All Users belong to one and only one Account. Account managers can administer their various users and entities and have visibility on them. </p>
-
-<h3 id="permissions">Permissions</h3>
-
-<p>A user is an &ldquo;account manager&rdquo; if their <code class="prettyprint">account_permissions</code> have
-<code class="prettyprint">alter_users</code> set to <code class="prettyprint">True</code>.</p>
-
-<h3 id="account-entity">Account entity</h3>
-
-<p>The account entity is available on the API root following the Shoji 
-<code class="prettyprint">views.account</code> path, which will point to the authenticated user&rsquo;s account.</p>
-
-<p>If the account has a name, it will be available here, as well as the path to the 
-account&rsquo;s users.</p>
-
-<p>If the authenticated user is an account manager, the response will include
-paths to these additional catalogs:
- * Account projects
- * Account teams
- * Account datasets</p>
-
-<h4 id="get">GET</h4>
-<pre class="highlight http"><code><span class="err">GET /accounts/1234/
-</span></code></pre>
-<pre class="highlight json"><code><span class="p">{</span><span class="w">
-  </span><span class="nt">"element"</span><span class="p">:</span><span class="w"> </span><span class="s2">"shoji:entity"</span><span class="p">,</span><span class="w">
-  </span><span class="nt">"body"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
-    </span><span class="nt">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Account's name"</span><span class="p">,</span><span class="w">
-    </span><span class="nt">"oauth_providers"</span><span class="p">:</span><span class="w"> </span><span class="p">[{</span><span class="w">
-      </span><span class="nt">"id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"provider"</span><span class="p">,</span><span class="w">
-      </span><span class="nt">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Service auth"</span><span class="w">
-    </span><span class="p">},</span><span class="w"> </span><span class="p">{</span><span class="w">
-      </span><span class="nt">"id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"provider"</span><span class="p">,</span><span class="w">
-      </span><span class="nt">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Service auth"</span><span class="w">
-    </span><span class="p">}]</span><span class="w">
-  </span><span class="p">},</span><span class="w">
-  </span><span class="nt">"catalogs"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
-    </span><span class="nt">"teams"</span><span class="p">:</span><span class="w"> </span><span class="s2">"http://app.crunch.io/api/accounts/abcd/teams/"</span><span class="p">,</span><span class="w">
-    </span><span class="nt">"projects"</span><span class="p">:</span><span class="w"> </span><span class="s2">"http://app.crunch.io/api/accounts/abcd/projects/"</span><span class="p">,</span><span class="w">
-    </span><span class="nt">"users"</span><span class="p">:</span><span class="w"> </span><span class="s2">"http://app.crunch.io/api/accounts/abcd/users/"</span><span class="p">,</span><span class="w">
-    </span><span class="nt">"datasets"</span><span class="p">:</span><span class="w"> </span><span class="s2">"http://app.crunch.io/api/accounts/abcd/datasets/"</span><span class="w">
-  </span><span class="p">}</span><span class="w">
-</span><span class="p">}</span><span class="w">
-</span></code></pre>
-
-<h3 id="account-users">Account users</h3>
-
-<p>Provides a catalog of all the users that belong to this account. Any account
-member can GET, but only account managers can POST/PATCH on it.</p>
-
-<h4 id="get">GET</h4>
-<pre class="highlight http"><code><span class="err">GET /accounts/1234/users/
-</span></code></pre>
-<pre class="highlight json"><code><span class="p">{</span><span class="w">
-  </span><span class="nt">"element"</span><span class="p">:</span><span class="w"> </span><span class="s2">"shoji:catalog"</span><span class="p">,</span><span class="w">
-  </span><span class="nt">"index"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
-    </span><span class="nt">"http://app.crunch.io/api/users/123/"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
-      </span><span class="nt">"id_method"</span><span class="p">:</span><span class="w"> </span><span class="s2">"pwhash"</span><span class="p">,</span><span class="w">
-      </span><span class="nt">"id_provider"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span><span class="w">
-      </span><span class="nt">"email"</span><span class="p">:</span><span class="w"> </span><span class="s2">"email@example.com"</span><span class="p">,</span><span class="w">
-      </span><span class="nt">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Steve Austin"</span><span class="p">,</span><span class="w">
-      </span><span class="nt">"dataset_permissions"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
-        </span><span class="nt">"view"</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span><span class="w">
-        </span><span class="nt">"edit"</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="w">
-      </span><span class="p">},</span><span class="w">
-      </span><span class="nt">"account_permissions"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
-        </span><span class="nt">"alter_users"</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="p">,</span><span class="w">
-        </span><span class="nt">"create_datasets"</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="w">
-      </span><span class="p">}</span><span class="w">
-    </span><span class="p">},</span><span class="w">
-    </span><span class="nt">"http://app.crunch.io/api/users/234/"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
-      </span><span class="nt">"id_method"</span><span class="p">:</span><span class="w"> </span><span class="s2">"pwhash"</span><span class="p">,</span><span class="w">
-      </span><span class="nt">"id_provider"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span><span class="w">
-      </span><span class="nt">"email"</span><span class="p">:</span><span class="w"> </span><span class="s2">"email1@example.com"</span><span class="p">,</span><span class="w">
-      </span><span class="nt">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Shawn Michaels"</span><span class="p">,</span><span class="w">
-      </span><span class="nt">"dataset_permissions"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
-        </span><span class="nt">"view"</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span><span class="w">
-        </span><span class="nt">"edit"</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="w">
-      </span><span class="p">},</span><span class="w">
-      </span><span class="nt">"account_permissions"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
-        </span><span class="nt">"alter_users"</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span><span class="w">
-        </span><span class="nt">"create_datasets"</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="w">
-      </span><span class="p">}</span><span class="w">
-    </span><span class="p">},</span><span class="w">
-    </span><span class="nt">"http://app.crunch.io/api/users/345/"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
-      </span><span class="nt">"id_method"</span><span class="p">:</span><span class="w"> </span><span class="s2">"oauth"</span><span class="p">,</span><span class="w">
-      </span><span class="nt">"id_provider"</span><span class="p">:</span><span class="w"> </span><span class="s2">"google"</span><span class="p">,</span><span class="w">
-      </span><span class="nt">"email"</span><span class="p">:</span><span class="w"> </span><span class="s2">"email2@example.com"</span><span class="p">,</span><span class="w">
-      </span><span class="nt">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Rocky Maivia"</span><span class="p">,</span><span class="w">
-      </span><span class="nt">"dataset_permissions"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
-        </span><span class="nt">"view"</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span><span class="w">
-        </span><span class="nt">"edit"</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="w">
-      </span><span class="p">},</span><span class="w">
-      </span><span class="nt">"account_permissions"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
-        </span><span class="nt">"alter_users"</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="p">,</span><span class="w">
-        </span><span class="nt">"create_datasets"</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="w">
-      </span><span class="p">}</span><span class="w">
-    </span><span class="p">}</span><span class="w">
-  </span><span class="p">}</span><span class="w">
-</span><span class="p">}</span><span class="w">
-</span></code></pre>
-
-<h4 id="post">POST</h4>
-
-<p>Account members can POST to the account&rsquo;s users catalog to create new users.
-If the a user with the provided email address already exists in the application
-(on another account), the server will return a 400 response.</p>
-<pre class="highlight http"><code><span class="err">POST /accounts/1234/users/
-</span></code></pre>
-<pre class="highlight json"><code><span class="p">{</span><span class="w">
-  </span><span class="nt">"element"</span><span class="p">:</span><span class="w"> </span><span class="s2">"shoji:entity"</span><span class="p">,</span><span class="w">
-  </span><span class="nt">"body"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
-      </span><span class="nt">"email"</span><span class="p">:</span><span class="w"> </span><span class="s2">"new_email@example.com"</span><span class="p">,</span><span class="w">
-      </span><span class="nt">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Initial name"</span><span class="p">,</span><span class="w">
-      </span><span class="nt">"account_permissions"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
-        </span><span class="nt">"alter_users"</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="p">,</span><span class="w">
-        </span><span class="nt">"create_datasets"</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="w">
-      </span><span class="p">},</span><span class="w">
-      </span><span class="nt">"id_method"</span><span class="p">:</span><span class="w"> </span><span class="s2">"pwhash/oauth"</span><span class="p">,</span><span class="w">
-      </span><span class="nt">"id_provider"</span><span class="p">:</span><span class="w"> </span><span class="s2">""</span><span class="p">,</span><span class="w">
-      </span><span class="nt">"send_invite"</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span><span class="w">
-      </span><span class="nt">"url_base"</span><span class="p">:</span><span class="w"> </span><span class="s2">"http://app.crunch.io/"</span><span class="w">
-  </span><span class="p">}</span><span class="w">
-</span><span class="p">}</span><span class="w">
-</span></code></pre>
-
-<h4 id="patch">PATCH</h4>
-
-<p>PATCH to the users&rsquo; catalog allows account admins to edit users&rsquo; permissions
-in batch. It is only possible to change the <code class="prettyprint">account_permissions</code> attribute.
-Additionally, it is possible to delete users from the account by sending <code class="prettyprint">null</code>
-as their tuple.</p>
-<pre class="highlight http"><code><span class="err">PATCH /accounts/1234/users/
-</span></code></pre>
-<pre class="highlight json"><code><span class="p">{</span><span class="w">
-  </span><span class="nt">"element"</span><span class="p">:</span><span class="w"> </span><span class="s2">"shoji:catalog"</span><span class="p">,</span><span class="w">
-  </span><span class="nt">"index"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
-    </span><span class="nt">"http://app.crunch.io/api/users/123/"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
-      </span><span class="nt">"account_permissions"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
-        </span><span class="nt">"alter_users"</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="p">,</span><span class="w">
-        </span><span class="nt">"create_datasets"</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="w">
-      </span><span class="p">}</span><span class="w">
-    </span><span class="p">},</span><span class="w">
-    </span><span class="nt">"http://app.crunch.io/api/users/234/"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span><span class="w">
-  </span><span class="err">}</span><span class="w">
-</span><span class="p">}</span><span class="w">
-</span></code></pre>
-
-<h3 id="account-datasets">Account datasets</h3>
-
-<p>Only account managers have access to this catalog. It is a read only shoji 
-catalog containing all the datasets that users of this account have 
-created (potentially very large catalog).</p>
-
-<p>Account managers have implicit editor access to all the account datasets.</p>
-<pre class="highlight http"><code><span class="err">GET /accounts/1234/datasets/
-</span></code></pre>
-<pre class="highlight json"><code><span class="p">{</span><span class="w">
-  </span><span class="nt">"element"</span><span class="p">:</span><span class="w"> </span><span class="s2">"shoji:catalog"</span><span class="p">,</span><span class="w">
-  </span><span class="nt">"index"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
-        </span><span class="nt">"https://app.crunch.io/api/datasets/cc9161/"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
-            </span><span class="nt">"owner_name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"James T. Kirk"</span><span class="p">,</span><span class="w">
-            </span><span class="nt">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"The Voyage Home"</span><span class="p">,</span><span class="w">
-            </span><span class="nt">"description"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Stardate 8390"</span><span class="p">,</span><span class="w">
-            </span><span class="nt">"archived"</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="p">,</span><span class="w">
-            </span><span class="nt">"size"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
-                </span><span class="nt">"rows"</span><span class="p">:</span><span class="w"> </span><span class="mi">1234</span><span class="p">,</span><span class="w">
-                </span><span class="nt">"columns"</span><span class="p">:</span><span class="w"> </span><span class="mi">67</span><span class="w">
-            </span><span class="p">},</span><span class="w">
-            </span><span class="nt">"is_published"</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span><span class="w">
-            </span><span class="nt">"id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"cc9161"</span><span class="p">,</span><span class="w">
-            </span><span class="nt">"owner_id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"https://app.crunch.io/api/users/685722/"</span><span class="p">,</span><span class="w">
-            </span><span class="nt">"start_date"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2286"</span><span class="p">,</span><span class="w">
-            </span><span class="nt">"end_date"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span><span class="w">
-            </span><span class="nt">"creation_time"</span><span class="p">:</span><span class="w"> </span><span class="s2">"1986-11-26T12:05:00"</span><span class="p">,</span><span class="w">
-            </span><span class="nt">"modification_time"</span><span class="p">:</span><span class="w"> </span><span class="s2">"1986-11-26T12:05:00"</span><span class="p">,</span><span class="w">
-            </span><span class="nt">"current_editor"</span><span class="p">:</span><span class="w"> </span><span class="s2">"https://app.crunch.io/api/users/ff9443/"</span><span class="p">,</span><span class="w">
-            </span><span class="nt">"current_editor_name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Leonard Nimoy"</span><span class="w">
-        </span><span class="p">},</span><span class="w">
-        </span><span class="nt">"https://app.crunch.io/api/datasets/a598c7/"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
-            </span><span class="nt">"owner_name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Spock"</span><span class="p">,</span><span class="w">
-            </span><span class="nt">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"The Wrath of Khan"</span><span class="p">,</span><span class="w">
-            </span><span class="nt">"description"</span><span class="p">:</span><span class="w"> </span><span class="s2">""</span><span class="p">,</span><span class="w">
-            </span><span class="nt">"archived"</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="p">,</span><span class="w">
-            </span><span class="nt">"size"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
-                </span><span class="nt">"rows"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span><span class="w">
-                </span><span class="nt">"columns"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="w">
-            </span><span class="p">},</span><span class="w">
-            </span><span class="nt">"is_published"</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span><span class="w">
-            </span><span class="nt">"id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"a598c7"</span><span class="p">,</span><span class="w">
-            </span><span class="nt">"owner_id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"https://app.crunch.io/api/users/af432c/"</span><span class="p">,</span><span class="w">
-            </span><span class="nt">"start_date"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2285-10-03"</span><span class="p">,</span><span class="w">
-            </span><span class="nt">"end_date"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2285-10-20"</span><span class="p">,</span><span class="w">
-            </span><span class="nt">"creation_time"</span><span class="p">:</span><span class="w"> </span><span class="s2">"1982-06-04T09:16:23.231045"</span><span class="p">,</span><span class="w">
-            </span><span class="nt">"modification_time"</span><span class="p">:</span><span class="w"> </span><span class="s2">"1982-06-04T09:16:23.231045"</span><span class="p">,</span><span class="w">
-            </span><span class="nt">"current_editor"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span><span class="w">
-            </span><span class="nt">"current_editor_name"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="w">
-        </span><span class="p">}</span><span class="w">
-  </span><span class="p">}</span><span class="w">
-</span><span class="p">}</span><span class="w">
-</span></code></pre>
-
-<h3 id="account-projects">Account projects</h3>
-
-<p>This catalog is available for account managers and lists all the projects
-that the users have created. Account managers have implicit edit access on all
-projects.</p>
-<pre class="highlight http"><code><span class="err">GET /accounts/1234/projects/
-</span></code></pre>
-<pre class="highlight json"><code><span class="p">{</span><span class="w">
-  </span><span class="nt">"element"</span><span class="p">:</span><span class="w"> </span><span class="s2">"shoji:catalog"</span><span class="p">,</span><span class="w">
-  </span><span class="nt">"index"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
-        </span><span class="nt">"https://app.crunch.io/api/projects/cc9161/"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
-          </span><span class="nt">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Project 1"</span><span class="p">,</span><span class="w">
-          </span><span class="nt">"id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"cc9161"</span><span class="p">,</span><span class="w">
-          </span><span class="nt">"owner"</span><span class="p">:</span><span class="w"> </span><span class="s2">"http://app.crunch.io/api/users/abcdef/"</span><span class="w">
-        </span><span class="p">},</span><span class="w">
-        </span><span class="nt">"https://app.crunch.io/api/projects/a598c7/"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
-          </span><span class="nt">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Project 2"</span><span class="p">,</span><span class="w">
-          </span><span class="nt">"id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"a598c7"</span><span class="p">,</span><span class="w">
-          </span><span class="nt">"owner"</span><span class="p">:</span><span class="w"> </span><span class="s2">"http://app.crunch.io/api/users/123456/"</span><span class="w">
-        </span><span class="p">}</span><span class="w">
-  </span><span class="p">}</span><span class="w">
-</span><span class="p">}</span><span class="w">
-</span></code></pre>
-
-<h3 id="account-teams">Account teams</h3>
-
-<p>This catalog is available for account managers and lists all the teams
-that the users have created. Account managers have implicit edit access on all
-teams.</p>
-<pre class="highlight http"><code><span class="err">GET /accounts/1234/teams/
-</span></code></pre>
-<pre class="highlight json"><code><span class="p">{</span><span class="w">
-  </span><span class="nt">"element"</span><span class="p">:</span><span class="w"> </span><span class="s2">"shoji:catalog"</span><span class="p">,</span><span class="w">
-  </span><span class="nt">"index"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
-        </span><span class="nt">"https://app.crunch.io/api/teams/cc9161/"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
-          </span><span class="nt">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Team 1"</span><span class="p">,</span><span class="w">
-          </span><span class="nt">"id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"cc9161"</span><span class="p">,</span><span class="w">
-          </span><span class="nt">"owner"</span><span class="p">:</span><span class="w"> </span><span class="s2">"http://app.crunch.io/api/users/123456/"</span><span class="w">
-        </span><span class="p">},</span><span class="w">
-        </span><span class="nt">"https://app.crunch.io/api/teams/a598c7/"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
-          </span><span class="nt">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Team 2"</span><span class="p">,</span><span class="w">
-          </span><span class="nt">"id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"a598c7"</span><span class="p">,</span><span class="w">
-          </span><span class="nt">"owner"</span><span class="p">:</span><span class="w"> </span><span class="s2">"http://app.crunch.io/api/users/123456/"</span><span class="w">
-        </span><span class="p">}</span><span class="w">
-  </span><span class="p">}</span><span class="w">
-</span><span class="p">}</span><span class="w">
-</span></code></pre>
-
           <h1 id="object-reference">Object Reference</h1>
 
 <p>version 0.15</p>
@@ -10409,15 +10130,13 @@ order, or may be excluded from view.</p>
 
 <h5 id="subreferences">subreferences</h5>
 
-<p>Multiple Response and Categorical Array variables contain an object of subvariable
+<p>Multiple Response and Categorical Array variables contain an array of subvariable
  &ldquo;references&rdquo;: names, alias, description, etc. To create a variable of type
  &ldquo;multiple_response&rdquo; or &ldquo;categorical_array&rdquo; directly, you must include a
- &ldquo;subreferences&rdquo; member with an object of objects. These label the subvariables
+ &ldquo;subreferences&rdquo; member with an array of objects. These label the subvariables
  in the new array variable.</p>
 
-<p>The shape of each subreferences member must contain a name and optionally an alias.
-Note that the subreferences is an unordered object. The order of the subvariables
-is read from the &ldquo;subvariables&rdquo; attribute.</p>
+<p>The shape of each subreferences member must contain a name and optionally an alias.</p>
 <pre class="highlight json"><code><span class="p">{</span><span class="w">
     </span><span class="nt">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"categorical_array"</span><span class="p">,</span><span class="w">
     </span><span class="nt">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Example array"</span><span class="p">,</span><span class="w">
@@ -10435,16 +10154,11 @@ is read from the &ldquo;subvariables&rdquo; attribute.</p>
             </span><span class="nt">"missing"</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="w">
         </span><span class="p">}</span><span class="w">
     </span><span class="p">],</span><span class="w">
-    </span><span class="nt">"subvariables"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
-      </span><span class="s2">"/api/datasets/abcdef/variables/abc/subvariables/1/"</span><span class="p">,</span><span class="w">
-      </span><span class="s2">"/api/datasets/abcdef/variables/abc/subvariables/2/"</span><span class="p">,</span><span class="w">
-      </span><span class="s2">"/api/datasets/abcdef/variables/abc/subvariables/3/"</span><span class="w">
-    </span><span class="p">],</span><span class="w">
-    </span><span class="nt">"subreferences"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
-        </span><span class="nt">"/api/datasets/abcdef/variables/abc/subvariables/2/"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="nt">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"subvariable 2"</span><span class="p">,</span><span class="w"> </span><span class="nt">"alias"</span><span class="p">:</span><span class="w"> </span><span class="s2">"subvar2_alias"</span><span class="p">},</span><span class="w">
-        </span><span class="nt">"/api/datasets/abcdef/variables/abc/subvariables/1/"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="nt">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"subvariable 1"</span><span class="p">},</span><span class="w">
-        </span><span class="nt">"/api/datasets/abcdef/variables/abc/subvariables/3/"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="nt">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"subvariable 3"</span><span class="p">}</span><span class="w">
-    </span><span class="p">}</span><span class="w">
+    </span><span class="nt">"subreferences"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
+        </span><span class="p">{</span><span class="nt">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"subvariable 1"</span><span class="p">},</span><span class="w">
+        </span><span class="p">{</span><span class="nt">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"subvariable 2"</span><span class="p">,</span><span class="w"> </span><span class="nt">"alias"</span><span class="p">:</span><span class="w"> </span><span class="s2">"subvar2_alias"</span><span class="p">},</span><span class="w">
+        </span><span class="p">{</span><span class="nt">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"subvariable 3"</span><span class="p">}</span><span class="w">
+    </span><span class="p">]</span><span class="w">
 </span><span class="p">}</span><span class="w">
 </span></code></pre>
 
