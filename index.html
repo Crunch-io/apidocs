@@ -3090,7 +3090,19 @@ options.  The limit and offset are returned in relationship to datasets related 
 <td>integer</td>
 <td>limit the number of variables that match to this number (default: 1000, max: 1000)</td>
 </tr>
+<tr>
+<td>projection</td>
+<td>json Array</td>
+<td>used to limit the fields that should be returned in the search results. ID is always provided.</td>
+</tr>
 </tbody></table>
+
+<p>Providing a Projection:</p>
+
+<p><code class="prettyprint">projection</code> argument must be a JSON array containing the name of the fields that should be projected for datasets and variables.
+The fields are specified with the namespace they refer to, like <code class="prettyprint">&quot;variables.fieldname&quot;</code> and <code class="prettyprint">&quot;datasets.fieldname&quot;</code>. 
+The namespace is the same as the key where the relevant search results are returned.
+Performing a search with an invalid field will pinpoint the invalid one and provide the list of accepted values.</p>
 
 <p>Allowable filter parameters:</p>
 
@@ -3235,7 +3247,7 @@ The query string can only be alpha-numeric characters (including underscores) lo
 <td>no</td>
 </tr>
 </tbody></table>
-<pre class="highlight http"><code><span class="nf">GET</span> <span class="nn">/datasets/search/?q={query}&amp;f={filter}&amp;limit={limit}&amp;offset={offset}&amp;group_variables_list={group_variables_list}</span>  <span class="k">HTTP</span><span class="o">/</span><span class="m">1.1</span>
+<pre class="highlight http"><code><span class="nf">GET</span> <span class="nn">/datasets/search/?q={query}&amp;f={filter}&amp;limit={limit}&amp;offset={offset}&amp;group_variables_list={group_variables_list}&amp;projection={projection}</span>  <span class="k">HTTP</span><span class="o">/</span><span class="m">1.1</span>
 </code></pre>
 <pre class="highlight json"><code><span class="p">{</span><span class="w">
    </span><span class="nt">"element"</span><span class="p">:</span><span class="w"> </span><span class="s2">"shoji:view"</span><span class="p">,</span><span class="w">
