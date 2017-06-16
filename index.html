@@ -4481,7 +4481,7 @@ values. It provides granular control over the rows and columns for each dataset.
 
 <h4 id="get">GET</h4>
 
-<p>When authenticated, GET returns a 200 status with a Shoji Table of the 
+<p>Dataset editors can GET to this resource and obtain a Shoji Table of the 
 dataset&rsquo;s data. It will expose all the variables that are visible by the 
 authenticated user (Public + personals created by them if requested) as 
 well as the exclusion filter applied (if any).</p>
@@ -4492,6 +4492,11 @@ value.</p>
 
 <p>A <code class="prettyprint">metadata</code> section contains the definitions of all the variables matched
 by variable ID with the corresponding entry under <code class="prettyprint">data</code>.</p>
+
+<p>Dataset viewers can only access the <code class="prettyprint">metadata</code> portion of the response. This 
+means they cannot make use of the <code class="prettyprint">limit</code> and <code class="prettyprint">offset</code> parameters to query
+data unless the dataset&rsquo;s setting <code class="prettyprint">viewers_can_export</code> is set to True, else
+the server will respond with a 403 response.</p>
 <pre class="highlight http"><code><span class="nf">GET</span> <span class="nn">/datasets/:id/table/</span> <span class="k">HTTP</span><span class="o">/</span><span class="m">1.1</span>
 </code></pre>
 <pre class="highlight json"><code><span class="p">{</span><span class="w">
@@ -5486,6 +5491,10 @@ return strings, and categorical variables will return category names for valid
 categories and {&ldquo;?&rdquo;: code} missing markers for missing categories. The &ldquo;start&rdquo;
 and &ldquo;total&rdquo; parameters paginate the results. The &ldquo;filter&rdquo; is a Crunch filter
 expression.</p>
+
+<p>Note that this endpoint is only accessible by dataset editors unless the 
+<code class="prettyprint">viewers_can_export</code> dataset setting is set to <code class="prettyprint">true</code>, else the server will
+return a 403 response.</p>
 
 <h3 id="private-variables">Private Variables</h3>
 
