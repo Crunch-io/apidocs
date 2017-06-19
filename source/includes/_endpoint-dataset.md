@@ -158,6 +158,14 @@ offset                             | Integer     | offset into the search index 
 max_variables_per_dataset          | Integer     | limit the number of variables that match to this number (default: 1000, max: 1000)
 embedded_variables                 | Boolean     | embed the results within the dataset results (this will become the default in the future)
 max_subfield_entries_per_variable  | Integer     | some fields in a variable result are a list of items, these lists can be very long at times (think category names).  This limits the number of results for performance/noise reduction.  Pertinent (matching) results are returned first, and then remaining results are padded to meet the limit.  
+projection                         | Json Object | used to limit the fields that should be returned in the search results. ID is always provided.
+
+Providing a Projection:
+
+`projection` argument must be a JSON array containing the name of the fields that should be projected for datasets and variables.
+The fields are specified with the namespace they refer to, like `"variables.fieldname"` and `"datasets.fieldname"`. 
+The namespace is the same as the key where the relevant search results are returned.
+Performing a search with an invalid field will pinpoint the invalid one and provide the list of accepted values.
 
 <aside class="notice">
 By default there are only 10 datasets returned.  Inside the response you will find a `totals.datasets` that
@@ -170,10 +178,11 @@ Allowable filter parameters:
 
 Parameter   | Type             | Description
 ------------|------------------|-------------------------------------------------
-dataset_ids | Array of strings | limit results to particular datasets (urls) (user must have read access to that dataset)
-team        | String           | url of the team to limit results (user must have read access to the team)
-project     | String           | url of the project to limit results (user must have access to the project)
-owner       | String           | The owner of the dataset must match the given url.
+dataset_ids | array of strings | limit results to particular dataset_ids or urls (user must have read access to that dataset)
+team        | string           | url or id of the team to limit results (user must have read access to the team)
+project     | string           | url or id of the project to limit results (user must have access to the project)
+user        | string           | url or id of the user that has read access to the datasets to limit results (user must match with the provided one)
+owner       | string           | url or id of the dataset owner to limit results
 label       | String           | The dataset must be in a folder or subfolder with the given name.
 
 <aside class="notice">
@@ -205,7 +214,7 @@ dataset_projects  | List of Strings | Project IDs having read-access to the data
 
 
 ```http
-GET /datasets/search/?q={query}&f={filter}&limit={limit}&offset={offset}&group_variables_list={group_variables_list}  HTTP/1.1
+GET /datasets/search/?q={query}&f={filter}&limit={limit}&offset={offset}&group_variables_list={group_variables_list}&projection={projection}  HTTP/1.1
 ```
 
 ```
