@@ -764,6 +764,10 @@ processing each one and the more you can send in a given time. Send multiple
 lines of line-delimited JSON, or if using pycrunch, a list of dicts rather than
 a single dict.</p>
 
+<p>Each time you send a POST, all of the rows in that POST are assembled into a new
+message which is added to the stream. Each message can contain one or more rows
+of data.</p>
+
 <p>As when creating a new source, don&rsquo;t worry about sending values for derived
 variables; Crunch will fill these out for you for each row using the data you
 send.</p>
@@ -797,17 +801,17 @@ dataset. When you&rsquo;re ready, POST to <code class="prettyprint">/datasets/{i
 <span class="p">}})</span>
 </code></pre>
 
-<p>The &ldquo;stream&rdquo; member tells Crunch to acquire rows from the stream to form this
-Batch. If <code class="prettyprint">null</code>, the system will acquire all currently pending rows
-(any new rows which arrive during the formation of this Batch will be queued
-and not fetched). If an integer, the system will attempt to fetch that many
-rows from the stream, waiting up to 10 seconds for new ones if the number
-exceeds the number of pending rows. If there are no pending rows,
+<p>The &ldquo;stream&rdquo; member tells Crunch to acquire the data from the stream to form this
+Batch. The &ldquo;stream&rdquo; member must be <code class="prettyprint">null</code>, then the system will acquire all 
+currently pending messages (any new messages which arrive during the formation of
+this Batch will be queued and not fetched). If there are no pending messages,
 <code class="prettyprint">409 Conflict</code> is returned instead of 201/202 for the new Batch.</p>
 
 <h5 id="pending-rows-will-be-added-automatically">Pending rows will be added automatically</h5>
 
 <p>Every hour, the Crunch system goes through all datasets, and for each that has pending streamed data, it batches up the pending rows and adds them to the dataset automatically, as long as the dataset is not currently in use by someone. That way, streamed data will magically appear in the dataset for the next time a user loads it, but if a user is actively working with the dataset, the system won&rsquo;t update their view of the data and disrupt their session.</p>
+
+<p>See <a href="#stream">Stream</a> for more details on streams.</p>
 
           <h2 id="merging-and-joining-datasets">Merging and Joining Datasets</h2>
 
@@ -4143,6 +4147,38 @@ in its body. Rows that match the filter expression will be excluded from all vie
  are dropped.</p>
 
 <h5 id="stream">Stream</h5>
+
+<p><code class="prettyprint">/datasets/{id}/stream/</code></p>
+
+<p>Stream allows for sending data to a dataset as it is gathered.</p>
+<pre class="highlight json"><code><span class="p">{</span><span class="w">
+    </span><span class="nt">"element"</span><span class="p">:</span><span class="w"> </span><span class="s2">"shoji:entity"</span><span class="p">,</span><span class="w">
+    </span><span class="nt">"self"</span><span class="p">:</span><span class="w"> </span><span class="s2">"https://app.crunch.io/api/datasets/223fd4/stream/"</span><span class="p">,</span><span class="w">
+    </span><span class="nt">"description"</span><span class="p">:</span><span class="w"> </span><span class="s2">"A stream for this Dataset. Each stream acts as a write buffer, from which Sources are periodically made and appended as Batches to the owning Dataset."</span><span class="p">,</span><span class="w">
+    </span><span class="nt">"body"</span><span class="p">:{</span><span class="w">
+        </span><span class="nt">"pending_messages"</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w">
+        </span><span class="nt">"received_messages"</span><span class="p">:</span><span class="w"> </span><span class="mi">8</span><span class="w">
+    </span><span class="p">}</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre>
+
+<p>GET on this resource returns a Shoji Entity with two attributes in its body:</p>
+
+<table><thead>
+<tr>
+<th>Attribute</th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>pending_messages</td>
+<td>The number of messages the stream has that have yet to be appended to the dataset (note: a message might contain more than one row, each POST that is made to <code class="prettyprint">/datasets/{id}/stream/</code> will result in a single message).</td>
+</tr>
+<tr>
+<td>received_messages</td>
+<td>The total number of messages that this stream has received.</td>
+</tr>
+</tbody></table>
 
 <h5 id="settings">Settings</h5>
 
