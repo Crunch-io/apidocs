@@ -9931,7 +9931,9 @@ variable at hand (generally category <code class="prettyprint">name</code>s).</p
 
           <h2 id="accounts">Accounts</h2>
 
-<p>Accounts provide an organization-level scope for Crunch.io customers. All Users belong to one and only one Account. Account managers can administer their various users and entities and have visibility on them. </p>
+<p>Accounts provide an organization-level scope for Crunch.io customers. All Users 
+belong to one and only one Account. Account managers can administer their 
+various users and entities and have visibility on them. </p>
 
 <h3 id="permissions">Permissions</h3>
 
@@ -9953,12 +9955,13 @@ paths to these additional catalogs:
  * Account datasets</p>
 
 <h4 id="get">GET</h4>
-<pre class="highlight http"><code><span class="err">GET /accounts/1234/
+<pre class="highlight http"><code><span class="err">GET /account/
 </span></code></pre>
 <pre class="highlight json"><code><span class="p">{</span><span class="w">
   </span><span class="nt">"element"</span><span class="p">:</span><span class="w"> </span><span class="s2">"shoji:entity"</span><span class="p">,</span><span class="w">
   </span><span class="nt">"body"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
     </span><span class="nt">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Account's name"</span><span class="p">,</span><span class="w">
+    </span><span class="nt">"id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"abcd"</span><span class="p">,</span><span class="w">
     </span><span class="nt">"oauth_providers"</span><span class="p">:</span><span class="w"> </span><span class="p">[{</span><span class="w">
       </span><span class="nt">"id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"provider"</span><span class="p">,</span><span class="w">
       </span><span class="nt">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Service auth"</span><span class="w">
@@ -9968,10 +9971,10 @@ paths to these additional catalogs:
     </span><span class="p">}]</span><span class="w">
   </span><span class="p">},</span><span class="w">
   </span><span class="nt">"catalogs"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
-    </span><span class="nt">"teams"</span><span class="p">:</span><span class="w"> </span><span class="s2">"http://app.crunch.io/api/accounts/abcd/teams/"</span><span class="p">,</span><span class="w">
-    </span><span class="nt">"projects"</span><span class="p">:</span><span class="w"> </span><span class="s2">"http://app.crunch.io/api/accounts/abcd/projects/"</span><span class="p">,</span><span class="w">
-    </span><span class="nt">"users"</span><span class="p">:</span><span class="w"> </span><span class="s2">"http://app.crunch.io/api/accounts/abcd/users/"</span><span class="p">,</span><span class="w">
-    </span><span class="nt">"datasets"</span><span class="p">:</span><span class="w"> </span><span class="s2">"http://app.crunch.io/api/accounts/abcd/datasets/"</span><span class="w">
+    </span><span class="nt">"teams"</span><span class="p">:</span><span class="w"> </span><span class="s2">"http://app.crunch.io/api/account/teams/"</span><span class="p">,</span><span class="w">
+    </span><span class="nt">"projects"</span><span class="p">:</span><span class="w"> </span><span class="s2">"http://app.crunch.io/api/account/projects/"</span><span class="p">,</span><span class="w">
+    </span><span class="nt">"users"</span><span class="p">:</span><span class="w"> </span><span class="s2">"http://app.crunch.io/api/account/users/"</span><span class="p">,</span><span class="w">
+    </span><span class="nt">"datasets"</span><span class="p">:</span><span class="w"> </span><span class="s2">"http://app.crunch.io/api/account/datasets/"</span><span class="w">
   </span><span class="p">}</span><span class="w">
 </span><span class="p">}</span><span class="w">
 </span></code></pre>
@@ -9982,7 +9985,7 @@ paths to these additional catalogs:
 member can GET, but only account managers can POST/PATCH on it.</p>
 
 <h4 id="get">GET</h4>
-<pre class="highlight http"><code><span class="err">GET /accounts/1234/users/
+<pre class="highlight http"><code><span class="err">GET /account/users/
 </span></code></pre>
 <pre class="highlight json"><code><span class="p">{</span><span class="w">
   </span><span class="nt">"element"</span><span class="p">:</span><span class="w"> </span><span class="s2">"shoji:catalog"</span><span class="p">,</span><span class="w">
@@ -10038,7 +10041,7 @@ member can GET, but only account managers can POST/PATCH on it.</p>
 <p>Account members can POST to the account&rsquo;s users catalog to create new users.
 If the a user with the provided email address already exists in the application
 (on another account), the server will return a 400 response.</p>
-<pre class="highlight http"><code><span class="err">POST /accounts/1234/users/
+<pre class="highlight http"><code><span class="err">POST /account/users/
 </span></code></pre>
 <pre class="highlight json"><code><span class="p">{</span><span class="w">
   </span><span class="nt">"element"</span><span class="p">:</span><span class="w"> </span><span class="s2">"shoji:entity"</span><span class="p">,</span><span class="w">
@@ -10063,7 +10066,7 @@ If the a user with the provided email address already exists in the application
 in batch. It is only possible to change the <code class="prettyprint">account_permissions</code> attribute.
 Additionally, it is possible to delete users from the account by sending <code class="prettyprint">null</code>
 as their tuple.</p>
-<pre class="highlight http"><code><span class="err">PATCH /accounts/1234/users/
+<pre class="highlight http"><code><span class="err">PATCH /account/users/
 </span></code></pre>
 <pre class="highlight json"><code><span class="p">{</span><span class="w">
   </span><span class="nt">"element"</span><span class="p">:</span><span class="w"> </span><span class="s2">"shoji:catalog"</span><span class="p">,</span><span class="w">
@@ -10086,7 +10089,7 @@ catalog containing all the datasets that users of this account have
 created (potentially very large catalog).</p>
 
 <p>Account managers have implicit editor access to all the account datasets.</p>
-<pre class="highlight http"><code><span class="err">GET /accounts/1234/datasets/
+<pre class="highlight http"><code><span class="err">GET /account/datasets/
 </span></code></pre>
 <pre class="highlight json"><code><span class="p">{</span><span class="w">
   </span><span class="nt">"element"</span><span class="p">:</span><span class="w"> </span><span class="s2">"shoji:catalog"</span><span class="p">,</span><span class="w">
@@ -10138,7 +10141,7 @@ created (potentially very large catalog).</p>
 <p>This catalog is available for account managers and lists all the projects
 that the users have created. Account managers have implicit edit access on all
 projects.</p>
-<pre class="highlight http"><code><span class="err">GET /accounts/1234/projects/
+<pre class="highlight http"><code><span class="err">GET /account/projects/
 </span></code></pre>
 <pre class="highlight json"><code><span class="p">{</span><span class="w">
   </span><span class="nt">"element"</span><span class="p">:</span><span class="w"> </span><span class="s2">"shoji:catalog"</span><span class="p">,</span><span class="w">
@@ -10162,7 +10165,7 @@ projects.</p>
 <p>This catalog is available for account managers and lists all the teams
 that the users have created. Account managers have implicit edit access on all
 teams.</p>
-<pre class="highlight http"><code><span class="err">GET /accounts/1234/teams/
+<pre class="highlight http"><code><span class="err">GET /account/teams/
 </span></code></pre>
 <pre class="highlight json"><code><span class="p">{</span><span class="w">
   </span><span class="nt">"element"</span><span class="p">:</span><span class="w"> </span><span class="s2">"shoji:catalog"</span><span class="p">,</span><span class="w">
