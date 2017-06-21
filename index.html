@@ -3099,6 +3099,11 @@ options.  The limit and offset are returned in relationship to datasets related 
 <td>json Array</td>
 <td>used to limit the fields that should be returned in the search results. ID is always provided.</td>
 </tr>
+<tr>
+<td>scope</td>
+<td>json Array</td>
+<td>used to limit the fields that the search should look at.</td>
+</tr>
 </tbody></table>
 
 <p>Providing a Projection:</p>
@@ -3107,6 +3112,14 @@ options.  The limit and offset are returned in relationship to datasets related 
 The fields are specified with the namespace they refer to, like <code class="prettyprint">&quot;variables.fieldname&quot;</code> and <code class="prettyprint">&quot;datasets.fieldname&quot;</code>. 
 The namespace is the same as the key where the relevant search results are returned.
 Performing a search with an invalid field will pinpoint the invalid one and provide the list of accepted values.</p>
+
+<p>Providing a Scope:</p>
+
+<p><code class="prettyprint">scope</code> parameter must be a JSON array containing the name of the fields that should be used to resolve the query. 
+Much like <code class="prettyprint">projection</code> paramter this one accepts a list of fields with their namespace (<code class="prettyprint">datasets</code> or <code class="prettyprint">variables</code>). T
+he provided query will be looked up only in the specified fields if a <code class="prettyprint">scope</code> is provided. A special field name <code class="prettyprint">*</code>
+is accepted to specify that default fields should be looked for a specific namespace. 
+A scope like <code class="prettyprint">datasets.name, variables.*</code> will search the query in the default variable fields and in dataset name.</p>
 
 <p>Allowable filter parameters:</p>
 
@@ -3141,6 +3154,26 @@ Performing a search with an invalid field will pinpoint the invalid one and prov
 <td>owner</td>
 <td>string</td>
 <td>url or id of the dataset owner to limit results</td>
+</tr>
+<tr>
+<td>start_date</td>
+<td>array of strings</td>
+<td>array of <code class="prettyprint">[begin, end]</code> range of values in ISO8601 format. Provide same for exact matching.</td>
+</tr>
+<tr>
+<td>end_date</td>
+<td>array of strings</td>
+<td>array of <code class="prettyprint">[begin, end]</code> range of values in ISO8601 format. Provide same for exact matching.</td>
+</tr>
+<tr>
+<td>modification_time</td>
+<td>array of strings</td>
+<td>array of <code class="prettyprint">[begin, end]</code> range of values in ISO8601 format. Provide same for exact matching.</td>
+</tr>
+<tr>
+<td>creation_time</td>
+<td>array of strings</td>
+<td>array of <code class="prettyprint">[begin, end]</code> range of values in ISO8601 format. Provide same for exact matching.</td>
 </tr>
 </tbody></table>
 
