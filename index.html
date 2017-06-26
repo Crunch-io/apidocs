@@ -3048,307 +3048,6 @@ attributes:</p>
     dataset will be the maximum of all the permissions granted.
 </aside>
 
-<h4 id="search">Search</h4>
-
-<p>You can perform a cross-dataset search of dataset metadata (including variables) via the search endpoint.
-This search will return associated variables and dataset metadata.  A query string, along with filtering
-properties can be provided to the search endpoint in order to refine the results.  The query string provided is only
-used in plain-text format, any non-text or numeric characters are ignored at this time.</p>
-
-<p>Results are limited only to those
-datasets the user has access to.  Offset and limit parameters are also provided in order to provide performance-chunking
-options.  The limit and offset are returned in relationship to datasets related to the search.  You have reached
-  the limit of available search entries when there are no longer records in the dataset field.</p>
-
-<p>Here are the parameters that can be passed to the search endpoint.</p>
-
-<table><thead>
-<tr>
-<th>Parameter</th>
-<th>Type</th>
-<th>Description</th>
-</tr>
-</thead><tbody>
-<tr>
-<td>q</td>
-<td>string</td>
-<td>query string</td>
-</tr>
-<tr>
-<td>f</td>
-<td>json Object</td>
-<td>used to filter the output of the search (see below)</td>
-</tr>
-<tr>
-<td>limit</td>
-<td>integer</td>
-<td>limit the number of dataset results returned by the api to less than this amount (default: 10)</td>
-</tr>
-<tr>
-<td>offset</td>
-<td>integer</td>
-<td>offset into the search index to start gathering results from pre-filter</td>
-</tr>
-<tr>
-<td>max_variables_per_dataset</td>
-<td>integer</td>
-<td>limit the number of variables that match to this number (default: 1000, max: 1000)</td>
-</tr>
-<tr>
-<td>projection</td>
-<td>json Array</td>
-<td>used to limit the fields that should be returned in the search results. ID is always provided.</td>
-</tr>
-<tr>
-<td>scope</td>
-<td>json Array</td>
-<td>used to limit the fields that the search should look at.</td>
-</tr>
-</tbody></table>
-
-<p>Providing a Projection:</p>
-
-<p><code class="prettyprint">projection</code> argument must be a JSON array containing the name of the fields that should be projected for datasets and variables.
-The fields are specified with the namespace they refer to, like <code class="prettyprint">&quot;variables.fieldname&quot;</code> and <code class="prettyprint">&quot;datasets.fieldname&quot;</code>. 
-The namespace is the same as the key where the relevant search results are returned.
-Performing a search with an invalid field will pinpoint the invalid one and provide the list of accepted values.</p>
-
-<p>Providing a Scope:</p>
-
-<p><code class="prettyprint">scope</code> parameter must be a JSON array containing the name of the fields that should be used to resolve the query. 
-Much like <code class="prettyprint">projection</code> paramter this one accepts a list of fields with their namespace (<code class="prettyprint">datasets</code> or <code class="prettyprint">variables</code>). T
-he provided query will be looked up only in the specified fields if a <code class="prettyprint">scope</code> is provided. A special field name <code class="prettyprint">*</code>
-is accepted to specify that default fields should be looked for a specific namespace. 
-A scope like <code class="prettyprint">datasets.name, variables.*</code> will search the query in the default variable fields and in dataset name.</p>
-
-<p>Allowable filter parameters:</p>
-
-<table><thead>
-<tr>
-<th>Parameter</th>
-<th>Type</th>
-<th>Description</th>
-</tr>
-</thead><tbody>
-<tr>
-<td>dataset_ids</td>
-<td>array of strings</td>
-<td>limit results to particular dataset_ids or urls (user must have read access to that dataset)</td>
-</tr>
-<tr>
-<td>team</td>
-<td>string</td>
-<td>url or id of the team to limit results (user must have read access to the team)</td>
-</tr>
-<tr>
-<td>project</td>
-<td>string</td>
-<td>url or id of the project to limit results (user must have access to the project)</td>
-</tr>
-<tr>
-<td>user</td>
-<td>string</td>
-<td>url or id of the user that has read access to the datasets to limit results (user must match with the provided one)</td>
-</tr>
-<tr>
-<td>owner</td>
-<td>string</td>
-<td>url or id of the dataset owner to limit results</td>
-</tr>
-<tr>
-<td>start_date</td>
-<td>array of strings</td>
-<td>array of <code class="prettyprint">[begin, end]</code> range of values in ISO8601 format. Provide same for exact matching.</td>
-</tr>
-<tr>
-<td>end_date</td>
-<td>array of strings</td>
-<td>array of <code class="prettyprint">[begin, end]</code> range of values in ISO8601 format. Provide same for exact matching.</td>
-</tr>
-<tr>
-<td>modification_time</td>
-<td>array of strings</td>
-<td>array of <code class="prettyprint">[begin, end]</code> range of values in ISO8601 format. Provide same for exact matching.</td>
-</tr>
-<tr>
-<td>creation_time</td>
-<td>array of strings</td>
-<td>array of <code class="prettyprint">[begin, end]</code> range of values in ISO8601 format. Provide same for exact matching.</td>
-</tr>
-</tbody></table>
-
-<aside class="notice">
-The query string can only be alpha-numeric characters (including underscores) logical operators are not allowed at this time.
-</aside>
-
-<h5 id="fields-searched">Fields Searched</h5>
-
-<p>Here is a list of the fields that are searched by the Crunch search endpoint</p>
-
-<table><thead>
-<tr>
-<th>Field</th>
-<th>Type</th>
-<th>Description</th>
-<th>Post-Filter?</th>
-</tr>
-</thead><tbody>
-<tr>
-<td>category_names</td>
-<td>List of Strings</td>
-<td>Category names (associated with categorical variables)</td>
-<td>yes</td>
-</tr>
-<tr>
-<td>dataset_id</td>
-<td>String</td>
-<td>ID of the dataset</td>
-<td>no</td>
-</tr>
-<tr>
-<td>description</td>
-<td>String</td>
-<td>description of the variable</td>
-<td>yes</td>
-</tr>
-<tr>
-<td>id</td>
-<td>String</td>
-<td>ID of the variable</td>
-<td>no</td>
-</tr>
-<tr>
-<td>name</td>
-<td>String</td>
-<td>name of the variable</td>
-<td>yes</td>
-</tr>
-<tr>
-<td>owner</td>
-<td>String</td>
-<td>owner&rsquo;s ID of the variable</td>
-<td>no</td>
-</tr>
-<tr>
-<td>subvar_names</td>
-<td>List of Strings</td>
-<td>Names of the subvariables associated with the variable</td>
-<td>yes</td>
-</tr>
-<tr>
-<td>users</td>
-<td>List of Strings</td>
-<td>User IDs having read-access to the variable</td>
-<td>no</td>
-</tr>
-<tr>
-<td>group_names</td>
-<td>List of Strings</td>
-<td>group names (from the variable ordering) associated with the variable</td>
-<td>yes</td>
-</tr>
-<tr>
-<td>dataset_labels</td>
-<td>List of Objects</td>
-<td>dataset_labels associated with the user associated with the variable</td>
-<td>no</td>
-</tr>
-<tr>
-<td>dataset_name</td>
-<td>String</td>
-<td>dataset_name associated with this variable</td>
-<td>no</td>
-</tr>
-<tr>
-<td>dataset_owner</td>
-<td>String</td>
-<td>ID of the owner of the dataset associated with the variable</td>
-<td>no</td>
-</tr>
-<tr>
-<td>dataset_users</td>
-<td>List of Strings</td>
-<td>User IDs having read-access to the dataset associated with the variable</td>
-<td>no</td>
-</tr>
-<tr>
-<td>dataset_teams</td>
-<td>List of Strings</td>
-<td>Team IDs having read-access to the dataset associated with the variable</td>
-<td>no</td>
-</tr>
-<tr>
-<td>dataset_projects</td>
-<td>List of Strings</td>
-<td>Project IDs having read-access to the dataset associated with the variable</td>
-<td>no</td>
-</tr>
-</tbody></table>
-<pre class="highlight http"><code><span class="nf">GET</span> <span class="nn">/datasets/search/?q={query}&amp;f={filter}&amp;limit={limit}&amp;offset={offset}&amp;group_variables_list={group_variables_list}&amp;projection={projection}</span>  <span class="k">HTTP</span><span class="o">/</span><span class="m">1.1</span>
-</code></pre>
-<pre class="highlight json"><code><span class="p">{</span><span class="w">
-   </span><span class="nt">"element"</span><span class="p">:</span><span class="w"> </span><span class="s2">"shoji:view"</span><span class="p">,</span><span class="w">
-    </span><span class="nt">"self"</span><span class="p">:</span><span class="w"> </span><span class="s2">"https://app.crunch.io/api/datasets/search/?q=blue"</span><span class="p">,</span><span class="w">
-    </span><span class="nt">"description"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Returns a view with relevant search information"</span><span class="p">,</span><span class="w">
-    </span><span class="nt">"value"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
-        </span><span class="nt">"groups"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
-            </span><span class="p">{</span><span class="w">
-                </span><span class="nt">"group"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Search Results"</span><span class="p">,</span><span class="w">
-                </span><span class="nt">"datasets"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
-                    </span><span class="nt">"https://app.crunch.io/api/datasets/173b4eec13f542588b9b0a9cbcd764c9/"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
-                        </span><span class="nt">"labels"</span><span class="p">:</span><span class="w"> </span><span class="p">[],</span><span class="w">
-                        </span><span class="nt">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"econ_few_columns_0"</span><span class="p">,</span><span class="w">
-                        </span><span class="nt">"description"</span><span class="p">:</span><span class="w"> </span><span class="s2">""</span><span class="w">
-                    </span><span class="p">},</span><span class="w">
-                    </span><span class="nt">"https://app.crunch.io/api/datasets/4473ab4ee84b40b2a7cd5cab4548d584/"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
-                        </span><span class="nt">"labels"</span><span class="p">:</span><span class="w"> </span><span class="p">[],</span><span class="w">
-                        </span><span class="nt">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"simple_alltypes"</span><span class="p">,</span><span class="w">
-                        </span><span class="nt">"description"</span><span class="p">:</span><span class="w"> </span><span class="s2">""</span><span class="w">
-                    </span><span class="p">}</span><span class="w">
-                </span><span class="p">},</span><span class="w">
-                </span><span class="nt">"variables"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
-                    </span><span class="nt">"https://app.crunch.io/api/datasets/4473ab4ee84b40b2a7cd5cab4548d584/variables/000000/"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
-                        </span><span class="nt">"dataset_labels"</span><span class="p">:</span><span class="w"> </span><span class="p">[],</span><span class="w">
-                        </span><span class="nt">"users"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
-                            </span><span class="s2">"00002"</span><span class="w">
-                        </span><span class="p">],</span><span class="w">
-                        </span><span class="nt">"alias"</span><span class="p">:</span><span class="w"> </span><span class="s2">"x"</span><span class="p">,</span><span class="w">
-                        </span><span class="nt">"dataset_end_date"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span><span class="w">
-                        </span><span class="nt">"category_names"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
-                            </span><span class="s2">"red"</span><span class="p">,</span><span class="w">
-                            </span><span class="s2">"green"</span><span class="p">,</span><span class="w">
-                            </span><span class="s2">"blue"</span><span class="p">,</span><span class="w">
-                            </span><span class="s2">"4"</span><span class="p">,</span><span class="w">
-                            </span><span class="s2">"8"</span><span class="p">,</span><span class="w">
-                            </span><span class="s2">"9"</span><span class="p">,</span><span class="w">
-                            </span><span class="s2">"No Data"</span><span class="w">
-                        </span><span class="p">],</span><span class="w">
-                        </span><span class="nt">"dataset_start_date"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span><span class="w">
-                        </span><span class="nt">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"x"</span><span class="p">,</span><span class="w">
-                        </span><span class="nt">"dataset_description"</span><span class="p">:</span><span class="w"> </span><span class="s2">""</span><span class="p">,</span><span class="w">
-                        </span><span class="nt">"dataset_archived"</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="p">,</span><span class="w">
-                        </span><span class="nt">"group_names"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span><span class="w">
-                        </span><span class="nt">"dataset"</span><span class="p">:</span><span class="w"> </span><span class="s2">"https://app.crunch.io/api/datasets/4473ab4ee84b40b2a7cd5cab4548d584/"</span><span class="p">,</span><span class="w">
-                        </span><span class="nt">"dataset_id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"bb987b45a5b04caba10dec4dad7b37a8"</span><span class="p">,</span><span class="w">
-                        </span><span class="nt">"dataset_created_time"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span><span class="w">
-                        </span><span class="nt">"subvar_names"</span><span class="p">:</span><span class="w"> </span><span class="p">[],</span><span class="w">
-                        </span><span class="nt">"dataset_name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"export test 94"</span><span class="p">,</span><span class="w">
-                        </span><span class="nt">"description"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Numeric variable with value labels"</span><span class="w">
-                    </span><span class="p">}</span><span class="w">
-                </span><span class="p">},</span><span class="w">
-                </span><span class="nt">"variable_count"</span><span class="p">:</span><span class="w"> </span><span class="mi">14</span><span class="p">,</span><span class="w">
-                </span><span class="nt">"totals"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
-                    </span><span class="nt">"variables"</span><span class="p">:</span><span class="w"> </span><span class="mi">4</span><span class="p">,</span><span class="w">
-                    </span><span class="nt">"datasets"</span><span class="p">:</span><span class="w"> </span><span class="mi">2</span><span class="w">
-                </span><span class="p">}</span><span class="w">
-            </span><span class="p">}</span><span class="w">
-        </span><span class="p">]</span><span class="w">
-    </span><span class="p">}</span><span class="w">
-</span><span class="p">}</span><span class="w">
-</span></code></pre>
-
-<p>Search results are limited to 1000 variables per dataset.</p>
-
 <h4 id="drafts">Drafts</h4>
 
 <p>A dataset marked as <code class="prettyprint">is_published: false</code> can only be accessed by dataset editors.
@@ -4540,6 +4239,407 @@ about the type of access:</p>
 <p>See <a href="#variables">Variables</a>.</p>
 
 <h5 id="weight-variables">Weight variables</h5>
+
+          <h2 id="search">Search</h2>
+
+<p>You can perform a cross-dataset search of dataset metadata (including variables) via the search endpoint.
+This search will return associated variables and dataset metadata.  A query string, along with filtering
+properties can be provided to the search endpoint in order to refine the results.  The query string provided is only
+used in plain-text format, any non-text or numeric characters are ignored at this time.</p>
+
+<p>Results are limited only to those
+datasets the user has access to.  Offset and limit parameters are also provided in order to provide performance-chunking
+options.  The limit and offset are returned in relationship to datasets related to the search.  You have reached
+  the limit of available search entries when there are no longer records in the dataset field.</p>
+
+<p>Here are the parameters that can be passed to the search endpoint.</p>
+
+<table><thead>
+<tr>
+<th>Parameter</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>q</td>
+<td>string</td>
+<td>query string</td>
+</tr>
+<tr>
+<td>f</td>
+<td>json Object</td>
+<td>used to filter the output of the search (see below)</td>
+</tr>
+<tr>
+<td>limit</td>
+<td>integer</td>
+<td>limit the number of dataset results returned by the api to less than this amount (default: 10)</td>
+</tr>
+<tr>
+<td>offset</td>
+<td>integer</td>
+<td>offset into the search index to start gathering results from pre-filter</td>
+</tr>
+<tr>
+<td>max_variables_per_dataset</td>
+<td>integer</td>
+<td>limit the number of variables that match to this number (default: 1000, max: 1000)</td>
+</tr>
+<tr>
+<td>projection</td>
+<td>json Array</td>
+<td>used to limit the fields that should be returned in the search results. ID is always provided.</td>
+</tr>
+<tr>
+<td>scope</td>
+<td>json Array</td>
+<td>used to limit the fields that the search should look at.</td>
+</tr>
+<tr>
+<td>grouping</td>
+<td>string</td>
+<td>One of <code class="prettyprint">datasets</code> or <code class="prettyprint">variables</code>. Tells if search results should be grouped by datasets or variables.</td>
+</tr>
+</tbody></table>
+
+<p>Providing a Projection:</p>
+
+<p><code class="prettyprint">projection</code> argument must be a JSON array containing the name of the fields that should be projected for datasets and variables.
+The fields are specified with the namespace they refer to, like <code class="prettyprint">&quot;variables.fieldname&quot;</code> and <code class="prettyprint">&quot;datasets.fieldname&quot;</code>. 
+The namespace is the same as the key where the relevant search results are returned.
+Performing a search with an invalid field will pinpoint the invalid one and provide the list of accepted values.</p>
+
+<p>Providing a Scope:</p>
+
+<p><code class="prettyprint">scope</code> parameter must be a JSON array containing the name of the fields that should be used to resolve the query. 
+Much like <code class="prettyprint">projection</code> paramter this one accepts a list of fields with their namespace (<code class="prettyprint">datasets</code> or <code class="prettyprint">variables</code>). T
+he provided query will be looked up only in the specified fields if a <code class="prettyprint">scope</code> is provided. A special field name <code class="prettyprint">*</code>
+is accepted to specify that default fields should be looked for a specific namespace. 
+A scope like <code class="prettyprint">datasets.name, variables.*</code> will search the query in the default variable fields and in dataset name.</p>
+
+<p>Grouping:</p>
+
+<p>Default grouping is <code class="prettyprint">datasets</code> which will enable searching in dataset data and its variables. The returned entries
+in &ldquo;datasets&rdquo; are datasets that match the query or contain a variable that matches it. 
+Search results are limited to 1000 variables per dataset when grouping per dataset.</p>
+
+<p>Switching to <code class="prettyprint">variables</code> grouping makes the search only look in variables.
+Note that a &ldquo;datasets&rdquo; field is still returned, the entries there are the datasets the matching variables are part of,
+<em>not</em> datasets that match the query. This is done to allow providing dataset details for a variable without the need for 
+a second call to fetch the dataset info.</p>
+
+<p>Allowable filter parameters:</p>
+
+<table><thead>
+<tr>
+<th>Parameter</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>dataset_ids</td>
+<td>array of strings</td>
+<td>limit results to particular dataset_ids or urls (user must have read access to that dataset)</td>
+</tr>
+<tr>
+<td>team</td>
+<td>string</td>
+<td>url or id of the team to limit results (user must have read access to the team)</td>
+</tr>
+<tr>
+<td>project</td>
+<td>string</td>
+<td>url or id of the project to limit results (user must have access to the project)</td>
+</tr>
+<tr>
+<td>user</td>
+<td>string</td>
+<td>url or id of the user that has read access to the datasets to limit results (user must match with the provided one)</td>
+</tr>
+<tr>
+<td>owner</td>
+<td>string</td>
+<td>url or id of the dataset owner to limit results</td>
+</tr>
+<tr>
+<td>start_date</td>
+<td>array of strings</td>
+<td>array of <code class="prettyprint">[begin, end]</code> range of values in ISO8601 format. Provide same for exact matching.</td>
+</tr>
+<tr>
+<td>end_date</td>
+<td>array of strings</td>
+<td>array of <code class="prettyprint">[begin, end]</code> range of values in ISO8601 format. Provide same for exact matching.</td>
+</tr>
+<tr>
+<td>modification_time</td>
+<td>array of strings</td>
+<td>array of <code class="prettyprint">[begin, end]</code> range of values in ISO8601 format. Provide same for exact matching.</td>
+</tr>
+<tr>
+<td>creation_time</td>
+<td>array of strings</td>
+<td>array of <code class="prettyprint">[begin, end]</code> range of values in ISO8601 format. Provide same for exact matching.</td>
+</tr>
+</tbody></table>
+
+<aside class="notice">
+The query string can only be alpha-numeric characters (including underscores) logical operators are not allowed at this time.
+</aside>
+
+<h5 id="fields-searched">Fields Searched</h5>
+
+<p>Here is a list of the fields that are searched by the Crunch search endpoint</p>
+
+<table><thead>
+<tr>
+<th>Field</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>category_names</td>
+<td>List of Strings</td>
+<td>Category names (associated with categorical variables)</td>
+</tr>
+<tr>
+<td>dataset_id</td>
+<td>String</td>
+<td>ID of the dataset</td>
+</tr>
+<tr>
+<td>description</td>
+<td>String</td>
+<td>description of the variable</td>
+</tr>
+<tr>
+<td>id</td>
+<td>String</td>
+<td>ID of the variable</td>
+</tr>
+<tr>
+<td>name</td>
+<td>String</td>
+<td>name of the variable</td>
+</tr>
+<tr>
+<td>owner</td>
+<td>String</td>
+<td>owner&rsquo;s ID of the variable</td>
+</tr>
+<tr>
+<td>subvar_names</td>
+<td>List of Strings</td>
+<td>Names of the subvariables associated with the variable</td>
+</tr>
+<tr>
+<td>users</td>
+<td>List of Strings</td>
+<td>User IDs having read-access to the variable</td>
+</tr>
+<tr>
+<td>group_names</td>
+<td>List of Strings</td>
+<td>group names (from the variable ordering) associated with the variable</td>
+</tr>
+<tr>
+<td>dataset_labels</td>
+<td>List of Objects</td>
+<td>dataset_labels associated with the user associated with the variable</td>
+</tr>
+<tr>
+<td>dataset_name</td>
+<td>String</td>
+<td>dataset_name associated with this variable</td>
+</tr>
+<tr>
+<td>dataset_owner</td>
+<td>String</td>
+<td>ID of the owner of the dataset associated with the variable</td>
+</tr>
+<tr>
+<td>dataset_users</td>
+<td>List of Strings</td>
+<td>User IDs having read-access to the dataset associated with the variable</td>
+</tr>
+<tr>
+<td>dataset_teams</td>
+<td>List of Strings</td>
+<td>Team IDs having read-access to the dataset associated with the variable</td>
+</tr>
+<tr>
+<td>dataset_projects</td>
+<td>List of Strings</td>
+<td>Project IDs having read-access to the dataset associated with the variable</td>
+</tr>
+</tbody></table>
+
+<p>Grouping by datasets:</p>
+<pre class="highlight http"><code><span class="nf">GET</span> <span class="nn">/search/?q={query}&amp;f={filter}&amp;limit={limit}&amp;offset={offset}&amp;projection={projection}&amp;grouping=datasets</span>  <span class="k">HTTP</span><span class="o">/</span><span class="m">1.1</span>
+</code></pre>
+<pre class="highlight json"><code><span class="p">{</span><span class="w">
+   </span><span class="nt">"element"</span><span class="p">:</span><span class="w"> </span><span class="s2">"shoji:view"</span><span class="p">,</span><span class="w">
+    </span><span class="nt">"self"</span><span class="p">:</span><span class="w"> </span><span class="s2">"https://app.crunch.io/api/search/?q=blue&amp;grouping=datasets"</span><span class="p">,</span><span class="w">
+    </span><span class="nt">"description"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Returns a view with relevant search information"</span><span class="p">,</span><span class="w">
+    </span><span class="nt">"value"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+        </span><span class="nt">"groups"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
+            </span><span class="p">{</span><span class="w">
+                </span><span class="nt">"group"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Search Results"</span><span class="p">,</span><span class="w">
+                </span><span class="nt">"datasets"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+                    </span><span class="nt">"https://app.crunch.io/api/datasets/173b4eec13f542588b9b0a9cbcd764c9/"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+                        </span><span class="nt">"labels"</span><span class="p">:</span><span class="w"> </span><span class="p">[],</span><span class="w">
+                        </span><span class="nt">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"econ_few_columns_0"</span><span class="p">,</span><span class="w">
+                        </span><span class="nt">"description"</span><span class="p">:</span><span class="w"> </span><span class="s2">""</span><span class="w">
+                    </span><span class="p">},</span><span class="w">
+                    </span><span class="nt">"https://app.crunch.io/api/datasets/4473ab4ee84b40b2a7cd5cab4548d584/"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+                        </span><span class="nt">"labels"</span><span class="p">:</span><span class="w"> </span><span class="p">[],</span><span class="w">
+                        </span><span class="nt">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"simple_alltypes"</span><span class="p">,</span><span class="w">
+                        </span><span class="nt">"description"</span><span class="p">:</span><span class="w"> </span><span class="s2">""</span><span class="w">
+                    </span><span class="p">}</span><span class="w">
+                </span><span class="p">},</span><span class="w">
+                </span><span class="nt">"variables"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+                    </span><span class="nt">"https://app.crunch.io/api/datasets/4473ab4ee84b40b2a7cd5cab4548d584/variables/000000/"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+                        </span><span class="nt">"dataset_labels"</span><span class="p">:</span><span class="w"> </span><span class="p">[],</span><span class="w">
+                        </span><span class="nt">"users"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
+                            </span><span class="s2">"00002"</span><span class="w">
+                        </span><span class="p">],</span><span class="w">
+                        </span><span class="nt">"alias"</span><span class="p">:</span><span class="w"> </span><span class="s2">"x"</span><span class="p">,</span><span class="w">
+                        </span><span class="nt">"dataset_end_date"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span><span class="w">
+                        </span><span class="nt">"category_names"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
+                            </span><span class="s2">"red"</span><span class="p">,</span><span class="w">
+                            </span><span class="s2">"green"</span><span class="p">,</span><span class="w">
+                            </span><span class="s2">"blue"</span><span class="p">,</span><span class="w">
+                            </span><span class="s2">"4"</span><span class="p">,</span><span class="w">
+                            </span><span class="s2">"8"</span><span class="p">,</span><span class="w">
+                            </span><span class="s2">"9"</span><span class="p">,</span><span class="w">
+                            </span><span class="s2">"No Data"</span><span class="w">
+                        </span><span class="p">],</span><span class="w">
+                        </span><span class="nt">"dataset_start_date"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span><span class="w">
+                        </span><span class="nt">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"x"</span><span class="p">,</span><span class="w">
+                        </span><span class="nt">"dataset_description"</span><span class="p">:</span><span class="w"> </span><span class="s2">""</span><span class="p">,</span><span class="w">
+                        </span><span class="nt">"dataset_archived"</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="p">,</span><span class="w">
+                        </span><span class="nt">"group_names"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span><span class="w">
+                        </span><span class="nt">"dataset"</span><span class="p">:</span><span class="w"> </span><span class="s2">"https://app.crunch.io/api/datasets/4473ab4ee84b40b2a7cd5cab4548d584/"</span><span class="p">,</span><span class="w">
+                        </span><span class="nt">"dataset_id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"bb987b45a5b04caba10dec4dad7b37a8"</span><span class="p">,</span><span class="w">
+                        </span><span class="nt">"dataset_created_time"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span><span class="w">
+                        </span><span class="nt">"subvar_names"</span><span class="p">:</span><span class="w"> </span><span class="p">[],</span><span class="w">
+                        </span><span class="nt">"dataset_name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"export test 94"</span><span class="p">,</span><span class="w">
+                        </span><span class="nt">"description"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Numeric variable with value labels"</span><span class="w">
+                    </span><span class="p">}</span><span class="w">
+                </span><span class="p">},</span><span class="w">
+                </span><span class="nt">"variable_count"</span><span class="p">:</span><span class="w"> </span><span class="mi">14</span><span class="p">,</span><span class="w">
+                </span><span class="nt">"totals"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+                    </span><span class="nt">"variables"</span><span class="p">:</span><span class="w"> </span><span class="mi">4</span><span class="p">,</span><span class="w">
+                    </span><span class="nt">"datasets"</span><span class="p">:</span><span class="w"> </span><span class="mi">2</span><span class="w">
+                </span><span class="p">}</span><span class="w">
+            </span><span class="p">}</span><span class="w">
+        </span><span class="p">]</span><span class="w">
+    </span><span class="p">}</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre>
+
+<p>Grouping by variables:</p>
+<pre class="highlight http"><code><span class="nf">GET</span> <span class="nn">/search/?q={query}&amp;f={filter}&amp;limit={limit}&amp;offset={offset}&amp;grouping=variables</span>  <span class="k">HTTP</span><span class="o">/</span><span class="m">1.1</span>
+</code></pre>
+<pre class="highlight json"><code><span class="p">{</span><span class="w">
+ </span><span class="nt">"element"</span><span class="p">:</span><span class="w"> </span><span class="s2">"shoji:view"</span><span class="p">,</span><span class="w">
+ </span><span class="nt">"self"</span><span class="p">:</span><span class="w"> </span><span class="s2">"https://app.crunch.io/api/search/?q=Atchafalaya&amp;grouping=variables"</span><span class="p">,</span><span class="w"> 
+ </span><span class="nt">"description"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Returns a view with relevant search information"</span><span class="p">,</span><span class="w"> 
+ </span><span class="nt">"value"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+  </span><span class="nt">"groups"</span><span class="p">:</span><span class="w"> </span><span class="p">[{</span><span class="w">
+      </span><span class="nt">"group"</span><span class="p">:</span><span class="s2">"Search Results"</span><span class="p">,</span><span class="w">
+      </span><span class="nt">"totals"</span><span class="p">:{</span><span class="w">
+        </span><span class="nt">"variables"</span><span class="p">:</span><span class="mi">2</span><span class="p">,</span><span class="w">
+        </span><span class="nt">"datasets"</span><span class="p">:</span><span class="mi">2</span><span class="w">
+      </span><span class="p">},</span><span class="w">
+      </span><span class="nt">"buckets"</span><span class="p">:{</span><span class="w">
+        </span><span class="nt">"Qk9XX0FGX05hbWU"</span><span class="p">:[</span><span class="w">
+          </span><span class="s2">"http://app.crunch.io:29668/api/datasets/825b87ff955049128b9d48b614abbe99/variables/000008/"</span><span class="p">,</span><span class="w">
+          </span><span class="s2">"http://app.crunch.io:29668/api/datasets/fcd37212fe0d4b8eb8804ffb7ccb933d/variables/000008/"</span><span class="w">
+        </span><span class="p">]</span><span class="w">
+      </span><span class="p">},</span><span class="w">
+      </span><span class="nt">"order"</span><span class="p">:[</span><span class="w">
+        </span><span class="s2">"http://app.crunch.io:29668/api/datasets/825b87ff955049128b9d48b614abbe99/variables/000008/"</span><span class="p">,</span><span class="w">
+        </span><span class="s2">"http://app.crunch.io:29668/api/datasets/fcd37212fe0d4b8eb8804ffb7ccb933d/variables/000008/"</span><span class="w">
+      </span><span class="p">],</span><span class="w">
+      </span><span class="nt">"variables"</span><span class="p">:{</span><span class="w">
+        </span><span class="nt">"http://app.crunch.io:29668/api/datasets/fcd37212fe0d4b8eb8804ffb7ccb933d/variables/000008/"</span><span class="p">:{</span><span class="w">
+          </span><span class="nt">"alias"</span><span class="p">:</span><span class="s2">"BOW_AF_Name"</span><span class="p">,</span><span class="w">
+          </span><span class="nt">"category_names"</span><span class="p">:[</span><span class="w">
+            </span><span class="s2">"East Cote Blanche Bay"</span><span class="p">,</span><span class="w">
+            </span><span class="s2">"Atchafalaya Bay, Delta, Gulf waters"</span><span class="p">,</span><span class="w">
+            </span><span class="s2">"Barataria Bay"</span><span class="p">,</span><span class="w">
+            </span><span class="s2">"Bayou Grand Caillou"</span><span class="p">,</span><span class="w">
+            </span><span class="s2">"Bayou du Large"</span><span class="p">,</span><span class="w">
+            </span><span class="s2">"Bays Gardene, Black, American and Crabe"</span><span class="p">,</span><span class="w">
+            </span><span class="s2">"Calcasieu Lake"</span><span class="p">,</span><span class="w">
+            </span><span class="s2">"Calcasieu River and Ship Channel"</span><span class="p">,</span><span class="w">
+            </span><span class="s2">"California Bay and Breton Sound"</span><span class="p">,</span><span class="w">
+            </span><span class="s2">"Grid 12"</span><span class="p">,</span><span class="w">
+            </span><span class="s2">"..."</span><span class="w">
+          </span><span class="p">],</span><span class="w">
+          </span><span class="nt">"bucket"</span><span class="p">:</span><span class="s2">"Qk9XX0FGX05hbWU"</span><span class="p">,</span><span class="w">
+          </span><span class="nt">"name"</span><span class="p">:</span><span class="s2">"BOW_AF_Name"</span><span class="p">,</span><span class="w">
+          </span><span class="nt">"dataset"</span><span class="p">:</span><span class="s2">"http://app.crunch.io:29668/api/datasets/fcd37212fe0d4b8eb8804ffb7ccb933d/"</span><span class="w">
+        </span><span class="p">},</span><span class="w">
+        </span><span class="nt">"http://app.crunch.io:29668/api/datasets/825b87ff955049128b9d48b614abbe99/variables/000008/"</span><span class="p">:{</span><span class="w">
+          </span><span class="nt">"alias"</span><span class="p">:</span><span class="s2">"BOW_AF_Name"</span><span class="p">,</span><span class="w">
+          </span><span class="nt">"category_names"</span><span class="p">:[</span><span class="w">
+            </span><span class="s2">"East Cote Blanche Bay"</span><span class="p">,</span><span class="w">
+            </span><span class="s2">"Atchafalaya Bay, Delta, Gulf waters"</span><span class="p">,</span><span class="w">
+            </span><span class="s2">"Barataria Bay"</span><span class="p">,</span><span class="w">
+            </span><span class="s2">"Bayou Grand Caillou"</span><span class="p">,</span><span class="w">
+            </span><span class="s2">"Bayou du Large"</span><span class="p">,</span><span class="w">
+            </span><span class="s2">"Bays Gardene, Black, American and Crabe"</span><span class="p">,</span><span class="w">
+            </span><span class="s2">"Calcasieu Lake"</span><span class="p">,</span><span class="w">
+            </span><span class="s2">"Calcasieu River and Ship Channel"</span><span class="p">,</span><span class="w">
+            </span><span class="s2">"California Bay and Breton Sound"</span><span class="p">,</span><span class="w">
+            </span><span class="s2">"Grid 12"</span><span class="p">,</span><span class="w">
+            </span><span class="s2">"..."</span><span class="w">
+          </span><span class="p">],</span><span class="w">
+          </span><span class="nt">"bucket"</span><span class="p">:</span><span class="s2">"Qk9XX0FGX05hbWU"</span><span class="p">,</span><span class="w">
+          </span><span class="nt">"name"</span><span class="p">:</span><span class="s2">"BOW_AF_Name"</span><span class="p">,</span><span class="w">
+          </span><span class="nt">"dataset"</span><span class="p">:</span><span class="s2">"http://app.crunch.io:29668/api/datasets/825b87ff955049128b9d48b614abbe99/"</span><span class="w">
+        </span><span class="p">}</span><span class="w">
+      </span><span class="p">},</span><span class="w">
+      </span><span class="nt">"datasets"</span><span class="p">:{</span><span class="w">
+        </span><span class="nt">"http://app.crunch.io:29668/api/datasets/fcd37212fe0d4b8eb8804ffb7ccb933d/"</span><span class="p">:{</span><span class="w">
+          </span><span class="nt">"modification_time"</span><span class="p">:</span><span class="s2">"2017-06-22T17:00:36.571000"</span><span class="p">,</span><span class="w">
+          </span><span class="nt">"archived"</span><span class="p">:</span><span class="kc">false</span><span class="p">,</span><span class="w">
+          </span><span class="nt">"description"</span><span class="p">:</span><span class="s2">""</span><span class="p">,</span><span class="w">
+          </span><span class="nt">"end_date"</span><span class="p">:</span><span class="kc">null</span><span class="p">,</span><span class="w">
+          </span><span class="nt">"name"</span><span class="p">:</span><span class="s2">"test_variable_search_matching_2"</span><span class="p">,</span><span class="w">
+          </span><span class="nt">"labels"</span><span class="p">:</span><span class="kc">null</span><span class="p">,</span><span class="w">
+          </span><span class="nt">"creation_time"</span><span class="p">:</span><span class="s2">"2017-06-22T17:00:37.024000"</span><span class="p">,</span><span class="w">
+          </span><span class="nt">"id"</span><span class="p">:</span><span class="s2">"fcd37212fe0d4b8eb8804ffb7ccb933d"</span><span class="p">,</span><span class="w">
+          </span><span class="nt">"projects"</span><span class="p">:[</span><span class="w">
+
+          </span><span class="p">],</span><span class="w">
+          </span><span class="nt">"start_date"</span><span class="p">:</span><span class="kc">null</span><span class="w">
+        </span><span class="p">},</span><span class="w">
+        </span><span class="nt">"http://app.crunch.io:29668/api/datasets/825b87ff955049128b9d48b614abbe99/"</span><span class="p">:{</span><span class="w">
+          </span><span class="nt">"modification_time"</span><span class="p">:</span><span class="s2">"2017-06-22T17:00:34.681000"</span><span class="p">,</span><span class="w">
+          </span><span class="nt">"archived"</span><span class="p">:</span><span class="kc">false</span><span class="p">,</span><span class="w">
+          </span><span class="nt">"description"</span><span class="p">:</span><span class="s2">""</span><span class="p">,</span><span class="w">
+          </span><span class="nt">"end_date"</span><span class="p">:</span><span class="kc">null</span><span class="p">,</span><span class="w">
+          </span><span class="nt">"name"</span><span class="p">:</span><span class="s2">"test_variable_search_matching_1"</span><span class="p">,</span><span class="w">
+          </span><span class="nt">"labels"</span><span class="p">:</span><span class="kc">null</span><span class="p">,</span><span class="w">
+          </span><span class="nt">"creation_time"</span><span class="p">:</span><span class="s2">"2017-06-22T17:00:35.151000"</span><span class="p">,</span><span class="w">
+          </span><span class="nt">"id"</span><span class="p">:</span><span class="s2">"825b87ff955049128b9d48b614abbe99"</span><span class="p">,</span><span class="w">
+          </span><span class="nt">"projects"</span><span class="p">:[</span><span class="w">
+
+          </span><span class="p">],</span><span class="w">
+          </span><span class="nt">"start_date"</span><span class="p">:</span><span class="kc">null</span><span class="w">
+        </span><span class="p">}</span><span class="w">
+      </span><span class="p">}</span><span class="w">
+    </span><span class="p">}</span><span class="w">
+  </span><span class="p">]</span><span class="w">
+ </span><span class="p">}</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre>
 
           <h2 id="table">Table</h2>
 
