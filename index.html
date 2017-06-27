@@ -2796,6 +2796,56 @@ an action cannot be replayed on the original dataset (typically because it has
 
           <h2 id="public">Public</h2>
 
+<p><code class="prettyprint">/</code></p>
+
+<p><code class="prettyprint">/public/</code></p>
+<pre class="highlight json"><code><span class="p">{</span><span class="w">
+    </span><span class="nt">"views"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+        </span><span class="nt">"signup_resend"</span><span class="p">:</span><span class="w"> </span><span class="s2">"https://app.crunch.io/api/public/signup_resend/"</span><span class="p">,</span><span class="w">
+        </span><span class="nt">"inquire"</span><span class="p">:</span><span class="w"> </span><span class="s2">"https://app.crunch.io/api/public/inquire/"</span><span class="p">,</span><span class="w">
+        </span><span class="nt">"password_reset"</span><span class="p">:</span><span class="w"> </span><span class="s2">"https://app.crunch.io/api/public/password_reset/"</span><span class="p">,</span><span class="w">
+        </span><span class="nt">"signup"</span><span class="p">:</span><span class="w"> </span><span class="s2">"https://app.crunch.io/api/public/signup/"</span><span class="p">,</span><span class="w">
+        </span><span class="nt">"oauth2redirect"</span><span class="p">:</span><span class="w"> </span><span class="s2">"https://app.crunch.io/api/public/oauth2redirect/"</span><span class="p">,</span><span class="w">
+        </span><span class="nt">"change_email"</span><span class="p">:</span><span class="w"> </span><span class="s2">"https://app.crunch.io/api/public/change_email/"</span><span class="p">,</span><span class="w">
+        </span><span class="nt">"login"</span><span class="p">:</span><span class="w"> </span><span class="s2">"https://app.crunch.io/api/public/login/"</span><span class="p">,</span><span class="w">
+        </span><span class="nt">"config"</span><span class="p">:</span><span class="w"> </span><span class="s2">"https://app.crunch.io/api/public/config/"</span><span class="p">,</span><span class="w">
+        </span><span class="nt">"password_change"</span><span class="p">:</span><span class="w"> </span><span class="s2">"https://app.crunch.io/api/public/password_change/"</span><span class="w">
+    </span><span class="p">}</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre>
+
+<h3 id="application-configuration">Application configuration</h3>
+
+<p><code class="prettyprint">GET /public/config/</code></p>
+
+<p>When accessing Crunch from a configured application via its subdomain:</p>
+
+<ul>
+<li>https://mycompany.crunch.io/api/public/config/</li>
+</ul>
+
+<p>A GET request on <code class="prettyprint">/public/config/</code> return a Shoji Entity with the
+subdomain&rsquo;s available configurations, if any; if none exists, the body will be empty.</p>
+<pre class="highlight json"><code><span class="p">{</span><span class="w">
+    </span><span class="nt">"element"</span><span class="p">:</span><span class="w"> </span><span class="s2">"shoji:entity"</span><span class="p">,</span><span class="w">
+    </span><span class="nt">"body"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+        </span><span class="nt">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Your Company"</span><span class="p">,</span><span class="w">
+        </span><span class="nt">"logo"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+            </span><span class="nt">"small"</span><span class="p">:</span><span class="w"> </span><span class="s2">"https://s.crunch.io/logos/yours_small.png"</span><span class="p">,</span><span class="w">
+            </span><span class="nt">"large"</span><span class="p">:</span><span class="w"> </span><span class="s2">"https://s.crunch.io/logos/yours_large.png"</span><span class="w">
+        </span><span class="p">},</span><span class="w">
+        </span><span class="nt">"palette"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+            </span><span class="nt">"brand"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+                </span><span class="nt">"system"</span><span class="p">:</span><span class="w"> </span><span class="s2">"#FFAABB"</span><span class="p">,</span><span class="w">
+                </span><span class="nt">"data"</span><span class="p">:</span><span class="w"> </span><span class="s2">"#G4EEBB"</span><span class="p">,</span><span class="w">
+                </span><span class="nt">"warning"</span><span class="p">:</span><span class="w"> </span><span class="s2">"#BAA5E7"</span><span class="w">
+            </span><span class="p">}</span><span class="w">
+        </span><span class="p">},</span><span class="w">
+        </span><span class="nt">"manifest"</span><span class="p">:</span><span class="w"> </span><span class="p">{}</span><span class="w">
+    </span><span class="p">}</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre>
+
 <h3 id="crunchbox">Crunchbox</h3>
 
 <p>A CrunchBox represents a snapshot of a crunch dataset. These snapshots are
@@ -10154,9 +10204,9 @@ variable at hand (generally category <code class="prettyprint">name</code>s).</p
 
           <h2 id="accounts">Accounts</h2>
 
-<p>Accounts provide an organization-level scope for Crunch.io customers. All Users 
-belong to one and only one Account. Account managers can administer their 
-various users and entities and have visibility on them. </p>
+<p>Accounts provide an organization-level scope for Crunch.io customers. All Users
+belong to one and only one Account. Account managers can administer their
+various users and entities and have visibility on them.</p>
 
 <h3 id="permissions">Permissions</h3>
 
@@ -10165,10 +10215,10 @@ various users and entities and have visibility on them. </p>
 
 <h3 id="account-entity">Account entity</h3>
 
-<p>The account entity is available on the API root following the Shoji 
+<p>The account entity is available on the API root following the Shoji
 <code class="prettyprint">views.account</code> path, which will point to the authenticated user&rsquo;s account.</p>
 
-<p>If the account has a name, it will be available here, as well as the path to the 
+<p>If the account has a name, it will be available here, as well as the path to the
 account&rsquo;s users.</p>
 
 <p>If the authenticated user is an account manager, the response will include
@@ -10197,10 +10247,144 @@ paths to these additional catalogs:
     </span><span class="nt">"teams"</span><span class="p">:</span><span class="w"> </span><span class="s2">"http://app.crunch.io/api/account/teams/"</span><span class="p">,</span><span class="w">
     </span><span class="nt">"projects"</span><span class="p">:</span><span class="w"> </span><span class="s2">"http://app.crunch.io/api/account/projects/"</span><span class="p">,</span><span class="w">
     </span><span class="nt">"users"</span><span class="p">:</span><span class="w"> </span><span class="s2">"http://app.crunch.io/api/account/users/"</span><span class="p">,</span><span class="w">
-    </span><span class="nt">"datasets"</span><span class="p">:</span><span class="w"> </span><span class="s2">"http://app.crunch.io/api/account/datasets/"</span><span class="w">
+    </span><span class="nt">"datasets"</span><span class="p">:</span><span class="w"> </span><span class="s2">"http://app.crunch.io/api/account/datasets/"</span><span class="p">,</span><span class="w">
+    </span><span class="nt">"applications"</span><span class="p">:</span><span class="w"> </span><span class="s2">"http://app.crunch.io/api/account/applications/"</span><span class="w">
   </span><span class="p">}</span><span class="w">
 </span><span class="p">}</span><span class="w">
 </span></code></pre>
+
+<h5 id="applications">Applications</h5>
+<pre class="highlight http"><code><span class="err">GET /account/applications/
+</span></code></pre>
+
+<p>GET returns a Shoji Catalog with the list of all the configured subdomains an account has.</p>
+<pre class="highlight json"><code><span class="p">{</span><span class="w">
+    </span><span class="nt">"element"</span><span class="p">:</span><span class="s2">"shoji:catalog"</span><span class="p">,</span><span class="w">
+    </span><span class="nt">"index"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+        </span><span class="nt">"./mycompany/"</span><span class="p">:</span><span class="w"> </span><span class="p">{}</span><span class="w">
+    </span><span class="p">}</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre>
+
+<p>POST a Shoji Entity here to make a new application. The <code class="prettyprint">subdomain</code>:</p>
+
+<ul>
+<li>must be unique system-wide, case insensitive</li>
+<li>can only contain letters, numbers, and <code class="prettyprint">-</code> (dash)</li>
+<li>must be between 3 and 32 characters in length</li>
+<li>cannot start with <code class="prettyprint">-</code> or a number</li>
+</ul>
+
+<p>If the requested subdomain is unavailable or invalid, the server will return a 400 response.</p>
+<pre class="highlight json"><code><span class="p">{</span><span class="w">
+    </span><span class="nt">"element"</span><span class="p">:</span><span class="w"> </span><span class="s2">"shoji:entity"</span><span class="p">,</span><span class="w">
+    </span><span class="nt">"body"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+      </span><span class="nt">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"my company"</span><span class="p">,</span><span class="w">
+      </span><span class="nt">"subdomain"</span><span class="p">:</span><span class="w"> </span><span class="s2">"mycompany"</span><span class="p">,</span><span class="w">
+      </span><span class="nt">"palette"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+          </span><span class="nt">"brand"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+                </span><span class="nt">"system"</span><span class="p">:</span><span class="w"> </span><span class="s2">"#FFAABB"</span><span class="p">,</span><span class="w"> </span><span class="err">//</span><span class="w"> </span><span class="err">Color</span><span class="w"> </span><span class="err">of</span><span class="w"> </span><span class="err">links,</span><span class="w"> </span><span class="err">interactable</span><span class="w"> </span><span class="err">things</span><span class="w">
+                </span><span class="nt">"data"</span><span class="p">:</span><span class="w"> </span><span class="s2">"#G4EEBB"</span><span class="p">,</span><span class="w"> </span><span class="err">//</span><span class="w"> </span><span class="err">Titles</span><span class="w"> </span><span class="err">and</span><span class="w"> </span><span class="err">such</span><span class="w">
+                </span><span class="nt">"warning"</span><span class="p">:</span><span class="w"> </span><span class="s2">"#BAA5E7"</span><span class="w">
+            </span><span class="p">}</span><span class="w">
+      </span><span class="p">},</span><span class="w">
+      </span><span class="nt">"manifest"</span><span class="p">:</span><span class="w"> </span><span class="p">{}</span><span class="w">
+    </span><span class="p">}</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre>
+
+<p>Attributes <code class="prettyprint">name</code> and <code class="prettyprint">subdomain</code> are required; <code class="prettyprint">palette</code> and <code class="prettyprint">manifest</code> are optional. Note that you cannot specify logos in the POST request. Use the created entity&rsquo;s <code class="prettyprint">logo/</code> resource to upload the image files to the
+app (see below).</p>
+
+<table><thead>
+<tr>
+<th>Attribute</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>name</td>
+<td>string</td>
+<td>Name of the configured application on the given subdomain</td>
+</tr>
+<tr>
+<td>logo</td>
+<td>object</td>
+<td>Contains two attributes, <code class="prettyprint">large</code> and <code class="prettyprint">small</code>, with different resolution company logos</td>
+</tr>
+<tr>
+<td>palette</td>
+<td>object</td>
+<td>Contains three colors, <code class="prettyprint">system</code>, <code class="prettyprint">data</code> and <code class="prettyprint">warning</code>, under the <code class="prettyprint">brand</code> attribute to theme the web app</td>
+</tr>
+<tr>
+<td>manifest</td>
+<td>object</td>
+<td>Optional, contains further client configurations</td>
+</tr>
+</tbody></table>
+
+<h4 id="application-entity">Application entity</h4>
+<pre class="highlight http"><code><span class="err">GET /account/applications/app_id/
+</span></code></pre>
+
+<p>GET this endpoint for a Shoji Entity containing all details about
+the configured application.</p>
+<pre class="highlight json"><code><span class="p">{</span><span class="w">
+    </span><span class="nt">"element"</span><span class="p">:</span><span class="s2">"shoji:entity"</span><span class="p">,</span><span class="w">
+    </span><span class="nt">"body"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+        </span><span class="nt">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Application name"</span><span class="p">,</span><span class="w">
+        </span><span class="nt">"subdomain"</span><span class="p">:</span><span class="w"> </span><span class="s2">"mycompany"</span><span class="p">,</span><span class="w">
+        </span><span class="nt">"logos"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+            </span><span class="nt">"small"</span><span class="p">:</span><span class="w"> </span><span class="s2">"&lt;URL&gt;"</span><span class="p">,</span><span class="w">
+            </span><span class="nt">"large"</span><span class="p">:</span><span class="w"> </span><span class="s2">"&lt;URL&gt;"</span><span class="w">
+        </span><span class="p">},</span><span class="w">
+        </span><span class="nt">"palette"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+            </span><span class="nt">"brand"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+                </span><span class="nt">"system"</span><span class="p">:</span><span class="w"> </span><span class="s2">"#FFAABB"</span><span class="p">,</span><span class="w"> </span><span class="err">//</span><span class="w"> </span><span class="err">Color</span><span class="w"> </span><span class="err">of</span><span class="w"> </span><span class="err">links,</span><span class="w"> </span><span class="err">interactable</span><span class="w"> </span><span class="err">things</span><span class="w">
+                </span><span class="nt">"data"</span><span class="p">:</span><span class="w"> </span><span class="s2">"#G4EEBB"</span><span class="p">,</span><span class="w"> </span><span class="err">//</span><span class="w"> </span><span class="err">Titles</span><span class="w"> </span><span class="err">and</span><span class="w"> </span><span class="err">such</span><span class="w">
+                </span><span class="nt">"warning"</span><span class="p">:</span><span class="w"> </span><span class="s2">"#BAA5E7"</span><span class="w">
+            </span><span class="p">}</span><span class="w">
+        </span><span class="p">},</span><span class="w">
+        </span><span class="nt">"manifest"</span><span class="p">:</span><span class="w"> </span><span class="p">{}</span><span class="w">
+    </span><span class="p">},</span><span class="w">
+    </span><span class="nt">"views"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+        </span><span class="nt">"logo"</span><span class="p">:</span><span class="w"> </span><span class="s2">"https://app.crunch.io/api/account/applications/mycompany/logo/"</span><span class="w">
+    </span><span class="p">}</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre>
+
+<p>PATCH this endpoint to change the name, palette, or manifest. Logos are controlled by the logo subresource.</p>
+
+<h4 id="change-application-logo">Change application logo</h4>
+<pre class="highlight http"><code><span class="err">POST /account/applications/app_id/logo/
+</span></code></pre>
+
+<p>To set/change an application&rsquo;s logo the client needs to make a <code class="prettyprint">multipart/form-data</code>
+request containing either or both <code class="prettyprint">large</code> and <code class="prettyprint">small</code> fields containing the desired
+image files to use. Only account admins are authorized to change this resource.</p>
+<pre class="highlight http"><code><span class="nf">POST</span> <span class="nn">/account/applications/app_id/logo/</span> <span class="k">HTTP</span><span class="o">/</span><span class="m">1.1</span>
+<span class="na">Content-Type</span><span class="p">:</span> <span class="s">multipart/form-data; boundary=----------123456789</span>
+<span class="na">Content-Length</span><span class="p">:</span> <span class="s">500326</span>
+
+----------123456789
+Content-Disposition: form-data; name="large"; filename="newlogo.jpg"
+Content-Type: image/jpeg
+
+xxxxxxxxxx
+----------123456789
+Content-Disposition: form-data; name="small"; filename="newlogo_small.jpg"
+Content-Type: image/jpeg
+
+xxxxxxxxxx
+----------123456789--
+</code></pre>
+<pre class="highlight http"><code><span class="err">HTTP/1.1 204
+</span></code></pre>
+
+<p>The server will update the images accordingly. The only valid file extensions 
+are GIF, JPEG and PNG image files.</p>
 
 <h3 id="account-users">Account users</h3>
 
@@ -10307,8 +10491,8 @@ as their tuple.</p>
 
 <h3 id="account-datasets">Account datasets</h3>
 
-<p>Only account managers have access to this catalog. It is a read only shoji 
-catalog containing all the datasets that users of this account have 
+<p>Only account managers have access to this catalog. It is a read only shoji
+catalog containing all the datasets that users of this account have
 created (potentially very large catalog).</p>
 
 <p>Account managers have implicit editor access to all the account datasets.</p>
