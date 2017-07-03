@@ -769,7 +769,9 @@ Refer to the options described on the table above for the `csv` format to change
 
 ```
 
-The matches endpoint returns a Shoji order with two groups.  
+Since matching can take a while if many datasets are chosen, or datasets with many variables are selected, the endpoint
+will return a [Progress](#progress) response while the matching is occurring.  Poll the progress URL for status on match completion.
+When the resultant is completed, the matches endpoint returns a Shoji order with two groups.  
 
 that defines all of the variables that match between the first dataset provided, and the
 rest of them.  If the dataset doesn't have any variables that match, it is not included in the "datasets" group in the order.  For now,
