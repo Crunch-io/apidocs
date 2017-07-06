@@ -260,7 +260,8 @@ or subvariables. </p>
 <span class="s">        "viewers_can_export": true,</span>
 <span class="s">        "viewers_can_change_weight": false,</span>
 <span class="s">        "min_base_size": 3,</span>
-<span class="s">        "weight": "weight_variable"</span>
+<span class="s">        "weight": "weight_variable",</span>
+<span class="s">        "dashboard_deck": null</span>
 <span class="s">      },</span>
 <span class="s">      "table": {</span>
 <span class="s">        "metadata": {</span>
@@ -3336,7 +3337,7 @@ as discussed in the <a href="#metadata-document-csv">Feature Guide</a>. The full
 <tr>
 <td>settings</td>
 <td>object</td>
-<td><a href="#settings">Settings object</a> containing <code class="prettyprint">weight</code>, <code class="prettyprint">viewers_can_export</code>, <code class="prettyprint">viewers_can_change_weight</code>, <code class="prettyprint">viewers_can_share</code>, and/or <code class="prettyprint">min_base_size</code> attributes. If a &ldquo;weight&rdquo; is specified, it will be automatically added to &ldquo;weight_variables&rdquo; if not already specified there.</td>
+<td><a href="#settings">Settings object</a> containing <code class="prettyprint">weight</code>, <code class="prettyprint">viewers_can_export</code>, <code class="prettyprint">viewers_can_change_weight</code>, <code class="prettyprint">viewers_can_share</code>, <code class="prettyprint">dashboard_deck</code>, and/or <code class="prettyprint">min_base_size</code> attributes. If a &ldquo;weight&rdquo; is specified, it will be automatically added to &ldquo;weight_variables&rdquo; if not already specified there.</td>
 </tr>
 </tbody></table>
 
@@ -4127,6 +4128,10 @@ response.</p>
 <tr>
 <td>weight</td>
 <td>Default initial weight for all new users on this dataset, and when <code class="prettyprint">viewers_can_change_weight</code> is false, this variable will be the always-applied weight for all viewers of the dataset.</td>
+</tr>
+<tr>
+<td>dashboard_deck</td>
+<td>When set, points to a deck that will become publicly visible and be used as dashboard by the web client</td>
 </tr>
 </tbody></table>
 
