@@ -10554,6 +10554,8 @@ If the a user with the provided email address already exists in the application
         </span><span class="nt">"alter_users"</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="p">,</span><span class="w">
         </span><span class="nt">"create_datasets"</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="w">
       </span><span class="p">},</span><span class="w">
+      </span><span class="nt">"teams"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">"&lt;list of team urls&gt;"</span><span class="p">],</span><span class="w">
+      </span><span class="nt">"projects"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">"&lt;list of project urls&gt;"</span><span class="p">],</span><span class="w">
       </span><span class="nt">"id_method"</span><span class="p">:</span><span class="w"> </span><span class="s2">"pwhash/oauth"</span><span class="p">,</span><span class="w">
       </span><span class="nt">"id_provider"</span><span class="p">:</span><span class="w"> </span><span class="s2">""</span><span class="p">,</span><span class="w">
       </span><span class="nt">"send_invite"</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span><span class="w">
@@ -10561,6 +10563,27 @@ If the a user with the provided email address already exists in the application
   </span><span class="p">}</span><span class="w">
 </span><span class="p">}</span><span class="w">
 </span></code></pre>
+
+<p>It is possible to create a user to belong to different teams or projects by 
+including those teams or projects&rsquo; urls in the payload, for example:</p>
+<pre class="highlight json"><code><span class="p">{</span><span class="w">
+  </span><span class="nt">"element"</span><span class="p">:</span><span class="w"> </span><span class="s2">"shoji:entity"</span><span class="p">,</span><span class="w">
+  </span><span class="nt">"body"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+      </span><span class="nt">"email"</span><span class="p">:</span><span class="w"> </span><span class="s2">"new_email@example.com"</span><span class="p">,</span><span class="w">
+      </span><span class="nt">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Initial name"</span><span class="p">,</span><span class="w">
+      </span><span class="nt">"account_permissions"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+        </span><span class="nt">"alter_users"</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="p">,</span><span class="w">
+        </span><span class="nt">"create_datasets"</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="w">
+      </span><span class="p">},</span><span class="w">
+      </span><span class="nt">"teams"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">"https://app.crunch.io/api/teams/abc/"</span><span class="p">,</span><span class="w"> </span><span class="s2">"https://app.crunch.io/api/teams/123/"</span><span class="p">],</span><span class="w">
+      </span><span class="nt">"projects"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">"https://app.crunch.io/api/projects/def/"</span><span class="p">],</span><span class="w">
+      </span><span class="nt">"id_method"</span><span class="p">:</span><span class="w"> </span><span class="s2">"pwhash"</span><span class="w">
+  </span><span class="p">}</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre>
+
+<p>The <code class="prettyprint">teams</code> and <code class="prettyprint">projects</code> attributes are optional and can be omited or empty
+lists. </p>
 
 <h4 id="patch">PATCH</h4>
 
