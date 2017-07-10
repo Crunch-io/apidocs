@@ -10391,35 +10391,6 @@ paths to these additional catalogs:
 <p>Attributes <code class="prettyprint">name</code> and <code class="prettyprint">subdomain</code> are required; <code class="prettyprint">palette</code> and <code class="prettyprint">manifest</code> are optional. Note that you cannot specify logos in the POST request. Use the created entity&rsquo;s <code class="prettyprint">logo/</code> resource to upload the image files to the
 app (see below).</p>
 
-<table><thead>
-<tr>
-<th>Attribute</th>
-<th>Type</th>
-<th>Description</th>
-</tr>
-</thead><tbody>
-<tr>
-<td>name</td>
-<td>string</td>
-<td>Name of the configured application on the given subdomain</td>
-</tr>
-<tr>
-<td>logo</td>
-<td>object</td>
-<td>Contains two attributes, <code class="prettyprint">large</code> and <code class="prettyprint">small</code>, with different resolution company logos</td>
-</tr>
-<tr>
-<td>palette</td>
-<td>object</td>
-<td>Contains three colors, <code class="prettyprint">system</code>, <code class="prettyprint">data</code> and <code class="prettyprint">warning</code>, under the <code class="prettyprint">brand</code> attribute to theme the web app</td>
-</tr>
-<tr>
-<td>manifest</td>
-<td>object</td>
-<td>Optional, contains further client configurations</td>
-</tr>
-</tbody></table>
-
 <h4 id="application-entity">Application entity</h4>
 <pre class="highlight http"><code><span class="err">GET /account/applications/app_id/
 </span></code></pre>
@@ -10433,7 +10404,8 @@ the configured application.</p>
         </span><span class="nt">"subdomain"</span><span class="p">:</span><span class="w"> </span><span class="s2">"mycompany"</span><span class="p">,</span><span class="w">
         </span><span class="nt">"logos"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
             </span><span class="nt">"small"</span><span class="p">:</span><span class="w"> </span><span class="s2">"&lt;URL&gt;"</span><span class="p">,</span><span class="w">
-            </span><span class="nt">"large"</span><span class="p">:</span><span class="w"> </span><span class="s2">"&lt;URL&gt;"</span><span class="w">
+            </span><span class="nt">"large"</span><span class="p">:</span><span class="w"> </span><span class="s2">"&lt;URL&gt;"</span><span class="p">,</span><span class="w">
+            </span><span class="nt">"favicon"</span><span class="p">:</span><span class="w"> </span><span class="s2">"&lt;URL&gt;"</span><span class="w">
         </span><span class="p">},</span><span class="w">
         </span><span class="nt">"palette"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
             </span><span class="nt">"brand"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
@@ -10451,6 +10423,35 @@ the configured application.</p>
 </span></code></pre>
 
 <p>PATCH this endpoint to change the name, palette, or manifest. Logos are controlled by the logo subresource.</p>
+
+<table><thead>
+<tr>
+<th>Attribute</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>name</td>
+<td>string</td>
+<td>Name of the configured application on the given subdomain</td>
+</tr>
+<tr>
+<td>logo</td>
+<td>object</td>
+<td>Contains two attributes, <code class="prettyprint">large</code>, <code class="prettyprint">small</code> and <code class="prettyprint">favicon</code>, with different resolution company logos</td>
+</tr>
+<tr>
+<td>palette</td>
+<td>object</td>
+<td>Contains three colors, <code class="prettyprint">system</code>, <code class="prettyprint">data</code> and <code class="prettyprint">warning</code>, under the <code class="prettyprint">brand</code> attribute to theme the web app</td>
+</tr>
+<tr>
+<td>manifest</td>
+<td>object</td>
+<td>Optional, contains further client configurations</td>
+</tr>
+</tbody></table>
 
 <h4 id="change-application-logo">Change application logo</h4>
 <pre class="highlight http"><code><span class="err">POST /account/applications/app_id/logo/
@@ -10602,8 +10603,8 @@ as their tuple.</p>
         </span><span class="nt">"create_datasets"</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="w">
       </span><span class="p">}</span><span class="w">
     </span><span class="p">},</span><span class="w">
-    </span><span class="nt">"http://app.crunch.io/api/users/234/"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span><span class="w">
-  </span><span class="err">}</span><span class="w">
+    </span><span class="nt">"http://app.crunch.io/api/users/234/"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="w">
+  </span><span class="p">}</span><span class="w">
 </span><span class="p">}</span><span class="w">
 </span></code></pre>
 
