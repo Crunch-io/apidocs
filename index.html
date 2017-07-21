@@ -2786,12 +2786,54 @@ an action cannot be replayed on the original dataset (typically because it has
  true (the default), the original dataset will be reverted to the previous
  state before any of the new changes were applied. If &ldquo;autorollback&rdquo; is false,
  the dataset is left in the half-merged state, which allows you to investigate
-  the problem, repair it if possible (in either dataset as needed), and then
-  POST again to continue the merge.</p>
+ the problem, repair it if possible (in either dataset as needed), and then
+ POST again to continue the merge.</p>
 
 <p>Per-user settings (filters, decks and slides, variable permissions etc) are copied to the new dataset when you fork. However, changes to them are not merged back at this time. Please reach out to us as you experiment so we can fine-tune which details to fork and merge as we discover use cases.</p>
 
 <p>Merging actions may take a few seconds, in which case the POST to actions/ will return 204 when finished. Merging many or large actions, however, may take longer, in which case the POST will return 202 with a Location header containing the URL of a <a href="#progress">progress resource</a>.</p>
+
+<h4 id="filtered-merges">Filtered Merges</h4>
+
+<p>When merging actions it is possible to provide a filter to select which actions should
+be replayed from the other dataset. It is currently possible to filter them by <code class="prettyprint">key</code> and by <code class="prettyprint">hash</code>.</p>
+
+<p>When filtering by <code class="prettyprint">hash</code>, only the provided actions will be merged:</p>
+<pre class="highlight python"><code><span class="n">ds</span><span class="o">.</span><span class="n">actions</span><span class="o">.</span><span class="n">post</span><span class="p">({</span>
+    <span class="s">"element"</span><span class="p">:</span> <span class="s">"shoji:entity"</span><span class="p">,</span>
+    <span class="s">"body"</span><span class="p">:</span> <span class="p">{</span><span class="s">"dataset"</span><span class="p">:</span> <span class="n">forked_ds</span><span class="o">.</span><span class="bp">self</span><span class="p">,</span>
+             <span class="s">"filter"</span><span class="p">:</span> <span class="p">{</span><span class="s">"hash"</span><span class="p">:</span> <span class="p">[</span><span class="s">"000003"</span><span class="p">]}}</span>
+<span class="p">})</span>
+</code></pre>
+
+<p>When filtering by <code class="prettyprint">key</code>, only the actions that are part of that category will be merged:</p>
+<pre class="highlight python"><code><span class="n">ds</span><span class="o">.</span><span class="n">actions</span><span class="o">.</span><span class="n">post</span><span class="p">({</span>
+    <span class="s">"element"</span><span class="p">:</span> <span class="s">"shoji:entity"</span><span class="p">,</span>
+    <span class="s">"body"</span><span class="p">:</span> <span class="p">{</span><span class="s">"dataset"</span><span class="p">:</span> <span class="n">forked_ds</span><span class="o">.</span><span class="bp">self</span><span class="p">,</span>
+             <span class="s">"filter"</span><span class="p">:</span> <span class="p">{</span><span class="s">"key"</span><span class="p">:</span> <span class="p">[</span><span class="s">"Variable.create"</span><span class="p">]}}</span>
+<span class="p">})</span>
+</code></pre>
+
+<h5 id="recording-the-filtered-actions">Recording the filtered actions</h5>
+
+<p>If you know that you are going to merge from the same two datasets multiple times
+it is possible to tell crunch to remember the filtered actions so that a subsequent
+merge to the same target won&rsquo;t try to apply them again if they were skipped in a previous merge.</p>
+
+<p>This behaviour can be changed by providing <code class="prettyprint">remember: True</code> option to the filter,
+which means that the filtered actions will be recorded and a subsequent merge won&rsquo;t
+try to apply them to the target if they are not explicitly filtered again.</p>
+<pre class="highlight python"><code><span class="n">ds</span><span class="o">.</span><span class="n">actions</span><span class="o">.</span><span class="n">post</span><span class="p">({</span>
+    <span class="s">"element"</span><span class="p">:</span> <span class="s">"shoji:entity"</span><span class="p">,</span>
+    <span class="s">"body"</span><span class="p">:</span> <span class="p">{</span><span class="s">"dataset"</span><span class="p">:</span> <span class="n">forked_ds</span><span class="o">.</span><span class="bp">self</span><span class="p">,</span>
+             <span class="s">"remember"</span><span class="p">:</span> <span class="bp">True</span><span class="p">,</span>
+             <span class="s">"filter"</span><span class="p">:</span> <span class="p">{</span><span class="s">"key"</span><span class="p">:</span> <span class="p">[</span><span class="s">"Variable.create"</span><span class="p">]}}</span>
+<span class="p">})</span>
+</code></pre>
+
+<p>Note that only the actions skipped during this merge are recorded, so the previous example
+won&rsquo;t skipp all the <code class="prettyprint">Variable.create</code> actions forever, but will only remember the action
+that was skipped at that time.</p>
 
           <h1 id="endpoint-reference">Endpoint Reference</h1>
 
