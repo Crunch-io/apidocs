@@ -9326,6 +9326,26 @@ Joins are an experimental feature. Beware when using it, and expect significant 
 
 <p>If the user ID does not match the current signed in user, an 403 Forbidden will be sent back.</p>
 
+<h5 id="expropriate-a-user">Expropriate a user</h5>
+
+<p>An account admin can expropriate a user from the same account. This will change
+ownership of all of the affected user&rsquo;s teams, projects and datasets to a new
+owner.</p>
+
+<p>The new owner must also be part of the same account and should have 
+<code class="prettyprint">create_datasets</code> permissions set to <code class="prettyprint">true</code>.</p>
+
+<p><code class="prettyprint">POST /users/{id}/expropriate/</code></p>
+<pre class="highlight json"><code><span class="p">{</span><span class="w">
+  </span><span class="nt">"element"</span><span class="p">:</span><span class="w"> </span><span class="s2">"shoji:entity"</span><span class="p">,</span><span class="w">
+  </span><span class="nt">"body"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+    </span><span class="nt">"owner"</span><span class="p">:</span><span class="w"> </span><span class="s2">"http://app.crunch.io/api/users/123abc/"</span><span class="w">
+  </span><span class="p">}</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre>
+
+<p>The new owner provided can be a user URL or a user email.</p>
+
           <h2 id="teams">Teams</h2>
 
 <p>Teams contain references to users and datasets. By sharing a dataset with a team, you can grant access to a set of users at once, and by adding a user to a team, you can grant them access to a set of datasets.</p>
