@@ -10331,7 +10331,51 @@ geojson or topojson.</p>
 <td>string</td>
 <td>Any additional information about the geodatum</td>
 </tr>
+<tr>
+<td>metadata</td>
+<td>object</td>
+<td>Information regarding the actual data provided by the location.  For now, the properties in the geodata features are extracted for the purpose of matching geodata to variable categories.</td>
+</tr>
 </tbody></table>
+
+<h3 id="catalog">Catalog</h3>
+
+<p><code class="prettyprint">/geodata/id/</code></p>
+
+<h4 id="get">GET</h4>
+
+<p>Crunch maintains a few geojson/topojson resources and publishes them on CDN.
+Most of their properties, with the exception of <code class="prettyprint">metadata</code>, are present on the catalog
+tuple, described above; metadata is an open field but may be populated at creation time
+by a Crunch utility that extracts and aggregates across features of geojson and topojson
+resources. For other formats, users may supply relevant metadata for the geodatum resource.</p>
+<pre class="highlight json"><code><span class="p">{</span><span class="w">
+    </span><span class="nt">"element"</span><span class="p">:</span><span class="w"> </span><span class="s2">"shoji:entity"</span><span class="p">,</span><span class="w">
+    </span><span class="nt">"self"</span><span class="p">:</span><span class="w"> </span><span class="s2">"https://app.crunch.io/api/geodata/7ae898e210b04a9a8992314452c6677b/"</span><span class="p">,</span><span class="w">
+    </span><span class="nt">"body"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+        </span><span class="nt">"description"</span><span class="p">:</span><span class="w"> </span><span class="s2">"use properties.name or properties.postal-code"</span><span class="p">,</span><span class="w">
+        </span><span class="nt">"created"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2016-07-08T16:33:44.601000+00:00"</span><span class="p">,</span><span class="w">
+        </span><span class="nt">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"US States GeoJSON Name + Postal Code"</span><span class="p">,</span><span class="w">
+        </span><span class="nt">"location"</span><span class="p">:</span><span class="w"> </span><span class="s2">"https://s.crunch.io/geodata/leafletjs/us-states.geojson"</span><span class="p">,</span><span class="w">
+        </span><span class="nt">"id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"7ae898e210b04a9a8992314452c6677b"</span><span class="p">,</span><span class="w">
+        </span><span class="nt">"metadata"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+            </span><span class="nt">"status"</span><span class="p">:</span><span class="w"> </span><span class="s2">"success"</span><span class="p">,</span><span class="w">
+            </span><span class="nt">"properties"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+                </span><span class="nt">"postal-code"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
+                    </span><span class="s2">"AL"</span><span class="p">,</span><span class="w">
+                    </span><span class="s2">"AK"</span><span class="p">,</span><span class="w">
+                    </span><span class="s2">"AZ"</span><span class="p">,</span><span class="w"> </span><span class="s2">"etc."</span><span class="w">
+                </span><span class="p">],</span><span class="w">
+                </span><span class="nt">"name"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
+                    </span><span class="s2">"Alabama"</span><span class="p">,</span><span class="w">
+                    </span><span class="s2">"Arkansas"</span><span class="p">,</span><span class="w">
+                    </span><span class="s2">"Alaska"</span><span class="p">,</span><span class="w"> </span><span class="s2">"etcetera"</span><span class="w">
+                </span><span class="p">]</span><span class="w">
+            </span><span class="p">}</span><span class="w">
+        </span><span class="p">}</span><span class="w">
+    </span><span class="p">}</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre>
 
 <h3 id="geodata-for-common-applications">Geodata for common applications</h3>
 
@@ -10346,6 +10390,64 @@ Use <code class="prettyprint">properties.name</code> or <code class="prettyprint
 <strong>UK Regions</strong> –
 <code class="prettyprint">properties.EER13NM</code> matches a YouGov stylization of United Kingdom region names.</li>
 </ul>
+
+<h3 id="creating-new-public-geodatum">Creating new public Geodatum</h3>
+
+<p>Users with permission to create datasets can also create geodata, although in practice Crunch curates and makes available 
+many common geographies, listed in the geodata catalog. Note that geodata created outside of the Crunch domain
+(ie without a .crunch.io domain in the URL) will not be available in whaam due to browser constraints.
+If you would like to make your geodatum public and have Crunch serve it, please contact us!</p>
+
+<p>Adding a new geodatum is as easy as POSTing it to the geodata catalog, most easily via pycrunch. Crunch will attempt to download
+the geodata file and analyze the properties present on the features (generally polygons), which can then be associated
+with Crunch variables. The metadata extraction and summary can help you align variables and select the right property to 
+associate with your Crunch geographic variable by category name.</p>
+
+<p>Include a <code class="prettyprint">format</code> member in the payload (on post or patch) to trigger automatic metadata extraction. The server will
+fetch and aggregate properties from FeatureCollections in order to provide hints for eventual consumers of the Crunch 
+geodatum. The automatic feature extractor supports GeoJSON and TopoJSON formats; you may register a Shapefile (shp) or
+other resource as a Crunch geodatum, but will have to supply <code class="prettyprint">metadata</code> hints yourself and are advised to indicate its
+non-json format.</p>
+
+<p>The lists of properties returned in the metadata are correlated, such that if a feature in your geodata is missing a
+ given property, it will return null.</p>
+<pre class="highlight python"><code><span class="o">&gt;&gt;&gt;</span> <span class="kn">import</span> <span class="nn">pycrunch</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">site</span> <span class="o">=</span> <span class="n">pycrunch</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="s">"me@mycompany.com"</span><span class="p">,</span> <span class="s">"yourpassword"</span><span class="p">,</span> <span class="s">"https://app.crunch.io/api/"</span><span class="p">)</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">geodata</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">site</span><span class="o">.</span><span class="n">geodata</span><span class="o">.</span><span class="n">create</span><span class="p">(</span><span class="n">as_entity</span><span class="p">({</span><span class="s">'name'</span><span class="p">:</span> <span class="s">'test_geojson'</span><span class="p">,</span>
+                                                  <span class="s">'location'</span><span class="p">:</span> <span class="s">'https://s.crunch.io/geodata/leafletjs/us-states.geojson'</span><span class="p">,</span>
+                                                  <span class="s">'description'</span><span class="p">:</span> <span class="s">''</span><span class="p">,</span>
+                                                  <span class="s">'format'</span><span class="p">:</span> <span class="s">'geojson'</span><span class="p">}))</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">geodata</span><span class="o">.</span><span class="n">body</span><span class="o">.</span><span class="n">metadata</span>
+<span class="n">pycrunch</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">JSONObject</span><span class="p">(</span><span class="o">**</span><span class="p">{</span>
+    <span class="s">"postal-code"</span><span class="p">:</span> <span class="p">[</span>
+        <span class="s">"AL"</span><span class="p">,</span> 
+        <span class="s">"AK"</span><span class="p">,</span> 
+        <span class="s">"AZ"</span><span class="p">,</span> 
+        <span class="s">"AK"</span><span class="p">,</span> 
+        <span class="s">"CA"</span><span class="p">,</span> <span class="o">...</span><span class="p">],</span>
+    <span class="s">"name"</span><span class="p">:</span> <span class="p">[</span>
+        <span class="s">"Alabama"</span><span class="p">,</span> 
+        <span class="s">"Alaska"</span><span class="p">,</span> 
+        <span class="s">"Arizona"</span><span class="p">,</span> 
+        <span class="s">"Arkansas"</span><span class="p">,</span> 
+        <span class="s">"California"</span><span class="p">,</span> <span class="o">...</span><span class="p">]})</span>
+
+</code></pre>
+
+<h3 id="modifying-your-public-geodata">Modifying your public Geodata</h3>
+
+<p>You can modify any Geodatum that you own.  Note that you can transfer ownership to another user if you change the owner_id
+of your geodatum.  You may also change the metadata of your geodatum, but keep in mind that if you do this you will override
+any automated metadata extraction that Crunch provides. If you modify the location of the geodatum and do not provide
+a metadata parameter in the patch, Crunch will automatically extract metadata as long as the location is publicly accessible.</p>
+<pre class="highlight python"><code><span class="o">&gt;&gt;&gt;</span> <span class="kn">import</span> <span class="nn">pycrunch</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">site</span> <span class="o">=</span> <span class="n">pycrunch</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="s">"me@mycompany.com"</span><span class="p">,</span> <span class="s">"yourpassword"</span><span class="p">,</span> <span class="s">"https://app.crunch.io/api/"</span><span class="p">)</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">entity</span> <span class="o">=</span> <span class="n">site</span><span class="o">.</span><span class="n">geodata</span><span class="o">.</span><span class="n">index</span><span class="p">[</span><span class="s">'&lt;geodatum_url&gt;'</span><span class="p">]</span><span class="o">.</span><span class="n">entity</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">entity</span><span class="o">.</span><span class="n">patch</span><span class="p">({</span><span class="s">'description'</span><span class="p">:</span> <span class="s">'US States'</span><span class="p">})</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">entity</span><span class="o">.</span><span class="n">refresh</span><span class="p">()</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">entity</span><span class="o">.</span><span class="n">body</span><span class="o">.</span><span class="n">description</span>
+<span class="n">US</span> <span class="n">States</span>
+</code></pre>
 
 <h3 id="associating-variables-with-geodata">Associating Variables with Geodata</h3>
 
