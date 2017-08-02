@@ -3022,6 +3022,7 @@ exposed in a catalog. This catalog can be organized and ordered.</p>
             </span><span class="nt">"owner_id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"https://app.crunch.io/api/users/685722/"</span><span class="p">,</span><span class="w">
             </span><span class="nt">"start_date"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2286"</span><span class="p">,</span><span class="w">
             </span><span class="nt">"end_date"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span><span class="w">
+            </span><span class="nt">"streaming"</span><span class="p">:</span><span class="w"> </span><span class="s2">"no"</span><span class="p">,</span><span class="w">
             </span><span class="nt">"creation_time"</span><span class="p">:</span><span class="w"> </span><span class="s2">"1986-11-26T12:05:00"</span><span class="p">,</span><span class="w">
             </span><span class="nt">"modification_time"</span><span class="p">:</span><span class="w"> </span><span class="s2">"1986-11-26T12:05:00"</span><span class="p">,</span><span class="w">
             </span><span class="nt">"current_editor"</span><span class="p">:</span><span class="w"> </span><span class="s2">"https://app.crunch.io/api/users/ff9443/"</span><span class="p">,</span><span class="w">
@@ -3046,6 +3047,7 @@ exposed in a catalog. This catalog can be organized and ordered.</p>
             </span><span class="nt">"owner_id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"https://app.crunch.io/api/users/af432c/"</span><span class="p">,</span><span class="w">
             </span><span class="nt">"start_date"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2285-10-03"</span><span class="p">,</span><span class="w">
             </span><span class="nt">"end_date"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2285-10-20"</span><span class="p">,</span><span class="w">
+            </span><span class="nt">"streaming"</span><span class="p">:</span><span class="w"> </span><span class="s2">"no"</span><span class="p">,</span><span class="w">
             </span><span class="nt">"creation_time"</span><span class="p">:</span><span class="w"> </span><span class="s2">"1982-06-04T09:16:23.231045"</span><span class="p">,</span><span class="w">
             </span><span class="nt">"modification_time"</span><span class="p">:</span><span class="w"> </span><span class="s2">"1982-06-04T09:16:23.231045"</span><span class="p">,</span><span class="w">
             </span><span class="nt">"current_editor"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span><span class="w">
@@ -3141,6 +3143,12 @@ attributes:</p>
 <td>ISO-8601 string</td>
 <td></td>
 <td>End date/time of the dataset&rsquo;s data, defining a start_date:end_date range</td>
+</tr>
+<tr>
+<td>streaming</td>
+<td>string</td>
+<td>Possible values &ldquo;no&rdquo;, &ldquo;finished&rdquo; and &ldquo;streaming&rdquo; to enable/disable streaming</td>
+<td></td>
 </tr>
 <tr>
 <td>current_editor</td>
@@ -3357,6 +3365,11 @@ as discussed in the <a href="#metadata-document-csv">Feature Guide</a>. The full
 <td>ISO-8601 formatted date with day resolution</td>
 </tr>
 <tr>
+<td>streaming</td>
+<td>string</td>
+<td>Only &ldquo;streaming&rdquo;, &ldquo;finished&rdquo; and &ldquo;no&rdquo; available values to define if a dataset will accept streaming data or not</td>
+</tr>
+<tr>
 <td>is_published</td>
 <td>boolean</td>
 <td>If false, only project editors will have access to this dataset</td>
@@ -3555,6 +3568,12 @@ the API will return a 400 response.</p>
 <td>ISO-8601 string</td>
 <td></td>
 <td>End date/time of the dataset&rsquo;s data, defining a start_date:end_date range</td>
+</tr>
+<tr>
+<td>streaming</td>
+<td>string</td>
+<td>Possible values are &ldquo;no&rdquo;, &ldquo;finished&rdquo; and &ldquo;streaming&rdquo; to determine if a dataset is streamed or not</td>
+<td></td>
 </tr>
 <tr>
 <td>current_editor</td>
@@ -4092,9 +4111,71 @@ in its body. Rows that match the filter expression will be excluded from all vie
 
 <h5 id="stream">Stream</h5>
 
+<h6 id="stream-lock">Stream lock</h6>
+
+<p>When a dataset is configured to receive streaming data, the /stream/ endpoint
+will accept POST requests to append new rows to the streaming queue.</p>
+
+<p>A dataset is able to receive streaming data while its <code class="prettyprint">streaming</code> attribute is 
+set to <code class="prettyprint">streaming</code>.</p>
+
+<p>While a dataset is receiving streams, any other kind of append is disabled 
+returning 409 if attempted. Only streaming data is allowed.</p>
+
+<p>The following operations are forbidden on a dataset while it is accepting
+streaming rows in order to protect the schema.</p>
+
+<ul>
+<li>Deleting public non derived variables</li>
+<li>Casting variables (Includes changing resolution on datetime variables)</li>
+<li>Changing variable aliases</li>
+<li>Deleting categories from categorical variables</li>
+<li>Changing ID of category IDs</li>
+<li>Removing subvariables from arrays</li>
+</ul>
+
+<p>To change the streaming configuration of the dataset, PATCH the entity&rsquo;s 
+<code class="prettyprint">streaming</code> attribute to either <code class="prettyprint">finished</code> or <code class="prettyprint">no</code> according to the following 
+table:</p>
+
+<table><thead>
+<tr>
+<th>Value</th>
+<th>Allows schema changes</th>
+<th>Accepts streaming rows</th>
+<th>Next state</th>
+</tr>
+</thead><tbody>
+<tr>
+<td><code class="prettyprint">streaming</code></td>
+<td>No</td>
+<td>Yes</td>
+<td><code class="prettyprint">finished</code></td>
+</tr>
+<tr>
+<td><code class="prettyprint">finished</code></td>
+<td>No</td>
+<td>No</td>
+<td><code class="prettyprint">no</code></td>
+</tr>
+<tr>
+<td><code class="prettyprint">no</code></td>
+<td>Yes</td>
+<td>No</td>
+<td>-</td>
+</tr>
+</tbody></table>
+
+<p>Note that the only allowed sequence of states for the  <code class="prettyprint">streaming</code> attribute
+is <code class="prettyprint">streaming</code> -&gt; <code class="prettyprint">finished</code> -&gt; <code class="prettyprint">no</code>. It cannot be set in any other sequence.</p>
+
+<h6 id="sending-rows">Sending rows</h6>
+
 <p><code class="prettyprint">/datasets/{id}/stream/</code></p>
 
 <p>Stream allows for sending data to a dataset as it is gathered.</p>
+
+<p>GET on this resource returns a Shoji Entity with two attributes in its body:</p>
 <pre class="highlight json"><code><span class="p">{</span><span class="w">
     </span><span class="nt">"element"</span><span class="p">:</span><span class="w"> </span><span class="s2">"shoji:entity"</span><span class="p">,</span><span class="w">
     </span><span class="nt">"self"</span><span class="p">:</span><span class="w"> </span><span class="s2">"https://app.crunch.io/api/datasets/223fd4/stream/"</span><span class="p">,</span><span class="w">
@@ -4105,8 +4186,6 @@ in its body. Rows that match the filter expression will be excluded from all vie
     </span><span class="p">}</span><span class="w">
 </span><span class="p">}</span><span class="w">
 </span></code></pre>
-
-<p>GET on this resource returns a Shoji Entity with two attributes in its body:</p>
 
 <table><thead>
 <tr>
@@ -4123,6 +4202,14 @@ in its body. Rows that match the filter expression will be excluded from all vie
 <td>The total number of messages that this stream has received.</td>
 </tr>
 </tbody></table>
+
+<p>POST to this endpoint to add rows. The payload should be a multi line string
+where each line contains a json representation of objects indicating the
+value for each variable keyed by <strong>alias</strong>.</p>
+<pre class="highlight json"><code><span class="p">{</span><span class="nt">"alias1"</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="nt">"alias2"</span><span class="p">:</span><span class="w"> </span><span class="s2">"value"</span><span class="p">,</span><span class="w"> </span><span class="nt">"alias3"</span><span class="p">:</span><span class="w"> </span><span class="mi">0</span><span class="p">}</span><span class="w">
+</span><span class="p">{</span><span class="nt">"alias1"</span><span class="p">:</span><span class="w"> </span><span class="mi">99</span><span class="p">,</span><span class="w"> </span><span class="nt">"alias2"</span><span class="p">:</span><span class="w"> </span><span class="s2">"other"</span><span class="p">,</span><span class="w"> </span><span class="nt">"alias3"</span><span class="p">:</span><span class="w"> </span><span class="mi">2</span><span class="p">}</span><span class="w">
+</span><span class="p">{</span><span class="nt">"alias1"</span><span class="p">:</span><span class="w"> </span><span class="mi">10</span><span class="p">,</span><span class="w"> </span><span class="nt">"alias2"</span><span class="p">:</span><span class="w"> </span><span class="s2">"empty"</span><span class="p">,</span><span class="w"> </span><span class="nt">"alias3"</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">}</span><span class="w">
+</span></code></pre>
 
 <h5 id="settings">Settings</h5>
 
@@ -5861,6 +5948,12 @@ as well as basic summary statistics:</li>
   </span><span class="p">}</span><span class="w">
 </span><span class="p">]</span><span class="w">
 </span></code></pre>
+
+<aside class="warning">
+Missing rules consist on filter expressions that can **only** refer to the same
+variable ID where they are defined. Marking values as missing based on the 
+contents of another column is not supported.
+</aside>
 
 <h4 id="subvariables">Subvariables</h4>
 
@@ -10124,6 +10217,7 @@ shape of the dataset tuple will be the same as in other dataset catalogs.</p>
         </span><span class="nt">"owner_id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"https://app.crunch.io/api/users/685722/"</span><span class="p">,</span><span class="w">
         </span><span class="nt">"start_date"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2286"</span><span class="p">,</span><span class="w">
         </span><span class="nt">"end_date"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span><span class="w">
+        </span><span class="nt">"streaming"</span><span class="p">:</span><span class="w"> </span><span class="s2">"no"</span><span class="p">,</span><span class="w">
         </span><span class="nt">"creation_time"</span><span class="p">:</span><span class="w"> </span><span class="s2">"1986-11-26T12:05:00"</span><span class="p">,</span><span class="w">
         </span><span class="nt">"modification_time"</span><span class="p">:</span><span class="w"> </span><span class="s2">"1986-11-26T12:05:00"</span><span class="p">,</span><span class="w">
         </span><span class="nt">"current_editor"</span><span class="p">:</span><span class="w"> </span><span class="s2">"https://app.crunch.io/api/users/ff9443/"</span><span class="p">,</span><span class="w">
@@ -10147,6 +10241,7 @@ shape of the dataset tuple will be the same as in other dataset catalogs.</p>
         </span><span class="nt">"owner_id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"https://app.crunch.io/api/users/af432c/"</span><span class="p">,</span><span class="w">
         </span><span class="nt">"start_date"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2285-10-03"</span><span class="p">,</span><span class="w">
         </span><span class="nt">"end_date"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2285-10-20"</span><span class="p">,</span><span class="w">
+        </span><span class="nt">"streaming"</span><span class="p">:</span><span class="w"> </span><span class="s2">"no"</span><span class="p">,</span><span class="w">
         </span><span class="nt">"creation_time"</span><span class="p">:</span><span class="w"> </span><span class="s2">"1982-06-04T09:16:23.231045"</span><span class="p">,</span><span class="w">
         </span><span class="nt">"modification_time"</span><span class="p">:</span><span class="w"> </span><span class="s2">"1982-06-04T09:16:23.231045"</span><span class="p">,</span><span class="w">
         </span><span class="nt">"current_editor"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span><span class="w">
@@ -10798,6 +10893,7 @@ created (potentially very large catalog).</p>
             </span><span class="nt">"owner_id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"https://app.crunch.io/api/users/685722/"</span><span class="p">,</span><span class="w">
             </span><span class="nt">"start_date"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2286"</span><span class="p">,</span><span class="w">
             </span><span class="nt">"end_date"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span><span class="w">
+            </span><span class="nt">"streaming"</span><span class="p">:</span><span class="w"> </span><span class="s2">"no"</span><span class="p">,</span><span class="w">
             </span><span class="nt">"creation_time"</span><span class="p">:</span><span class="w"> </span><span class="s2">"1986-11-26T12:05:00"</span><span class="p">,</span><span class="w">
             </span><span class="nt">"modification_time"</span><span class="p">:</span><span class="w"> </span><span class="s2">"1986-11-26T12:05:00"</span><span class="p">,</span><span class="w">
             </span><span class="nt">"current_editor"</span><span class="p">:</span><span class="w"> </span><span class="s2">"https://app.crunch.io/api/users/ff9443/"</span><span class="p">,</span><span class="w">
@@ -10817,6 +10913,7 @@ created (potentially very large catalog).</p>
             </span><span class="nt">"owner_id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"https://app.crunch.io/api/users/af432c/"</span><span class="p">,</span><span class="w">
             </span><span class="nt">"start_date"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2285-10-03"</span><span class="p">,</span><span class="w">
             </span><span class="nt">"end_date"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2285-10-20"</span><span class="p">,</span><span class="w">
+            </span><span class="nt">"streaming"</span><span class="p">:</span><span class="w"> </span><span class="s2">"no"</span><span class="p">,</span><span class="w">
             </span><span class="nt">"creation_time"</span><span class="p">:</span><span class="w"> </span><span class="s2">"1982-06-04T09:16:23.231045"</span><span class="p">,</span><span class="w">
             </span><span class="nt">"modification_time"</span><span class="p">:</span><span class="w"> </span><span class="s2">"1982-06-04T09:16:23.231045"</span><span class="p">,</span><span class="w">
             </span><span class="nt">"current_editor"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span><span class="w">
