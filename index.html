@@ -2957,254 +2957,6 @@ a share-preview. Among this metadata is a url to a preview image of the rendered
 </tr>
 </tbody></table>
 
-          <h2 id="batches">Batches</h2>
-
-<h3 id="catalog">Catalog</h3>
-
-<p><code class="prettyprint">/datasets/{id}/batches/</code></p>
-
-<h4 id="get">GET</h4>
-
-<p>A GET request on this resource returns a Shoji Catalog enumerating the batches present in the Dataset. Each tuple in the index includes a &ldquo;status&rdquo; member, which may be one of &ldquo;analyzing&rdquo;, &ldquo;conflict&rdquo;, &ldquo;error&rdquo;, &ldquo;importing&rdquo;, &ldquo;imported&rdquo;, or &ldquo;appended&rdquo;.</p>
-<pre class="highlight json"><code><span class="p">{</span><span class="w">
-    </span><span class="nt">"element"</span><span class="p">:</span><span class="w"> </span><span class="s2">"shoji:catalog"</span><span class="p">,</span><span class="w">
-    </span><span class="nt">"self"</span><span class="p">:</span><span class="w"> </span><span class="s2">"...datasets/837498a/batches/"</span><span class="p">,</span><span class="w">
-    </span><span class="nt">"index"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
-        </span><span class="nt">"0/"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="nt">"status"</span><span class="p">:</span><span class="w"> </span><span class="s2">"appended"</span><span class="p">},</span><span class="w">
-        </span><span class="nt">"2/"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="nt">"status"</span><span class="p">:</span><span class="w"> </span><span class="s2">"error"</span><span class="p">},</span><span class="w">
-        </span><span class="nt">"3/"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="nt">"status"</span><span class="p">:</span><span class="w"> </span><span class="s2">"importing"</span><span class="p">}</span><span class="w">
-    </span><span class="p">}</span><span class="w">
-</span><span class="p">}</span><span class="w">
-</span></code></pre>
-
-<h4 id="post">POST</h4>
-
-<p>A POST to this resource adds a new batch. The request payload can contain (1) the URL of another Dataset, (2) the URL of a Source object, or (3) a Crunch Table definition with variable metadata, row data, or both.</p>
-
-<p>A successful request will return either 201 status, if sufficiently fast, or 202, if the task is large enough to require processing outside of the request cycle. In both cases, the newly created batch entity&rsquo;s URL is returned in the Location header. The 202 response contains a body with a Progress resource in it; poll that URL for updates on the completion of the append. See <a href="#progress">Progress</a>.</p>
-
-<p>Batches are created in <code class="prettyprint">analyzing</code> state and will be advanced through <code class="prettyprint">importing</code>, <code class="prettyprint">imported</code>, and <code class="prettyprint">appended</code> states if there are no problems. If there was a problem in processing it, its status will be <code class="prettyprint">conflict</code> or <code class="prettyprint">error</code>. Note that the response status code will always be 202 for asynchronous or 201 for synchronous creation of the batch whether there were conflicts or not. So you need to GET the new batch&rsquo;s URL to see if the data is good to go (status <code class="prettyprint">appended</code>).</p>
-
-<p>If an append is already in process on the dataset, the POST request will return 409 status.</p>
-
-<h5 id="appending-a-dataset">Appending a dataset</h5>
-
-<p>To append a Dataset, POST a Shoji Entity with a dataset URL. You must have at least view (read) permissions on this dataset. Internally, this action will create a Source entity pointing to that dataset.</p>
-<pre class="highlight json"><code><span class="p">{</span><span class="w">
-  </span><span class="nt">"element"</span><span class="p">:</span><span class="w"> </span><span class="s2">"shoji:entity"</span><span class="p">,</span><span class="w">
-  </span><span class="nt">"body"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
-      </span><span class="nt">"dataset"</span><span class="p">:</span><span class="w"> </span><span class="s2">"&lt;url&gt;"</span><span class="w">
-  </span><span class="p">}</span><span class="w">
-</span><span class="p">}</span><span class="w">
-</span></code></pre>
-
-<p>The variables from the incoming dataset to be included by default will depend
-on the current user&rsquo;s permissions. Those with edit permissions on the incoming dataset will
-append all public and hidden (<code class="prettyprint">discarded = true</code>) variables. Those with only view permissions will
- just include public variables that aren&rsquo;t hidden.</p>
-
-<p>To append only certain variables from the incoming dataset, include an <code class="prettyprint">where</code> attribute in the entity body. See <a href="#frame-functions">Frame functions</a> for how to compose the <code class="prettyprint">where</code> expression.</p>
-<pre class="highlight json"><code><span class="p">{</span><span class="w">
-  </span><span class="nt">"element"</span><span class="p">:</span><span class="w"> </span><span class="s2">"shoji:entity"</span><span class="p">,</span><span class="w">
-  </span><span class="nt">"body"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
-      </span><span class="nt">"dataset"</span><span class="p">:</span><span class="w"> </span><span class="s2">"&lt;url&gt;"</span><span class="p">,</span><span class="w">
-      </span><span class="nt">"where"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
-          </span><span class="nt">"function"</span><span class="p">:</span><span class="s2">"select"</span><span class="p">,</span><span class="w">
-          </span><span class="nt">"args"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
-                </span><span class="p">{</span><span class="nt">"map"</span><span class="p">:</span><span class="w">
-                    </span><span class="p">{</span><span class="nt">"000001"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="nt">"variable"</span><span class="p">:</span><span class="w"> </span><span class="s2">"&lt;url&gt;"</span><span class="p">},</span><span class="w">
-                     </span><span class="nt">"000002"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="nt">"variable"</span><span class="p">:</span><span class="w"> </span><span class="s2">"&lt;url&gt;"</span><span class="p">}}</span><span class="w">
-                </span><span class="p">}</span><span class="w">
-          </span><span class="p">]</span><span class="w">
-      </span><span class="p">}</span><span class="w">
-  </span><span class="p">}</span><span class="w">
-</span><span class="p">}</span><span class="w">
-</span></code></pre>
-
-<p>Users with edit permissions on the incoming dataset can select hidden variables to be included, but viewers cannot. Editors and viewers can however both specify their personal variables to be included.</p>
-
-<p>To select a subset of rows to append, include an <code class="prettyprint">filter</code> attribute in the entity body, containing a Crunch filter expression.</p>
-<pre class="highlight json"><code><span class="p">{</span><span class="w">
-  </span><span class="nt">"element"</span><span class="p">:</span><span class="w"> </span><span class="s2">"shoji:entity"</span><span class="p">,</span><span class="w">
-  </span><span class="nt">"body"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
-      </span><span class="nt">"dataset"</span><span class="p">:</span><span class="w"> </span><span class="s2">"&lt;url&gt;"</span><span class="p">,</span><span class="w">
-      </span><span class="nt">"where"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
-          </span><span class="nt">"function"</span><span class="p">:</span><span class="s2">"select"</span><span class="p">,</span><span class="w">
-          </span><span class="nt">"args"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
-                </span><span class="p">{</span><span class="nt">"map"</span><span class="p">:</span><span class="w">
-                    </span><span class="p">{</span><span class="nt">"000001"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="nt">"variable"</span><span class="p">:</span><span class="w"> </span><span class="s2">"&lt;url&gt;"</span><span class="p">},</span><span class="w">
-                     </span><span class="nt">"000002"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="nt">"variable"</span><span class="p">:</span><span class="w"> </span><span class="s2">"&lt;url&gt;"</span><span class="p">}}</span><span class="w">
-                </span><span class="p">}</span><span class="w">
-          </span><span class="p">]</span><span class="w">
-      </span><span class="p">},</span><span class="w">
-      </span><span class="nt">"filter"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
-          </span><span class="nt">"function"</span><span class="p">:</span><span class="s2">"&lt;"</span><span class="p">,</span><span class="w">
-          </span><span class="nt">"args"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
-                </span><span class="p">{</span><span class="nt">"variable"</span><span class="p">:</span><span class="w"> </span><span class="s2">"&lt;url&gt;"</span><span class="p">},</span><span class="w">
-                </span><span class="p">{</span><span class="nt">"value"</span><span class="p">:</span><span class="w"> </span><span class="s2">"&lt;value&gt;"</span><span class="p">}</span><span class="w">
-          </span><span class="p">]</span><span class="w">
-      </span><span class="p">}</span><span class="w">  
-  </span><span class="p">}</span><span class="w">
-</span><span class="p">}</span><span class="w">
-</span></code></pre>
-
-<h5 id="appending-a-source">Appending a source</h5>
-
-<p>POST a Shoji Entity with a Source URL. The user must have permission to view the Source entity. Use Source appending to send data in CSV format that matches the schema of the Dataset.</p>
-<pre class="highlight json"><code><span class="p">{</span><span class="w">
-  </span><span class="nt">"element"</span><span class="p">:</span><span class="w"> </span><span class="s2">"shoji:entity"</span><span class="p">,</span><span class="w">
-  </span><span class="nt">"body"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
-      </span><span class="nt">"source"</span><span class="p">:</span><span class="w"> </span><span class="s2">"&lt;url&gt;"</span><span class="w">
-  </span><span class="p">}</span><span class="w">
-</span><span class="p">}</span><span class="w">
-</span></code></pre>
-
-<h5 id="appending-a-crunch-table">Appending a Crunch Table</h5>
-
-<p>The variables IDs must match those of the target dataset since their types will be matched based on ID. The data is expected to match the target dataset&rsquo;s variable types. This action will create a new Source entity, its name and description will match those provided on the JSON response, if not provided they&rsquo;ll default to empty string.</p>
-<pre class="highlight json"><code><span class="p">{</span><span class="w">
-  </span><span class="nt">"element"</span><span class="p">:</span><span class="w"> </span><span class="s2">"crunch:table"</span><span class="p">,</span><span class="w">
-    </span><span class="nt">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"&lt;optional string&gt;"</span><span class="p">,</span><span class="w">
-    </span><span class="nt">"description"</span><span class="p">:</span><span class="w"> </span><span class="s2">"&lt;optional string&gt;"</span><span class="p">,</span><span class="w">
-    </span><span class="nt">"data"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
-      </span><span class="nt">"var_url_1"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span><span class="p">,</span><span class="w"> </span><span class="mi">3</span><span class="p">,</span><span class="w"> </span><span class="err">...</span><span class="p">],</span><span class="w">
-      </span><span class="nt">"var_url_2"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">"a"</span><span class="p">,</span><span class="w"> </span><span class="s2">"b"</span><span class="p">,</span><span class="w"> </span><span class="err">...</span><span class="p">]</span><span class="w">
-    </span><span class="p">}</span><span class="w">
-</span><span class="p">}</span><span class="w">
-</span></code></pre>
-
-<h5 id="managing-append-failures">Managing Append Failures</h5>
-
-<p>In case of failures while appending the batch, the dataset will be automatically reverted
-back to the state it was before the append and the batch is automatically deleted.</p>
-
-<p>This behavior can be changed by providing a <code class="prettyprint">autorollback: false</code> value into the POST
-performed to append the data. When <code class="prettyprint">autorollback: false</code> is provided a savepoint to which
-user can revert to is still created, but the dataset is left in errored state for inspection.
-The user can then manually revert to the savepoint and delete the associated batch.</p>
-<pre class="highlight json"><code><span class="p">{</span><span class="w">
-  </span><span class="nt">"element"</span><span class="p">:</span><span class="w"> </span><span class="s2">"shoji:entity"</span><span class="p">,</span><span class="w">
-  </span><span class="nt">"autorollback"</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="p">,</span><span class="w">
-  </span><span class="nt">"body"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
-      </span><span class="nt">"source"</span><span class="p">:</span><span class="w"> </span><span class="s2">"&lt;url&gt;"</span><span class="w">
-  </span><span class="p">}</span><span class="w">
-</span><span class="p">}</span><span class="w">
-</span></code></pre>
-
-<p>In case of appending to an empty dataset you might want to avoid the cost of creating
-a savepoint at all as reverting to it will just lead to an empty dataset which you probably
-just want to delete, in such case a <code class="prettyprint">savepoint: false</code> value can be provided which will
-totally disable the savepoint support:</p>
-<pre class="highlight json"><code><span class="p">{</span><span class="w">
-  </span><span class="nt">"element"</span><span class="p">:</span><span class="w"> </span><span class="s2">"shoji:entity"</span><span class="p">,</span><span class="w">
-  </span><span class="nt">"savepoint"</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="p">,</span><span class="w">
-  </span><span class="nt">"body"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
-      </span><span class="nt">"source"</span><span class="p">:</span><span class="w"> </span><span class="s2">"&lt;url&gt;"</span><span class="w">
-  </span><span class="p">}</span><span class="w">
-</span><span class="p">}</span><span class="w">
-</span></code></pre>
-
-<h4 id="checking-if-an-append-will-cause-problems">Checking if an append will cause problems</h4>
-
-<p><code class="prettyprint">/datasets/{id}/batches/compare/</code></p>
-
-<p>An append cannot proceed if there are any conditions in the involved datasets
-that will cause ambiguous situations. If such datasets were to be appended
-the server will return a 409 response.</p>
-
-<p>It is possible to verify these conditions before trying the append using
-the batches compare endpoint.</p>
-<pre class="highlight plaintext"><code>GET /datasets/4bc6af/batches/compare/?dataset=http://app.crunch.io/api/datasets/3e2cfb/
-</code></pre>
-
-<p>The response will contain a conflicts key that can contain either <code class="prettyprint">current</code>,
-<code class="prettyprint">incoming</code> or <code class="prettyprint">union</code> depending on the type and location of the problem. The response status
-will always be 200, with conflicts, described below, or an empty body.</p>
-
-<ul>
-<li><code class="prettyprint">current</code> refers to issues find on the dataset where new data would be added</li>
-<li><code class="prettyprint">incoming</code> has issues on the far dataset that contains the new data to add</li>
-<li><code class="prettyprint">union</code> expresses problems on the combined variables(metadata) of the final dataset after append.</li>
-</ul>
-<pre class="highlight json"><code><span class="w">
-</span><span class="p">{</span><span class="w">
-    </span><span class="nt">"union"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="err">...</span><span class="p">},</span><span class="w">
-    </span><span class="nt">"current"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="err">...</span><span class="p">},</span><span class="w">
-    </span><span class="nt">"incoming"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="err">...</span><span class="p">}</span><span class="w">
-</span><span class="p">}</span><span class="w">
-
-</span></code></pre>
-
-<p>A successful response will not contain any of the keys returning an empty object.</p>
-<pre class="highlight json"><code><span class="w">
-</span><span class="p">{}</span><span class="w">
-
-</span></code></pre>
-
-<p>The possible keys in the conflicts and verifications made are:</p>
-
-<ul>
-<li><strong>Variables missing alias</strong>: All variables should have a valid alias string. This will indicate the IDs of those that don’t.</li>
-<li><strong>Variables missing name</strong>:  All variables should have a valid name string. This will indicate the IDs of those that don’t.</li>
-<li><strong>Variables with duplicate alias</strong>: In the event of two or more variables sharing an alias, they will be reported here. When this occurs as a <em>union</em> conflict, it is likely that names and aliases of a variable or subvariable in <em>current</em> and <em>incoming</em> are swapped (e.g., VariantOne:AliasOne, Variant1:Alias1 in current but VariantOne:Alias1, Variant1:AliasOne in incoming).</li>
-<li><strong>Variables with duplicate name</strong>: Variable names should be unique across non subvariables.</li>
-<li><strong>Subvariable in different arrays per dataset</strong>: If a subvariable is used for different arrays that are impossible to match, it will be reported here. User action will be needed to fix this.</li>
-</ul>
-
-<p>For each of these, a list of variable IDs will be made available indicating the
-conflicting entities. <em>Union</em> conflicting ids generally refer to variables in
-the <em>current</em> dataset and may be referenced by alias in <em>incoming</em>.</p>
-
-<h3 id="entity">Entity</h3>
-
-<p><code class="prettyprint">/datasets/{id}/batches/{id}/</code></p>
-
-<p>A GET on this resource returns a Shoji Entity describing the batch, and a link to its Crunch Table (see next).</p>
-<pre class="highlight json"><code><span class="p">{</span><span class="w">
-    </span><span class="nt">"conflicts"</span><span class="p">:</span><span class="w"> </span><span class="p">{},</span><span class="w">
-    </span><span class="nt">"source_children"</span><span class="p">:</span><span class="w"> </span><span class="p">{},</span><span class="w">
-    </span><span class="nt">"target_children"</span><span class="p">:</span><span class="w"> </span><span class="p">{},</span><span class="w">
-    </span><span class="nt">"source_columns"</span><span class="p">:</span><span class="w"> </span><span class="mi">3500</span><span class="p">,</span><span class="w">
-    </span><span class="nt">"source_rows"</span><span class="p">:</span><span class="w"> </span><span class="mi">235490</span><span class="p">,</span><span class="w">
-    </span><span class="nt">"target_columns"</span><span class="p">:</span><span class="w"> </span><span class="mi">3499</span><span class="p">,</span><span class="w">
-    </span><span class="nt">"target_rows"</span><span class="p">:</span><span class="w"> </span><span class="mi">120000</span><span class="p">,</span><span class="w">
-    </span><span class="nt">"error"</span><span class="p">:</span><span class="w"> </span><span class="s2">""</span><span class="p">,</span><span class="w">
-    </span><span class="nt">"progress"</span><span class="p">:</span><span class="w"> </span><span class="mf">100.0</span><span class="p">,</span><span class="w">
-    </span><span class="nt">"source"</span><span class="p">:</span><span class="w"> </span><span class="s2">"&lt;url&gt;"</span><span class="p">,</span><span class="w">
-    </span><span class="nt">"status"</span><span class="p">:</span><span class="w"> </span><span class="s2">"appended"</span><span class="w">
-</span><span class="p">}</span><span class="w">
-</span></code></pre>
-
-<h4 id="the-conflicts-object">The conflicts object</h4>
-
-<p>Each batch has a &ldquo;conflicts&rdquo; member describing any unresolvable differences found between variables in the two datasets. On a successful append, this object will be empty; if the batch status is &ldquo;conflict&rdquo;, the object will contain conflict information keyed by id of the variable in the target dataset. The conflict data for each variable follows this shape:</p>
-<pre class="highlight json"><code><span class="p">{</span><span class="w">
-    </span><span class="nt">"metadata"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
-        </span><span class="nt">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"&lt;string&gt;"</span><span class="p">,</span><span class="w">
-        </span><span class="nt">"alias"</span><span class="p">:</span><span class="w"> </span><span class="s2">"&lt;string&gt;"</span><span class="p">,</span><span class="w">
-        </span><span class="nt">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"&lt;string&gt;"</span><span class="p">,</span><span class="w">
-        </span><span class="nt">"categories"</span><span class="p">:</span><span class="w"> </span><span class="p">[{}]</span><span class="w">
-    </span><span class="p">},</span><span class="w">
-    </span><span class="nt">"source_id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"&lt;id of the matching variable in the source frame"</span><span class="p">,</span><span class="w">
-    </span><span class="nt">"source_metadata"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
-        </span><span class="nt">"name, etc"</span><span class="p">:</span><span class="w"> </span><span class="s2">"as above"</span><span class="w">
-    </span><span class="p">},</span><span class="w">
-    </span><span class="nt">"conflicts"</span><span class="p">:</span><span class="w"> </span><span class="p">[{</span><span class="w">
-        </span><span class="nt">"message"</span><span class="p">:</span><span class="w"> </span><span class="s2">"&lt;string&gt;"</span><span class="w">
-    </span><span class="p">}]</span><span class="w">
-</span><span class="p">}</span><span class="w">
-</span></code></pre>
-
-<p>Each conflict has four attributes: <code class="prettyprint">metadata</code> about the variable on the target dataset (unless it is a variable that only exists on the source dataset), <code class="prettyprint">source_id</code> and <code class="prettyprint">source_metadata</code>, which describe the corresponding variable in the source frame (if any), and a <code class="prettyprint">conflicts</code> member. The <code class="prettyprint">conflicts</code> member contains an array with a list of individual conflicts that indicate what situations were found during batch preparation.</p>
-
-<p>If there are conflicts in your batch, address the conflicting issues in your datasets, DELETE the batch entity from the failed append attempt, and POST a new one.</p>
-
-<h4 id="table">Table</h4>
-
-<p><code class="prettyprint">/datasets/{id}/batches/{id}/table/{?offset,limit}</code></p>
-
-<p>A GET returns the rows of data from the Dataset for the identified batch as a Crunch Table.</p>
-
           <h2 id="accounts">Accounts</h2>
 
 <p>Accounts provide an organization-level scope for Crunch.io customers. All Users
@@ -3619,6 +3371,254 @@ teams.</p>
   </span><span class="p">}</span><span class="w">
 </span><span class="p">}</span><span class="w">
 </span></code></pre>
+
+          <h2 id="batches">Batches</h2>
+
+<h3 id="catalog">Catalog</h3>
+
+<p><code class="prettyprint">/datasets/{id}/batches/</code></p>
+
+<h4 id="get">GET</h4>
+
+<p>A GET request on this resource returns a Shoji Catalog enumerating the batches present in the Dataset. Each tuple in the index includes a &ldquo;status&rdquo; member, which may be one of &ldquo;analyzing&rdquo;, &ldquo;conflict&rdquo;, &ldquo;error&rdquo;, &ldquo;importing&rdquo;, &ldquo;imported&rdquo;, or &ldquo;appended&rdquo;.</p>
+<pre class="highlight json"><code><span class="p">{</span><span class="w">
+    </span><span class="nt">"element"</span><span class="p">:</span><span class="w"> </span><span class="s2">"shoji:catalog"</span><span class="p">,</span><span class="w">
+    </span><span class="nt">"self"</span><span class="p">:</span><span class="w"> </span><span class="s2">"...datasets/837498a/batches/"</span><span class="p">,</span><span class="w">
+    </span><span class="nt">"index"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+        </span><span class="nt">"0/"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="nt">"status"</span><span class="p">:</span><span class="w"> </span><span class="s2">"appended"</span><span class="p">},</span><span class="w">
+        </span><span class="nt">"2/"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="nt">"status"</span><span class="p">:</span><span class="w"> </span><span class="s2">"error"</span><span class="p">},</span><span class="w">
+        </span><span class="nt">"3/"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="nt">"status"</span><span class="p">:</span><span class="w"> </span><span class="s2">"importing"</span><span class="p">}</span><span class="w">
+    </span><span class="p">}</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre>
+
+<h4 id="post">POST</h4>
+
+<p>A POST to this resource adds a new batch. The request payload can contain (1) the URL of another Dataset, (2) the URL of a Source object, or (3) a Crunch Table definition with variable metadata, row data, or both.</p>
+
+<p>A successful request will return either 201 status, if sufficiently fast, or 202, if the task is large enough to require processing outside of the request cycle. In both cases, the newly created batch entity&rsquo;s URL is returned in the Location header. The 202 response contains a body with a Progress resource in it; poll that URL for updates on the completion of the append. See <a href="#progress">Progress</a>.</p>
+
+<p>Batches are created in <code class="prettyprint">analyzing</code> state and will be advanced through <code class="prettyprint">importing</code>, <code class="prettyprint">imported</code>, and <code class="prettyprint">appended</code> states if there are no problems. If there was a problem in processing it, its status will be <code class="prettyprint">conflict</code> or <code class="prettyprint">error</code>. Note that the response status code will always be 202 for asynchronous or 201 for synchronous creation of the batch whether there were conflicts or not. So you need to GET the new batch&rsquo;s URL to see if the data is good to go (status <code class="prettyprint">appended</code>).</p>
+
+<p>If an append is already in process on the dataset, the POST request will return 409 status.</p>
+
+<h5 id="appending-a-dataset">Appending a dataset</h5>
+
+<p>To append a Dataset, POST a Shoji Entity with a dataset URL. You must have at least view (read) permissions on this dataset. Internally, this action will create a Source entity pointing to that dataset.</p>
+<pre class="highlight json"><code><span class="p">{</span><span class="w">
+  </span><span class="nt">"element"</span><span class="p">:</span><span class="w"> </span><span class="s2">"shoji:entity"</span><span class="p">,</span><span class="w">
+  </span><span class="nt">"body"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+      </span><span class="nt">"dataset"</span><span class="p">:</span><span class="w"> </span><span class="s2">"&lt;url&gt;"</span><span class="w">
+  </span><span class="p">}</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre>
+
+<p>The variables from the incoming dataset to be included by default will depend
+on the current user&rsquo;s permissions. Those with edit permissions on the incoming dataset will
+append all public and hidden (<code class="prettyprint">discarded = true</code>) variables. Those with only view permissions will
+ just include public variables that aren&rsquo;t hidden.</p>
+
+<p>To append only certain variables from the incoming dataset, include an <code class="prettyprint">where</code> attribute in the entity body. See <a href="#frame-functions">Frame functions</a> for how to compose the <code class="prettyprint">where</code> expression.</p>
+<pre class="highlight json"><code><span class="p">{</span><span class="w">
+  </span><span class="nt">"element"</span><span class="p">:</span><span class="w"> </span><span class="s2">"shoji:entity"</span><span class="p">,</span><span class="w">
+  </span><span class="nt">"body"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+      </span><span class="nt">"dataset"</span><span class="p">:</span><span class="w"> </span><span class="s2">"&lt;url&gt;"</span><span class="p">,</span><span class="w">
+      </span><span class="nt">"where"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+          </span><span class="nt">"function"</span><span class="p">:</span><span class="s2">"select"</span><span class="p">,</span><span class="w">
+          </span><span class="nt">"args"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
+                </span><span class="p">{</span><span class="nt">"map"</span><span class="p">:</span><span class="w">
+                    </span><span class="p">{</span><span class="nt">"000001"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="nt">"variable"</span><span class="p">:</span><span class="w"> </span><span class="s2">"&lt;url&gt;"</span><span class="p">},</span><span class="w">
+                     </span><span class="nt">"000002"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="nt">"variable"</span><span class="p">:</span><span class="w"> </span><span class="s2">"&lt;url&gt;"</span><span class="p">}}</span><span class="w">
+                </span><span class="p">}</span><span class="w">
+          </span><span class="p">]</span><span class="w">
+      </span><span class="p">}</span><span class="w">
+  </span><span class="p">}</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre>
+
+<p>Users with edit permissions on the incoming dataset can select hidden variables to be included, but viewers cannot. Editors and viewers can however both specify their personal variables to be included.</p>
+
+<p>To select a subset of rows to append, include an <code class="prettyprint">filter</code> attribute in the entity body, containing a Crunch filter expression.</p>
+<pre class="highlight json"><code><span class="p">{</span><span class="w">
+  </span><span class="nt">"element"</span><span class="p">:</span><span class="w"> </span><span class="s2">"shoji:entity"</span><span class="p">,</span><span class="w">
+  </span><span class="nt">"body"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+      </span><span class="nt">"dataset"</span><span class="p">:</span><span class="w"> </span><span class="s2">"&lt;url&gt;"</span><span class="p">,</span><span class="w">
+      </span><span class="nt">"where"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+          </span><span class="nt">"function"</span><span class="p">:</span><span class="s2">"select"</span><span class="p">,</span><span class="w">
+          </span><span class="nt">"args"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
+                </span><span class="p">{</span><span class="nt">"map"</span><span class="p">:</span><span class="w">
+                    </span><span class="p">{</span><span class="nt">"000001"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="nt">"variable"</span><span class="p">:</span><span class="w"> </span><span class="s2">"&lt;url&gt;"</span><span class="p">},</span><span class="w">
+                     </span><span class="nt">"000002"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="nt">"variable"</span><span class="p">:</span><span class="w"> </span><span class="s2">"&lt;url&gt;"</span><span class="p">}}</span><span class="w">
+                </span><span class="p">}</span><span class="w">
+          </span><span class="p">]</span><span class="w">
+      </span><span class="p">},</span><span class="w">
+      </span><span class="nt">"filter"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+          </span><span class="nt">"function"</span><span class="p">:</span><span class="s2">"&lt;"</span><span class="p">,</span><span class="w">
+          </span><span class="nt">"args"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
+                </span><span class="p">{</span><span class="nt">"variable"</span><span class="p">:</span><span class="w"> </span><span class="s2">"&lt;url&gt;"</span><span class="p">},</span><span class="w">
+                </span><span class="p">{</span><span class="nt">"value"</span><span class="p">:</span><span class="w"> </span><span class="s2">"&lt;value&gt;"</span><span class="p">}</span><span class="w">
+          </span><span class="p">]</span><span class="w">
+      </span><span class="p">}</span><span class="w">  
+  </span><span class="p">}</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre>
+
+<h5 id="appending-a-source">Appending a source</h5>
+
+<p>POST a Shoji Entity with a Source URL. The user must have permission to view the Source entity. Use Source appending to send data in CSV format that matches the schema of the Dataset.</p>
+<pre class="highlight json"><code><span class="p">{</span><span class="w">
+  </span><span class="nt">"element"</span><span class="p">:</span><span class="w"> </span><span class="s2">"shoji:entity"</span><span class="p">,</span><span class="w">
+  </span><span class="nt">"body"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+      </span><span class="nt">"source"</span><span class="p">:</span><span class="w"> </span><span class="s2">"&lt;url&gt;"</span><span class="w">
+  </span><span class="p">}</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre>
+
+<h5 id="appending-a-crunch-table">Appending a Crunch Table</h5>
+
+<p>The variables IDs must match those of the target dataset since their types will be matched based on ID. The data is expected to match the target dataset&rsquo;s variable types. This action will create a new Source entity, its name and description will match those provided on the JSON response, if not provided they&rsquo;ll default to empty string.</p>
+<pre class="highlight json"><code><span class="p">{</span><span class="w">
+  </span><span class="nt">"element"</span><span class="p">:</span><span class="w"> </span><span class="s2">"crunch:table"</span><span class="p">,</span><span class="w">
+    </span><span class="nt">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"&lt;optional string&gt;"</span><span class="p">,</span><span class="w">
+    </span><span class="nt">"description"</span><span class="p">:</span><span class="w"> </span><span class="s2">"&lt;optional string&gt;"</span><span class="p">,</span><span class="w">
+    </span><span class="nt">"data"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+      </span><span class="nt">"var_url_1"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span><span class="p">,</span><span class="w"> </span><span class="mi">3</span><span class="p">,</span><span class="w"> </span><span class="err">...</span><span class="p">],</span><span class="w">
+      </span><span class="nt">"var_url_2"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">"a"</span><span class="p">,</span><span class="w"> </span><span class="s2">"b"</span><span class="p">,</span><span class="w"> </span><span class="err">...</span><span class="p">]</span><span class="w">
+    </span><span class="p">}</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre>
+
+<h5 id="managing-append-failures">Managing Append Failures</h5>
+
+<p>In case of failures while appending the batch, the dataset will be automatically reverted
+back to the state it was before the append and the batch is automatically deleted.</p>
+
+<p>This behavior can be changed by providing a <code class="prettyprint">autorollback: false</code> value into the POST
+performed to append the data. When <code class="prettyprint">autorollback: false</code> is provided a savepoint to which
+user can revert to is still created, but the dataset is left in errored state for inspection.
+The user can then manually revert to the savepoint and delete the associated batch.</p>
+<pre class="highlight json"><code><span class="p">{</span><span class="w">
+  </span><span class="nt">"element"</span><span class="p">:</span><span class="w"> </span><span class="s2">"shoji:entity"</span><span class="p">,</span><span class="w">
+  </span><span class="nt">"autorollback"</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="p">,</span><span class="w">
+  </span><span class="nt">"body"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+      </span><span class="nt">"source"</span><span class="p">:</span><span class="w"> </span><span class="s2">"&lt;url&gt;"</span><span class="w">
+  </span><span class="p">}</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre>
+
+<p>In case of appending to an empty dataset you might want to avoid the cost of creating
+a savepoint at all as reverting to it will just lead to an empty dataset which you probably
+just want to delete, in such case a <code class="prettyprint">savepoint: false</code> value can be provided which will
+totally disable the savepoint support:</p>
+<pre class="highlight json"><code><span class="p">{</span><span class="w">
+  </span><span class="nt">"element"</span><span class="p">:</span><span class="w"> </span><span class="s2">"shoji:entity"</span><span class="p">,</span><span class="w">
+  </span><span class="nt">"savepoint"</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="p">,</span><span class="w">
+  </span><span class="nt">"body"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+      </span><span class="nt">"source"</span><span class="p">:</span><span class="w"> </span><span class="s2">"&lt;url&gt;"</span><span class="w">
+  </span><span class="p">}</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre>
+
+<h4 id="checking-if-an-append-will-cause-problems">Checking if an append will cause problems</h4>
+
+<p><code class="prettyprint">/datasets/{id}/batches/compare/</code></p>
+
+<p>An append cannot proceed if there are any conditions in the involved datasets
+that will cause ambiguous situations. If such datasets were to be appended
+the server will return a 409 response.</p>
+
+<p>It is possible to verify these conditions before trying the append using
+the batches compare endpoint.</p>
+<pre class="highlight plaintext"><code>GET /datasets/4bc6af/batches/compare/?dataset=http://app.crunch.io/api/datasets/3e2cfb/
+</code></pre>
+
+<p>The response will contain a conflicts key that can contain either <code class="prettyprint">current</code>,
+<code class="prettyprint">incoming</code> or <code class="prettyprint">union</code> depending on the type and location of the problem. The response status
+will always be 200, with conflicts, described below, or an empty body.</p>
+
+<ul>
+<li><code class="prettyprint">current</code> refers to issues find on the dataset where new data would be added</li>
+<li><code class="prettyprint">incoming</code> has issues on the far dataset that contains the new data to add</li>
+<li><code class="prettyprint">union</code> expresses problems on the combined variables(metadata) of the final dataset after append.</li>
+</ul>
+<pre class="highlight json"><code><span class="w">
+</span><span class="p">{</span><span class="w">
+    </span><span class="nt">"union"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="err">...</span><span class="p">},</span><span class="w">
+    </span><span class="nt">"current"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="err">...</span><span class="p">},</span><span class="w">
+    </span><span class="nt">"incoming"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="err">...</span><span class="p">}</span><span class="w">
+</span><span class="p">}</span><span class="w">
+
+</span></code></pre>
+
+<p>A successful response will not contain any of the keys returning an empty object.</p>
+<pre class="highlight json"><code><span class="w">
+</span><span class="p">{}</span><span class="w">
+
+</span></code></pre>
+
+<p>The possible keys in the conflicts and verifications made are:</p>
+
+<ul>
+<li><strong>Variables missing alias</strong>: All variables should have a valid alias string. This will indicate the IDs of those that don’t.</li>
+<li><strong>Variables missing name</strong>:  All variables should have a valid name string. This will indicate the IDs of those that don’t.</li>
+<li><strong>Variables with duplicate alias</strong>: In the event of two or more variables sharing an alias, they will be reported here. When this occurs as a <em>union</em> conflict, it is likely that names and aliases of a variable or subvariable in <em>current</em> and <em>incoming</em> are swapped (e.g., VariantOne:AliasOne, Variant1:Alias1 in current but VariantOne:Alias1, Variant1:AliasOne in incoming).</li>
+<li><strong>Variables with duplicate name</strong>: Variable names should be unique across non subvariables.</li>
+<li><strong>Subvariable in different arrays per dataset</strong>: If a subvariable is used for different arrays that are impossible to match, it will be reported here. User action will be needed to fix this.</li>
+</ul>
+
+<p>For each of these, a list of variable IDs will be made available indicating the
+conflicting entities. <em>Union</em> conflicting ids generally refer to variables in
+the <em>current</em> dataset and may be referenced by alias in <em>incoming</em>.</p>
+
+<h3 id="entity">Entity</h3>
+
+<p><code class="prettyprint">/datasets/{id}/batches/{id}/</code></p>
+
+<p>A GET on this resource returns a Shoji Entity describing the batch, and a link to its Crunch Table (see next).</p>
+<pre class="highlight json"><code><span class="p">{</span><span class="w">
+    </span><span class="nt">"conflicts"</span><span class="p">:</span><span class="w"> </span><span class="p">{},</span><span class="w">
+    </span><span class="nt">"source_children"</span><span class="p">:</span><span class="w"> </span><span class="p">{},</span><span class="w">
+    </span><span class="nt">"target_children"</span><span class="p">:</span><span class="w"> </span><span class="p">{},</span><span class="w">
+    </span><span class="nt">"source_columns"</span><span class="p">:</span><span class="w"> </span><span class="mi">3500</span><span class="p">,</span><span class="w">
+    </span><span class="nt">"source_rows"</span><span class="p">:</span><span class="w"> </span><span class="mi">235490</span><span class="p">,</span><span class="w">
+    </span><span class="nt">"target_columns"</span><span class="p">:</span><span class="w"> </span><span class="mi">3499</span><span class="p">,</span><span class="w">
+    </span><span class="nt">"target_rows"</span><span class="p">:</span><span class="w"> </span><span class="mi">120000</span><span class="p">,</span><span class="w">
+    </span><span class="nt">"error"</span><span class="p">:</span><span class="w"> </span><span class="s2">""</span><span class="p">,</span><span class="w">
+    </span><span class="nt">"progress"</span><span class="p">:</span><span class="w"> </span><span class="mf">100.0</span><span class="p">,</span><span class="w">
+    </span><span class="nt">"source"</span><span class="p">:</span><span class="w"> </span><span class="s2">"&lt;url&gt;"</span><span class="p">,</span><span class="w">
+    </span><span class="nt">"status"</span><span class="p">:</span><span class="w"> </span><span class="s2">"appended"</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre>
+
+<h4 id="the-conflicts-object">The conflicts object</h4>
+
+<p>Each batch has a &ldquo;conflicts&rdquo; member describing any unresolvable differences found between variables in the two datasets. On a successful append, this object will be empty; if the batch status is &ldquo;conflict&rdquo;, the object will contain conflict information keyed by id of the variable in the target dataset. The conflict data for each variable follows this shape:</p>
+<pre class="highlight json"><code><span class="p">{</span><span class="w">
+    </span><span class="nt">"metadata"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+        </span><span class="nt">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"&lt;string&gt;"</span><span class="p">,</span><span class="w">
+        </span><span class="nt">"alias"</span><span class="p">:</span><span class="w"> </span><span class="s2">"&lt;string&gt;"</span><span class="p">,</span><span class="w">
+        </span><span class="nt">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"&lt;string&gt;"</span><span class="p">,</span><span class="w">
+        </span><span class="nt">"categories"</span><span class="p">:</span><span class="w"> </span><span class="p">[{}]</span><span class="w">
+    </span><span class="p">},</span><span class="w">
+    </span><span class="nt">"source_id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"&lt;id of the matching variable in the source frame"</span><span class="p">,</span><span class="w">
+    </span><span class="nt">"source_metadata"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+        </span><span class="nt">"name, etc"</span><span class="p">:</span><span class="w"> </span><span class="s2">"as above"</span><span class="w">
+    </span><span class="p">},</span><span class="w">
+    </span><span class="nt">"conflicts"</span><span class="p">:</span><span class="w"> </span><span class="p">[{</span><span class="w">
+        </span><span class="nt">"message"</span><span class="p">:</span><span class="w"> </span><span class="s2">"&lt;string&gt;"</span><span class="w">
+    </span><span class="p">}]</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre>
+
+<p>Each conflict has four attributes: <code class="prettyprint">metadata</code> about the variable on the target dataset (unless it is a variable that only exists on the source dataset), <code class="prettyprint">source_id</code> and <code class="prettyprint">source_metadata</code>, which describe the corresponding variable in the source frame (if any), and a <code class="prettyprint">conflicts</code> member. The <code class="prettyprint">conflicts</code> member contains an array with a list of individual conflicts that indicate what situations were found during batch preparation.</p>
+
+<p>If there are conflicts in your batch, address the conflicting issues in your datasets, DELETE the batch entity from the failed append attempt, and POST a new one.</p>
+
+<h4 id="table">Table</h4>
+
+<p><code class="prettyprint">/datasets/{id}/batches/{id}/table/{?offset,limit}</code></p>
+
+<p>A GET returns the rows of data from the Dataset for the identified batch as a Crunch Table.</p>
 
           <h2 id="boxdata">Boxdata</h2>
 
