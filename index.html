@@ -3570,6 +3570,128 @@ will always be 200, with conflicts, described below, or an empty body.</p>
 conflicting entities. <em>Union</em> conflicting ids generally refer to variables in
 the <em>current</em> dataset and may be referenced by alias in <em>incoming</em>.</p>
 
+<h4 id="lining-up-datasets-for-append-combine">Lining up datasets for append/combine</h4>
+
+<p><code class="prettyprint">/datasets/align/</code></p>
+
+<p>Given that some datasets may be close to being fit for appending but could need
+some work before proceeding, the <code class="prettyprint">align</code> endpoint provides API expressions
+that can be used directly on the append steps as <code class="prettyprint">where</code> parameter in order
+to avoid such conflicts.</p>
+
+<p>Currently, this endpoint will provide an expression that will exclude the 
+troubling variables from the append.</p>
+
+<ul>
+<li>Exclude different arrays that may share subvariables by alias. 
+This is currently not allowed and would reject the append operation.</li>
+</ul>
+
+<p>To use this endpoint, the client needs to provide a list of variables they wish
+to line up together as a list of lists.</p>
+<pre class="highlight json"><code><span class="w">
+</span><span class="p">[</span><span class="w">
+  </span><span class="p">[</span><span class="w">
+    </span><span class="p">{</span><span class="nt">"variable"</span><span class="p">:</span><span class="w"> </span><span class="s2">"http://app.crunch.io/api/datasets/abc/variables/123/"</span><span class="p">},</span><span class="w">
+    </span><span class="p">{</span><span class="nt">"variable"</span><span class="p">:</span><span class="w"> </span><span class="s2">"http://app.crunch.io/api/datasets/def/variables/234/"</span><span class="p">},</span><span class="w">
+    </span><span class="p">{</span><span class="nt">"variable"</span><span class="p">:</span><span class="w"> </span><span class="s2">"http://app.crunch.io/api/datasets/hij/variables/345/"</span><span class="p">}</span><span class="w">
+  </span><span class="p">],</span><span class="w">
+  </span><span class="p">[</span><span class="w">
+    </span><span class="p">{</span><span class="nt">"variable"</span><span class="p">:</span><span class="w"> </span><span class="s2">"http://app.crunch.io/api/datasets/abc/variables/678/"</span><span class="p">},</span><span class="w">
+    </span><span class="p">{</span><span class="nt">"variable"</span><span class="p">:</span><span class="w"> </span><span class="s2">"http://app.crunch.io/api/datasets/def/variables/789/"</span><span class="p">},</span><span class="w">
+    </span><span class="p">{</span><span class="nt">"variable"</span><span class="p">:</span><span class="w"> </span><span class="s2">"http://app.crunch.io/api/datasets/hij/variables/890/"</span><span class="p">}</span><span class="w">
+  </span><span class="p">],</span><span class="w">
+  </span><span class="p">[</span><span class="w">
+    </span><span class="p">{</span><span class="nt">"variable"</span><span class="p">:</span><span class="w"> </span><span class="s2">"http://app.crunch.io/api/datasets/abc/variables/1ab/"</span><span class="p">},</span><span class="w">
+    </span><span class="p">{</span><span class="nt">"variable"</span><span class="p">:</span><span class="w"> </span><span class="s2">"http://app.crunch.io/api/datasets/def/variables/ab2/"</span><span class="p">},</span><span class="w">
+    </span><span class="p">{</span><span class="nt">"variable"</span><span class="p">:</span><span class="w"> </span><span class="s2">"http://app.crunch.io/api/datasets/hij/variables/b23/"</span><span class="p">}</span><span class="w">
+  </span><span class="p">]</span><span class="w">
+</span><span class="p">]</span><span class="w">
+
+</span></code></pre>
+
+<p>The example above indicates that the client wishes to line up three variables
+from three datasets as indicated by the groups. </p>
+
+<p>From the input, the endpoint wil analyze the groups and return an expression 
+which will only include those variables that can be appended without conflict
+among all of them. This expression is ready to be used as a <code class="prettyprint">where</code> parameter
+on the append <code class="prettyprint">/batches/</code> endpoint.</p>
+
+<p>The payload needs to be sent as JSON encoded <code class="prettyprint">variables</code> GET parameter:</p>
+<pre class="highlight http"><code><span class="err">GET /datasets/align/?variables=%5B%5B%7B%22variable%22%3A+%22http%3A%2F%2Fapp.crunch.io%2Fapi%2Fdatasets%2Fabc%2Fvariables%2F123%2F%22%7D%2C+%7B%22variable%22%3A+%22http%3A%2F%2Fapp.crunch.io%2Fapi%2Fdatasets%2Fdef%2Fvariables%2F234%2F%22%7D%2C+%7B%22variable%22%3A+%22http%3A%2F%2Fapp.crunch.io%2Fapi%2Fdatasets%2Fhij%2Fvariables%2F345%2F%22%7D%5D%2C+%5B%7B%22variable%22%3A+%22http%3A%2F%2Fapp.crunch.io%2Fapi%2Fdatasets%2Fabc%2Fvariables%2F678%2F%22%7D%2C+%7B%22variable%22%3A+%22http%3A%2F%2Fapp.crunch.io%2Fapi%2Fdatasets%2Fdef%2Fvariables%2F789%2F%22%7D%2C+%7B%22variable%22%3A+%22http%3A%2F%2Fapp.crunch.io%2Fapi%2Fdatasets%2Fhij%2Fvariables%2F890%2F%22%7D%5D%2C+%5B%7B%22variable%22%3A+%22http%3A%2F%2Fapp.crunch.io%2Fapi%2Fdatasets%2Fabc%2Fvariables%2F1ab%2F%22%7D%2C+%7B%22variable%22%3A+%22http%3A%2F%2Fapp.crunch.io%2Fapi%2Fdatasets%2Fdef%2Fvariables%2Fab2%2F%22%7D%2C+%7B%22variable%22%3A+%22http%3A%2F%2Fapp.crunch.io%2Fapi%2Fdatasets%2Fhij%2Fvariables%2Fb23%2F%22%7D%5D%5D
+</span></code></pre>
+
+<p>The response will be a <code class="prettyprint">shoji:view</code> containing the <code class="prettyprint">where</code> expression used for
+each dataset:</p>
+<pre class="highlight json"><code><span class="p">{</span><span class="w">
+  </span><span class="nt">"element"</span><span class="p">:</span><span class="w"> </span><span class="s2">"shoji:view"</span><span class="p">,</span><span class="w">
+  </span><span class="nt">"value"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+    </span><span class="nt">"abc"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="nt">"function"</span><span class="p">:</span><span class="w"> </span><span class="s2">"select"</span><span class="p">,</span><span class="w"> </span><span class="nt">"args"</span><span class="p">:</span><span class="w"> </span><span class="p">[{</span><span class="nt">"map"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+      </span><span class="nt">"678"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="nt">"variable"</span><span class="p">:</span><span class="w"> </span><span class="s2">"678"</span><span class="p">},</span><span class="w">
+      </span><span class="nt">"1ab"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="nt">"variable"</span><span class="p">:</span><span class="w"> </span><span class="s2">"1ab"</span><span class="p">}</span><span class="w">
+    </span><span class="p">}}]},</span><span class="w">
+    </span><span class="nt">"def"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="nt">"function"</span><span class="p">:</span><span class="w"> </span><span class="s2">"select"</span><span class="p">,</span><span class="w"> </span><span class="nt">"args"</span><span class="p">:</span><span class="w"> </span><span class="p">[{</span><span class="nt">"map"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+      </span><span class="nt">"789"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="nt">"variable"</span><span class="p">:</span><span class="w"> </span><span class="s2">"789"</span><span class="p">},</span><span class="w">
+      </span><span class="nt">"ab2"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="nt">"variable"</span><span class="p">:</span><span class="w"> </span><span class="s2">"ab2"</span><span class="p">}</span><span class="w">
+    </span><span class="p">}}]},</span><span class="w">
+    </span><span class="nt">"hij"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="nt">"function"</span><span class="p">:</span><span class="w"> </span><span class="s2">"select"</span><span class="p">,</span><span class="w"> </span><span class="nt">"args"</span><span class="p">:</span><span class="w"> </span><span class="p">[{</span><span class="nt">"map"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+      </span><span class="nt">"890"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="nt">"variable"</span><span class="p">:</span><span class="w"> </span><span class="s2">"890"</span><span class="p">},</span><span class="w">
+      </span><span class="nt">"b23"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="nt">"variable"</span><span class="p">:</span><span class="w"> </span><span class="s2">"b23"</span><span class="p">}</span><span class="w">
+    </span><span class="p">}}]}</span><span class="w">
+  </span><span class="p">}</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre>
+
+<p>Following the example above, in the case that the first group could not be
+appended because conflicts between their variables, it will be excluded
+from the final expressions.</p>
+
+<p>Later, using the expressions obtained, it is possible to append all the datasets
+to a new one without conflicts.</p>
+<pre class="highlight http"><code><span class="err">POST /datasets/abd/batches/
+</span></code></pre>
+<pre class="highlight json"><code><span class="p">{</span><span class="w">
+    </span><span class="nt">"element"</span><span class="p">:</span><span class="w"> </span><span class="s2">"shoji:entity"</span><span class="p">,</span><span class="w">
+    </span><span class="nt">"body"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+      </span><span class="nt">"dataset"</span><span class="p">:</span><span class="w"> </span><span class="s2">"http://app.crunch.io/api/datasets/abc/"</span><span class="p">,</span><span class="w">
+      </span><span class="nt">"where"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="nt">"function"</span><span class="p">:</span><span class="w"> </span><span class="s2">"select"</span><span class="p">,</span><span class="w"> </span><span class="nt">"args"</span><span class="p">:</span><span class="w"> </span><span class="p">[{</span><span class="nt">"map"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+          </span><span class="nt">"678"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="nt">"variable"</span><span class="p">:</span><span class="w"> </span><span class="s2">"678"</span><span class="p">},</span><span class="w">
+          </span><span class="nt">"1ab"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="nt">"variable"</span><span class="p">:</span><span class="w"> </span><span class="s2">"1ab"</span><span class="p">}</span><span class="w">
+        </span><span class="p">}}]}</span><span class="w">
+    </span><span class="p">}</span><span class="w">
+</span><span class="p">}</span><span class="w">
+
+</span></code></pre>
+<pre class="highlight http"><code><span class="err">POST /datasets/abd/batches/
+</span></code></pre>
+<pre class="highlight json"><code><span class="p">{</span><span class="w">
+    </span><span class="nt">"element"</span><span class="p">:</span><span class="w"> </span><span class="s2">"shoji:entity"</span><span class="p">,</span><span class="w">
+    </span><span class="nt">"body"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+      </span><span class="nt">"dataset"</span><span class="p">:</span><span class="w"> </span><span class="s2">"http://app.crunch.io/api/datasets/def/"</span><span class="p">,</span><span class="w">
+      </span><span class="nt">"where"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="nt">"function"</span><span class="p">:</span><span class="w"> </span><span class="s2">"select"</span><span class="p">,</span><span class="w"> </span><span class="nt">"args"</span><span class="p">:</span><span class="w"> </span><span class="p">[{</span><span class="nt">"map"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+          </span><span class="nt">"789"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="nt">"variable"</span><span class="p">:</span><span class="w"> </span><span class="s2">"789"</span><span class="p">},</span><span class="w">
+          </span><span class="nt">"ab2"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="nt">"variable"</span><span class="p">:</span><span class="w"> </span><span class="s2">"ab2"</span><span class="p">}</span><span class="w">
+        </span><span class="p">}}]}</span><span class="w">
+    </span><span class="p">}</span><span class="w">
+</span><span class="p">}</span><span class="w">
+
+</span></code></pre>
+<pre class="highlight http"><code><span class="err">POST /datasets/abd/batches/
+</span></code></pre>
+<pre class="highlight json"><code><span class="p">{</span><span class="w">
+    </span><span class="nt">"element"</span><span class="p">:</span><span class="w"> </span><span class="s2">"shoji:entity"</span><span class="p">,</span><span class="w">
+    </span><span class="nt">"body"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+      </span><span class="nt">"dataset"</span><span class="p">:</span><span class="w"> </span><span class="s2">"http://app.crunch.io/api/datasets/hij/"</span><span class="p">,</span><span class="w">
+      </span><span class="nt">"where"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="nt">"function"</span><span class="p">:</span><span class="w"> </span><span class="s2">"select"</span><span class="p">,</span><span class="w"> </span><span class="nt">"args"</span><span class="p">:</span><span class="w"> </span><span class="p">[{</span><span class="nt">"map"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+          </span><span class="nt">"890"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="nt">"variable"</span><span class="p">:</span><span class="w"> </span><span class="s2">"890"</span><span class="p">},</span><span class="w">
+          </span><span class="nt">"b23"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="nt">"variable"</span><span class="p">:</span><span class="w"> </span><span class="s2">"b23"</span><span class="p">}</span><span class="w">
+        </span><span class="p">}}]}</span><span class="w">
+    </span><span class="p">}</span><span class="w">
+</span><span class="p">}</span><span class="w">
+
+</span></code></pre>
+
 <h3 id="entity">Entity</h3>
 
 <p><code class="prettyprint">/datasets/{id}/batches/{id}/</code></p>
