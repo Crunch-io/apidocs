@@ -814,6 +814,108 @@ this Batch will be queued and not fetched). If there are no pending messages,
 
 <p>See <a href="#stream">Stream</a> for more details on streams.</p>
 
+<h2 id="combining-datasets">Combining datasets</h2>
+
+<p>Combining datasets consists on creating a new dataset formed by stacking a list 
+of datasets together. It works under the same rules as a normal append.</p>
+
+<p>To create a new dataset combined from others, it is necessary to POST to the
+datasets catalog indicating a <code class="prettyprint">combine_datasets</code> expression:</p>
+<pre class="highlight plaintext"><code>POST /api/datasets/
+</code></pre>
+<pre class="highlight json"><code><span class="w">
+</span><span class="p">{</span><span class="w">
+  </span><span class="nt">"element"</span><span class="p">:</span><span class="w"> </span><span class="s2">"shoji:entity"</span><span class="p">,</span><span class="w">
+  </span><span class="nt">"body"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+    </span><span class="nt">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"My combined dataset"</span><span class="p">,</span><span class="w">
+    </span><span class="nt">"description"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Consists on dsA and dsB"</span><span class="p">,</span><span class="w">
+    </span><span class="nt">"derivation"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+      </span><span class="nt">"function"</span><span class="p">:</span><span class="w"> </span><span class="s2">"combine_datasets"</span><span class="p">,</span><span class="w">
+      </span><span class="nt">"args"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
+        </span><span class="p">{</span><span class="nt">"dataset"</span><span class="p">:</span><span class="w"> </span><span class="s2">"https://app.crunch.io/api/datasets/dsabc/"</span><span class="p">},</span><span class="w">
+        </span><span class="p">{</span><span class="nt">"dataset"</span><span class="p">:</span><span class="w"> </span><span class="s2">"https://app.crunch.io/api/datasets/ds123/"</span><span class="p">}</span><span class="w">
+      </span><span class="p">]</span><span class="w">
+    </span><span class="p">}</span><span class="w">
+  </span><span class="p">}</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre>
+
+<p>The server will verify that the authenticated user has view permission to all
+datasets, else will raise a 400 error.</p>
+
+<p>The resulting dataset will consist on the matched union of all included datasets
+with the rows in the same order. Private/public variable visibility and exclusion
+filters will be honored in the result.</p>
+
+<h3 id="transformations-during-combination">Transformations during combination</h3>
+
+<p>The combine procedures will perform normal append matching rules which means 
+that any mismatch on aliases or types will not proceed, as well limiting the
+existing union of variables from the present datasets as the result.</p>
+
+<p>It is possible to provide transformations on the datasets to ensure that
+they line up on the combination phase and to add extra columns with constant
+dataset metadata per dataset on the resulting combined result.</p>
+
+<p>Each <code class="prettyprint">{&quot;dataset&quot;}</code> argument allows for an extra <code class="prettyprint">frame</code> key that can contain
+a function expression on the desired dataset transformation, for example:</p>
+<pre class="highlight json"><code><span class="p">{</span><span class="w">
+    </span><span class="nt">"dataset"</span><span class="p">:</span><span class="w"> </span><span class="s2">"&lt;dataset_url&gt;"</span><span class="p">,</span><span class="w">
+    </span><span class="nt">"frame"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+        </span><span class="nt">"function"</span><span class="p">:</span><span class="w"> </span><span class="s2">"select"</span><span class="p">,</span><span class="w">
+        </span><span class="nt">"args"</span><span class="p">:</span><span class="w"> </span><span class="p">[{</span><span class="w">
+            </span><span class="nt">"map"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+                </span><span class="nt">"*"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="nt">"variable"</span><span class="p">:</span><span class="w"> </span><span class="s2">"*"</span><span class="p">},</span><span class="w">
+                </span><span class="nt">"dataset_id"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+                    </span><span class="nt">"value"</span><span class="p">:</span><span class="w"> </span><span class="s2">"&lt;dataset_id&gt;"</span><span class="p">,</span><span class="w">
+                    </span><span class="nt">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"text"</span><span class="p">,</span><span class="w">
+                    </span><span class="nt">"references"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+                        </span><span class="nt">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Dataset ID"</span><span class="p">,</span><span class="w">
+                        </span><span class="nt">"alias"</span><span class="p">:</span><span class="w"> </span><span class="s2">"dataset_id"</span><span class="w">
+                    </span><span class="p">}</span><span class="w">
+                </span><span class="p">}</span><span class="w">
+            </span><span class="p">}</span><span class="w">
+        </span><span class="p">}]</span><span class="w">
+    </span><span class="p">}</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre>
+
+<h3 id="selecting-a-subset-of-variables-to-combine">Selecting a subset of variables to combine</h3>
+
+<p>In the same fashion that it is possible to add extra variables to the dataset
+transforms, it is possible to select which variables only to include.</p>
+
+<p>Note in the example above, we use the <code class="prettyprint">&quot;*&quot;: {&quot;variable&quot;: &quot;*&quot;}</code> expressions
+which instructs the server to include all variables. Omitting that would cause
+to only include the selected variables, for example:</p>
+<pre class="highlight json"><code><span class="p">{</span><span class="w">
+    </span><span class="nt">"dataset"</span><span class="p">:</span><span class="w"> </span><span class="s2">"&lt;dataset_url&gt;"</span><span class="p">,</span><span class="w">
+    </span><span class="nt">"frame"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+        </span><span class="nt">"function"</span><span class="p">:</span><span class="w"> </span><span class="s2">"select"</span><span class="p">,</span><span class="w">
+        </span><span class="nt">"args"</span><span class="p">:</span><span class="w"> </span><span class="p">[{</span><span class="w">
+            </span><span class="nt">"map"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+                </span><span class="nt">"A"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="nt">"variable"</span><span class="p">:</span><span class="w"> </span><span class="s2">"A"</span><span class="p">},</span><span class="w">
+                </span><span class="nt">"B"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="nt">"variable"</span><span class="p">:</span><span class="w"> </span><span class="s2">"B"</span><span class="p">},</span><span class="w">
+                </span><span class="nt">"C"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="nt">"variable"</span><span class="p">:</span><span class="w"> </span><span class="s2">"C"</span><span class="p">},</span><span class="w">
+                </span><span class="nt">"dataset_id"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+                    </span><span class="nt">"value"</span><span class="p">:</span><span class="w"> </span><span class="s2">"&lt;dataset_id&gt;"</span><span class="p">,</span><span class="w">
+                    </span><span class="nt">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"text"</span><span class="p">,</span><span class="w">
+                    </span><span class="nt">"references"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+                        </span><span class="nt">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Dataset ID"</span><span class="p">,</span><span class="w">
+                        </span><span class="nt">"alias"</span><span class="p">:</span><span class="w"> </span><span class="s2">"dataset_id"</span><span class="w">
+                    </span><span class="p">}</span><span class="w">
+                </span><span class="p">}</span><span class="w">
+            </span><span class="p">}</span><span class="w">
+        </span><span class="p">}]</span><span class="w">
+    </span><span class="p">}</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre>
+
+<p>On this example, the expression indicates to only include variables with IDs 
+<code class="prettyprint">A</code>, <code class="prettyprint">B</code> and <code class="prettyprint">C</code> from the referenced dataset as well as add the new extra 
+variable <code class="prettyprint">dataset_id</code>. This would effectively append only these 4 variables 
+instead of the full dataset&rsquo;s variables.</p>
+
           <h2 id="merging-and-joining-datasets">Merging and Joining Datasets</h2>
 
 <p>Crunch supports joining variables from one dataset to another by a key variable that maps rows from one to the other. To add a snapshot of those variables to the dataset, POST an <code class="prettyprint">adapt</code>
