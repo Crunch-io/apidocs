@@ -1791,6 +1791,29 @@ of them. See <a href="#Combining-responses">Combining responses</a></p>
 </span><span class="p">}</span><span class="w">
 </span></code></pre>
 
+<h3 id="integrating-variables">Integrating variables</h3>
+
+<p>&ldquo;Integrating&rdquo; a variable means to remove its derived properties and turn it into
+a regular <em>base</em> variable. Doing so will make this variable stop reflecting
+the expression if new data is added to its original parent variable and new rows
+will be filled with No Data <code class="prettyprint">{&quot;?&quot;: -1}</code>.</p>
+
+<p>To integrate a variable it is necessary to PATCH to the variable entity with
+the <code class="prettyprint">derived</code> attribute set to <code class="prettyprint">false</code> as so:</p>
+<pre class="highlight http"><code><span class="err">PATCH /api/dataset/abc/variables/123/
+</span></code></pre>
+<pre class="highlight json"><code><span class="p">{</span><span class="w">
+  </span><span class="nt">"element"</span><span class="p">:</span><span class="w"> </span><span class="s2">"shoji:entity"</span><span class="p">,</span><span class="w">
+  </span><span class="nt">"body"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+    </span><span class="nt">"derived"</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="w">
+  </span><span class="p">}</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre>
+
+<p>Will effectively integrate the variable and make its <code class="prettyprint">derivation</code> attribute 
+contain <code class="prettyprint">null</code> from now in. Note that it is only possible to set the <code class="prettyprint">derived</code>
+attribute to <code class="prettyprint">false</code> and never to <code class="prettyprint">true</code>.</p>
+
           <h2 id="array-variables">Array Variables</h2>
 
 <p>Simple variables have only one value per row; sometimes, however, it is convenient to consider multiple values (of the same type) as a single Variable. The Crunch system implements the data as a 2-dimensional array, but the array variable includes two additional attributes: &ldquo;subvariables&rdquo;, which is a list of subvariable URLs, and &ldquo;subreferences&rdquo;, which is an object of {name, alias, description, &hellip;} objects keyed by subvariable URL. There are two types of array variable: categorical array and multiple response.</p>
