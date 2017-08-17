@@ -3743,8 +3743,30 @@ which will only include those variables that can be appended without conflict
 among all of them. This expression is ready to be used as a <code class="prettyprint">where</code> parameter
 on the append <code class="prettyprint">/batches/</code> endpoint.</p>
 
-<p>The payload needs to be sent as JSON encoded <code class="prettyprint">variables</code> GET parameter:</p>
-<pre class="highlight http"><code><span class="err">GET /datasets/align/?variables=%5B%5B%7B%22variable%22%3A+%22http%3A%2F%2Fapp.crunch.io%2Fapi%2Fdatasets%2Fabc%2Fvariables%2F123%2F%22%7D%2C+%7B%22variable%22%3A+%22http%3A%2F%2Fapp.crunch.io%2Fapi%2Fdatasets%2Fdef%2Fvariables%2F234%2F%22%7D%2C+%7B%22variable%22%3A+%22http%3A%2F%2Fapp.crunch.io%2Fapi%2Fdatasets%2Fhij%2Fvariables%2F345%2F%22%7D%5D%2C+%5B%7B%22variable%22%3A+%22http%3A%2F%2Fapp.crunch.io%2Fapi%2Fdatasets%2Fabc%2Fvariables%2F678%2F%22%7D%2C+%7B%22variable%22%3A+%22http%3A%2F%2Fapp.crunch.io%2Fapi%2Fdatasets%2Fdef%2Fvariables%2F789%2F%22%7D%2C+%7B%22variable%22%3A+%22http%3A%2F%2Fapp.crunch.io%2Fapi%2Fdatasets%2Fhij%2Fvariables%2F890%2F%22%7D%5D%2C+%5B%7B%22variable%22%3A+%22http%3A%2F%2Fapp.crunch.io%2Fapi%2Fdatasets%2Fabc%2Fvariables%2F1ab%2F%22%7D%2C+%7B%22variable%22%3A+%22http%3A%2F%2Fapp.crunch.io%2Fapi%2Fdatasets%2Fdef%2Fvariables%2Fab2%2F%22%7D%2C+%7B%22variable%22%3A+%22http%3A%2F%2Fapp.crunch.io%2Fapi%2Fdatasets%2Fhij%2Fvariables%2Fb23%2F%22%7D%5D%5D
+<p>The payload needs to be sent as JSON encoded <code class="prettyprint">variables</code> POST parameter:</p>
+<pre class="highlight http"><code><span class="err">POST /datasets/align/
+</span></code></pre>
+<pre class="highlight json"><code><span class="p">{</span><span class="w">
+</span><span class="nt">"element"</span><span class="p">:</span><span class="w"> </span><span class="s2">"shoji:entity"</span><span class="p">,</span><span class="w">
+</span><span class="nt">"body"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+    </span><span class="nt">"variables"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
+      </span><span class="p">[</span><span class="w">
+        </span><span class="p">{</span><span class="nt">"variable"</span><span class="p">:</span><span class="w"> </span><span class="s2">"http://app.crunch.io/api/datasets/abc/variables/123/"</span><span class="p">},</span><span class="w">
+        </span><span class="p">{</span><span class="nt">"variable"</span><span class="p">:</span><span class="w"> </span><span class="s2">"http://app.crunch.io/api/datasets/def/variables/234/"</span><span class="p">},</span><span class="w">
+        </span><span class="p">{</span><span class="nt">"variable"</span><span class="p">:</span><span class="w"> </span><span class="s2">"http://app.crunch.io/api/datasets/hij/variables/345/"</span><span class="p">}</span><span class="w">
+      </span><span class="p">],</span><span class="w">
+      </span><span class="p">[</span><span class="w">
+        </span><span class="p">{</span><span class="nt">"variable"</span><span class="p">:</span><span class="w"> </span><span class="s2">"http://app.crunch.io/api/datasets/abc/variables/678/"</span><span class="p">},</span><span class="w">
+        </span><span class="p">{</span><span class="nt">"variable"</span><span class="p">:</span><span class="w"> </span><span class="s2">"http://app.crunch.io/api/datasets/def/variables/789/"</span><span class="p">},</span><span class="w">
+        </span><span class="p">{</span><span class="nt">"variable"</span><span class="p">:</span><span class="w"> </span><span class="s2">"http://app.crunch.io/api/datasets/hij/variables/890/"</span><span class="p">}</span><span class="w">
+      </span><span class="p">],</span><span class="w">
+      </span><span class="p">[</span><span class="w">
+        </span><span class="p">{</span><span class="nt">"variable"</span><span class="p">:</span><span class="w"> </span><span class="s2">"http://app.crunch.io/api/datasets/abc/variables/1ab/"</span><span class="p">},</span><span class="w">
+        </span><span class="p">{</span><span class="nt">"variable"</span><span class="p">:</span><span class="w"> </span><span class="s2">"http://app.crunch.io/api/datasets/def/variables/ab2/"</span><span class="p">},</span><span class="w">
+        </span><span class="p">{</span><span class="nt">"variable"</span><span class="p">:</span><span class="w"> </span><span class="s2">"http://app.crunch.io/api/datasets/hij/variables/b23/"</span><span class="p">}</span><span class="w">
+      </span><span class="p">]</span><span class="w">
+    </span><span class="p">]}</span><span class="w">
+</span><span class="p">}</span><span class="w">
 </span></code></pre>
 
 <p>The response will be a <code class="prettyprint">shoji:view</code> containing the <code class="prettyprint">where</code> expression used for
@@ -5270,97 +5292,91 @@ missing values on all columns will use such string instead of the reason.</p>
 
 <h5 id="match">Match</h5>
 
-<p>The match endpoint provides a graph of matches indicating which variables match amongst the datasets provided.  To use it,
+<p>The match endpoint provides a list of matches indicating which variables match amongst the datasets provided.  To use it,
 send a post request representing an ordered list of datasets you would like to match. Include the &ldquo;minimum_matches&rdquo;
 parameter in your graph if you would like to limit the output of the matches based on the number of datasets matching.
-The default minim_matches is 2.  Currently, only alias is utilized to match the variables to one another.  To </p>
+The default minim_matches is 2. Currently, only alias is utilized to match the variables to one another. </p>
 
-<p>The result of a match endpoint request can be one of two things.  If the same match has been completed previously, the
-api with return a 201 status code, along with the match results.  Otherwise, the endpoint will return a 202 status code,
-with a Progress result that provides status information as the match is completed.  Either request will result in the
-location header being set to the URI for staticly generated comparison result that can be accessed with the match is completed.</p>
+<p>The result of a match endpoint request can be one of two things. If the same match has been completed previously, the
+api with return a 201 status code and a Location header to the existing results. Otherwise, the endpoint will return 
+a 202 status code, with a Progress result that provides status information as the match is completed. Either request will 
+result in the location header being set to the URI for staticly generated comparison result that can be accessed with the 
+match is completed.</p>
 
-<p>The results are a Shoji Order with a single group, matches. The matches are listed by order of the
-number of variables matched.  Each variable inside the matches will contain the dataset, the variable id and the confidence
+<p>The results are a Shoji Entity with an attribute <code class="prettyprint">matches</code>. The matches are listed by order of the
+number of variables matched. Each variable inside the matches will contain the dataset, the variable id and the confidence
 that the variable matches the others in the list. The order of the variables inside the matches returned will match
  the order of the datasets provided. The first variable will also contain some additional information
 to allow previewing a match. To retrieve complete details about all the matching variables the endpoints
 listed in <code class="prettyprint">metadata</code> field can be called, those provide all the matching metadata chunked by groups of matches.</p>
 <pre class="highlight http"><code><span class="nf">POST</span> <span class="nn">/datasets/match/</span> <span class="k">HTTP</span><span class="o">/</span><span class="m">1.1</span>
-<span class="s">{</span>
-<span class="s">    "graph": [</span>
-<span class="s">        {</span>
-<span class="s">            "datasets": [</span>
-<span class="s">                [</span>
-<span class="s">                    "http://local.crunch.io:50976/api/datasets/8274bfb842d645728a49634414b999c4",</span>
-<span class="s">                    "http://local.crunch.io:50976/api/datasets/699a3315c3f347d4923257380938f9b9",</span>
-<span class="s">                    "http://local.crunch.io:50976/api/datasets/8274bfb842d645728a49634414b999c4",</span>
-<span class="s">                    "http://local.crunch.io:50976/api/datasets/699a3315c3f347d4923257380938f9b9",                   </span>
-<span class="s">                ],</span>
-<span class="s">             "minimum_matches": 3</span>
-<span class="s">        }</span>
-<span class="s">    ], </span>
-<span class="s">    "self": "http://local.crunch.io:50976/api/datasets/match/3c7df52cffd5bd4f70bd0e55a146ccfd/", </span>
-<span class="s">    "element": "shoji:order"</span>
-<span class="s">}</span>
-
-Response:
-Host: app.crunch.io
-Content-Type: application/json
-Location: http://local.crunch.io:50976/api/datasets/matches/394d9e9c9deffff93120956e
-
-{
-    "graph": [
-        {
-            "matches": [
-                [
-                    {
-                        "alias": "SomeVariable", 
-                        "confidence": 1, 
-                        "name": "Some Variable", 
-                        "variable": "521b5c014e1e474fa5173d95000bd6e9", 
-                        "desc": "This is some variable", 
-                        "dataset": "8274bfb842d645728a49634414b999c4"
-                    }, 
-                    {
-                        "variable": "3fa1d3358888474eb949ae586e80f9a4", 
-                        "confidence": 1, 
-                        "dataset": "699a3315c3f347d4923257380938f9b9"
-                    }
-                ],
-                [
-                    {
-                        "alias": "AnotherVariableThatHasMatches", 
-                        "confidence": 1, 
-                        "name": "Another Variable", 
-                        "variable": "234e8e76d0e1a32667ab33bc30a9900", 
-                        "desc": "This is another variable", 
-                        "dataset": "8274bfb842d645728a49634414b999c4"
-                    }, 
-                    {
-                        "variable": "9373729ac990b009e0a90dca99092789", 
-                        "confidence": 1, 
-                        "dataset": "699a3315c3f347d4923257380938f9b9"
-                    }
-                ],
-                ...
-            ], 
-            "metadata": [
-                "http://local.crunch.io:50976/api/datasets/match/3c7df52cffd5bd4f70bd0e55a146ccfd/0-500/"
-            ]
-        }
-    ], 
-    "self": "http://local.crunch.io:50976/api/datasets/match/3c7df52cffd5bd4f70bd0e55a146ccfd/", 
-    "element": "shoji:order"
-}
-
 </code></pre>
+<pre class="highlight json"><code><span class="p">{</span><span class="w">
+    </span><span class="nt">"element"</span><span class="p">:</span><span class="w"> </span><span class="s2">"shoji:entity"</span><span class="p">,</span><span class="w">
+    </span><span class="nt">"body"</span><span class="p">:</span><span class="w">  </span><span class="p">{</span><span class="w">
+        </span><span class="nt">"datasets"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
+            </span><span class="s2">"http://app.crunch.io/api/datasets/8274bf/"</span><span class="p">,</span><span class="w">
+            </span><span class="s2">"http://app.crunch.io/api/datasets/699a33/"</span><span class="p">,</span><span class="w">
+            </span><span class="s2">"http://app.crunch.io/api/datasets/8274bf/"</span><span class="p">,</span><span class="w">
+            </span><span class="s2">"http://app.crunch.io/api/datasets/699a33/"</span><span class="w">                   
+        </span><span class="p">],</span><span class="w">
+         </span><span class="nt">"minimum_matches"</span><span class="p">:</span><span class="w"> </span><span class="mi">3</span><span class="w">
+    </span><span class="p">}</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre>
 
-<p>The matches endpoint returns a Shoji order with a single group, matches. The matches are listed by order of the
-number of variables matched.  Each variable inside the matches will contain the dataset, the variable id and the confidence
-that the variable matches the others in the list. The first variable will also contain some additional information
-to allow previewing a match. To retrieve complete details about all the matching variables the endpoints
-listed in <code class="prettyprint">metadata</code> field can be called, those provide all the matching metadata chunked by groups of matches.</p>
+<p>Response:</p>
+<pre class="highlight http"><code><span class="err">201 Created
+Host: app.crunch.io
+Location: http://app.crunch.io/api/datasets/matches/394d9e/
+</span></code></pre>
+<pre class="highlight http"><code><span class="err">GET /api/datasets/matches/394d9e/
+</span></code></pre>
+<pre class="highlight json"><code><span class="p">{</span><span class="w">
+
+    </span><span class="nt">"element"</span><span class="p">:</span><span class="w"> </span><span class="s2">"shoji:order"</span><span class="p">,</span><span class="w">
+    </span><span class="nt">"self"</span><span class="p">:</span><span class="w"> </span><span class="s2">"http://app.crunch.io:50976/api/datasets/match/3c7df5/"</span><span class="p">,</span><span class="w"> 
+    </span><span class="nt">"body"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+        </span><span class="nt">"matches"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
+            </span><span class="p">[</span><span class="w">
+                </span><span class="p">{</span><span class="w">
+                    </span><span class="nt">"alias"</span><span class="p">:</span><span class="w"> </span><span class="s2">"SomeVariable"</span><span class="p">,</span><span class="w"> 
+                    </span><span class="nt">"confidence"</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> 
+                    </span><span class="nt">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Some Variable"</span><span class="p">,</span><span class="w"> 
+                    </span><span class="nt">"variable"</span><span class="p">:</span><span class="w"> </span><span class="s2">"521b5c014e1e474fa5173d95000bd6e9"</span><span class="p">,</span><span class="w"> 
+                    </span><span class="nt">"desc"</span><span class="p">:</span><span class="w"> </span><span class="s2">"This is some variable"</span><span class="p">,</span><span class="w"> 
+                    </span><span class="nt">"dataset"</span><span class="p">:</span><span class="w"> </span><span class="s2">"8274bfb842d645728a49634414b999c4"</span><span class="w">
+                </span><span class="p">},</span><span class="w"> 
+                </span><span class="p">{</span><span class="w">
+                    </span><span class="nt">"variable"</span><span class="p">:</span><span class="w"> </span><span class="s2">"3fa1d3358888474eb949ae586e80f9a4"</span><span class="p">,</span><span class="w"> 
+                    </span><span class="nt">"confidence"</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> 
+                    </span><span class="nt">"dataset"</span><span class="p">:</span><span class="w"> </span><span class="s2">"699a3315c3f347d4923257380938f9b9"</span><span class="w">
+                </span><span class="p">}</span><span class="w">
+            </span><span class="p">],</span><span class="w">
+            </span><span class="p">[</span><span class="w">
+                </span><span class="p">{</span><span class="w">
+                    </span><span class="nt">"alias"</span><span class="p">:</span><span class="w"> </span><span class="s2">"AnotherVariableThatHasMatches"</span><span class="p">,</span><span class="w"> 
+                    </span><span class="nt">"confidence"</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> 
+                    </span><span class="nt">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Another Variable"</span><span class="p">,</span><span class="w"> 
+                    </span><span class="nt">"variable"</span><span class="p">:</span><span class="w"> </span><span class="s2">"234e8e76d0e1a32667ab33bc30a9900"</span><span class="p">,</span><span class="w"> 
+                    </span><span class="nt">"desc"</span><span class="p">:</span><span class="w"> </span><span class="s2">"This is another variable"</span><span class="p">,</span><span class="w"> 
+                    </span><span class="nt">"dataset"</span><span class="p">:</span><span class="w"> </span><span class="s2">"8274bfb842d645728a49634414b999c4"</span><span class="w">
+                </span><span class="p">},</span><span class="w"> 
+                </span><span class="p">{</span><span class="w">
+                    </span><span class="nt">"variable"</span><span class="p">:</span><span class="w"> </span><span class="s2">"9373729ac990b009e0a90dca99092789"</span><span class="p">,</span><span class="w"> 
+                    </span><span class="nt">"confidence"</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> 
+                    </span><span class="nt">"dataset"</span><span class="p">:</span><span class="w"> </span><span class="s2">"699a3315c3f347d4923257380938f9b9"</span><span class="w">
+                </span><span class="p">}</span><span class="w">
+            </span><span class="p">],</span><span class="w">
+            </span><span class="err">...</span><span class="w">
+        </span><span class="p">],</span><span class="w"> 
+        </span><span class="nt">"metadata"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
+            </span><span class="s2">"http://app.crunch.io/api/datasets/match/3c7df5/0-500/"</span><span class="w">
+        </span><span class="p">]</span><span class="w">
+    </span><span class="p">}</span><span class="w">
+</span><span class="p">}</span><span class="w">
+
+</span></code></pre>
 
 <h5 id="summary">Summary</h5>
 
