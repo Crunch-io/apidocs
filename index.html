@@ -3133,7 +3133,7 @@ paths to these additional catalogs:
 </span><span class="p">}</span><span class="w">
 </span></code></pre>
 
-<h5 id="applications">Applications</h5>
+<h4 id="applications">Applications</h4>
 <pre class="highlight http"><code><span class="err">GET /account/applications/
 </span></code></pre>
 
@@ -3176,7 +3176,7 @@ paths to these additional catalogs:
 <p>Attributes <code class="prettyprint">name</code> and <code class="prettyprint">subdomain</code> are required; <code class="prettyprint">palette</code> and <code class="prettyprint">manifest</code> are optional. Note that you cannot specify logos in the POST request. Use the created entity&rsquo;s <code class="prettyprint">logo/</code> resource to upload the image files to the
 app (see below).</p>
 
-<h4 id="application-entity">Application entity</h4>
+<h5 id="application-entity">Application entity</h5>
 <pre class="highlight http"><code><span class="err">GET /account/applications/app_id/
 </span></code></pre>
 
@@ -3238,7 +3238,7 @@ the configured application.</p>
 </tr>
 </tbody></table>
 
-<h4 id="change-application-logo">Change application logo</h4>
+<h5 id="change-application-logo">Change application logo</h5>
 <pre class="highlight http"><code><span class="err">POST /account/applications/app_id/logo/
 </span></code></pre>
 
@@ -3496,6 +3496,52 @@ teams.</p>
   </span><span class="p">}</span><span class="w">
 </span><span class="p">}</span><span class="w">
 </span></code></pre>
+
+<h3 id="account-collaborators">Account Collaborators</h3>
+
+<p>An account collaborator is a Crunch.io user that is not a member of your account
+and has access to some/any of your account&rsquo;s datasets.</p>
+
+<p>Account admins can visit the account&rsquo;s collaborators catalog to view the list
+of all collaborators for all datasets of the account.</p>
+<pre class="highlight http"><code><span class="err">GET /account/collaborators/
+</span></code></pre>
+
+<p>This catalog lists all the users that are not members of the account that have
+access to any of the account&rsquo;s datasets, projects or teams.</p>
+
+<p>Each element in the catalog tuple links to the user&rsquo;s entity endpoint and 
+has the name and email attribute.</p>
+<pre class="highlight json"><code><span class="p">{</span><span class="w">
+  </span><span class="nt">"element"</span><span class="p">:</span><span class="w"> </span><span class="s2">"shoji:catalog"</span><span class="p">,</span><span class="w">
+  </span><span class="nt">"index"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+        </span><span class="nt">"https://app.crunch.io/api/users/cc9161/"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+          </span><span class="nt">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"John doe"</span><span class="p">,</span><span class="w">
+          </span><span class="nt">"email"</span><span class="p">:</span><span class="w"> </span><span class="s2">"user1@example.com"</span><span class="p">,</span><span class="w">
+          </span><span class="nt">"active"</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span><span class="w">
+        </span><span class="err">}</span><span class="p">,</span><span class="w">
+        </span><span class="nt">"https://app.crunch.io/api/users/a598c7/"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+          </span><span class="nt">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"John notdoe"</span><span class="p">,</span><span class="w">
+          </span><span class="nt">"email"</span><span class="p">:</span><span class="w"> </span><span class="s2">"user2@example.com"</span><span class="p">,</span><span class="w">
+          </span><span class="nt">"active"</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span><span class="w">
+        </span><span class="err">}</span><span class="w">
+  </span><span class="p">}</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre>
+
+<h4 id="collaborators-order">Collaborators order</h4>
+<pre class="highlight http"><code><span class="err">GET /account/collaborators/order/
+</span></code></pre>
+
+<p>It is possible to group collaborators using a Shoji order.</p>
+
+<p>It is possible to PATCH the <code class="prettyprint">graph</code> attribute with a standard shoji order payload
+indicating the groups and collaborators (user URLs) for each group.</p>
+
+<h4 id="collaborators-datasets">Collaborators datasets</h4>
+
+<p>The full list of datasets a collaborator has access to is available through
+its user&rsquo;s entity endpoint by following the <code class="prettyprint">visible_datasets</code> catalog.</p>
 
           <h2 id="batches">Batches</h2>
 
@@ -9591,9 +9637,13 @@ Filtering Endpoints</p>
 
 <p><code class="prettyprint">/users/{?email,id}</code></p>
 
-<p>A successful GET on this resource returns a Shoji Catalog whose &ldquo;index&rdquo; URL&rsquo;s refer to User objects. If the &ldquo;email&rdquo; or &ldquo;id&rdquo; parameters are provided, the result is narrowed to Users matching those parameters.</p>
+<p>A successful GET on this resource returns a Shoji Catalog whose &ldquo;index&rdquo; URL&rsquo;s 
+refer to User objects. If the &ldquo;email&rdquo; or &ldquo;id&rdquo; parameters are provided, the 
+result is narrowed to Users matching those parameters.</p>
 
-<p>This method only supports GET requests. To add users they need to be added from each account users&rsquo; catalog. This endpoint ensures that the new users belong to an account and get an invitation accordingly.</p>
+<p>This method only supports GET requests. To add users they need to be added from 
+each account users&rsquo; catalog. This endpoint ensures that the new users belong to 
+an account and get an invitation accordingly.</p>
 
 <h3 id="entity">Entity</h3>
 
@@ -9609,38 +9659,65 @@ Filtering Endpoints</p>
 <li>id_provider (optional, and only if id_method == &lsquo;oauth&rsquo;)</li>
 </ul>
 
-<p>If the current user has the &ldquo;alter_users&rdquo; account permission, or is the viewed user, a hefty set of associated URL&rsquo;s is included. Otherwise, the current user must have the &ldquo;view&rdquo; permission for the viewed user, or receives 403 Forbidden.</p>
-
 <p>The id_method member can be one of {&#39;oauth&rsquo;, &#39;pwhash&rsquo;}. If not present, &#39;pwhash&rsquo; is assumed.</p>
 
-<p>A user themselves or with &ldquo;alter_users&rdquo; account permission can PUT new attributes via a JSON-like request body. A 200 indicates success.</p>
+<p>The authenticated user can only access another user&rsquo;s entity endpoint IF any
+of the following are true:</p>
+
+<ul>
+<li>Both belong to the same account</li>
+<li>They are both members of a common team</li>
+<li>Authenticated user is account admin and viewed user is collaborator on such account</li>
+</ul>
+
+<p>A user themselves or with &ldquo;alter_users&rdquo; account permission can PUT new 
+attributes via a JSON-like request body. A 200 indicates success.</p>
+
+<h4 id="send-invitation-email">Send invitation email</h4>
 
 <p><code class="prettyprint">/users/{id}/invite/</code></p>
 
-<p>A POST to this resource sends an invitation from the current user to the identified User. A 204 indicates success. The current user must have &ldquo;can_alter_users&rdquo; account permission or 403 is returned instead.</p>
+<p>A POST to this resource sends an invitation from the current user to the 
+identified User. A 204 indicates success. The current user must have 
+&ldquo;can_alter_users&rdquo; account permission or 403 is returned instead.</p>
 
-<p>If a &ldquo;url_base&rdquo; parameter is included in the request body, it will be used to form links inside the invitation.</p>
+<p>If a &ldquo;url_base&rdquo; parameter is included in the request body, it will be used to 
+form links inside the invitation.</p>
+
+<h4 id="change-password">Change password</h4>
 
 <p><code class="prettyprint">/users/{id}/password/</code></p>
 
-<p>A POST on this resource must consist of a JSON object with the members &ldquo;old_pw&rdquo; and &ldquo;new_pw&rdquo;. A 204 indicates success, a 400 indicates failure.</p>
+<p>A POST on this resource must consist of a JSON object with the members 
+&ldquo;old_pw&rdquo; and &ldquo;new_pw&rdquo;. A 204 indicates success, a 400 indicates failure.</p>
 
 <aside class="notice">
     Please refer to the [password policy](#Password-policy) for information on
     what the requirements are for a password.
 </aside>
 
+<h4 id="reset-user-39-s-password">Reset user&rsquo;s password</h4>
+
 <p><code class="prettyprint">/users/{id}/password_reset/</code></p>
 
-<p>A GET on this resource always returns 204. A POST will send a reset password notification to the identified user. A 204 indicates success.</p>
+<p>A GET on this resource always returns 204. A POST will send a reset password 
+notification to the identified user. A 204 indicates success.</p>
 
-<p>If a &ldquo;url_base&rdquo; parameter is included in the request body, it will be used to form links inside the notification.</p>
+<p>If a &ldquo;url_base&rdquo; parameter is included in the request body, it will be used to 
+form links inside the notification.</p>
+
+<h4 id="change-user-39-s-email">Change user&rsquo;s email</h4>
 
 <p><code class="prettyprint">/users/{id}/change_email/</code></p>
 
-<p>A POST on this resource must consist of a JSON object with the members &ldquo;pw&rdquo; and &ldquo;email&rdquo;. A 204 indicates potential success to change the users email address to the newly provided email. The user should check their email and verify they own the email address in question.</p>
+<p>A POST on this resource must consist of a JSON object with the members &ldquo;pw&rdquo; and 
+&ldquo;email&rdquo;. A 204 indicates potential success to change the users email address to 
+the newly provided email. The user should check their email and verify they own 
+the email address in question.</p>
 
-<p>If the password does not match the users current password they will receive an error message (400 Bad Request). If the user is an oauth account, then the email address may not be changed (409 Conflict).</p>
+<p>If the password does not match the users current password they will receive an
+error message (400 Bad Request). If the user is an oauth account, then the email
+ address may not be changed (409 Conflict).</p>
 
 <p>If the user ID does not match the current signed in user, an 403 Forbidden will be sent back.</p>
 
@@ -9663,6 +9740,66 @@ owner.</p>
 </span></code></pre>
 
 <p>The new owner provided can be a user URL or a user email.</p>
+
+<h5 id="user-datasets">User Datasets</h5>
+
+<p><code class="prettyprint">/account/users/{id}/datasets/</code></p>
+
+<p>This URL is only accessible and available to account admins. </p>
+
+<p>This Shoji catalog lists all the datasets that are owned by this user.</p>
+
+<h5 id="user-visible-datasets">User Visible datasets</h5>
+
+<p><code class="prettyprint">/users/{id}/visible_datasets/</code></p>
+
+<p>This endpoint is only available and accessible to account admins.</p>
+
+<p>Returns a Shoji catalog listing all the datasets (archived or not) that a any
+user has access to, either via direct share, via team access or project membership.</p>
+<pre class="highlight json"><code><span class="p">{</span><span class="w">
+    </span><span class="nt">"https://app.crunch.io/api/datasets/wsx345/"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+        </span><span class="nt">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"survey data"</span><span class="p">,</span><span class="w">
+        </span><span class="nt">"last_access_time"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2017-02-25"</span><span class="p">,</span><span class="w">
+        </span><span class="nt">"access_type"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+            </span><span class="nt">"teams"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">"https://app.crunch.io/api/teams/abx/"</span><span class="p">],</span><span class="w">
+            </span><span class="nt">"project"</span><span class="p">:</span><span class="w"> </span><span class="s2">"https://app.crunch.io/api/projects/qwe/"</span><span class="p">,</span><span class="w">
+            </span><span class="nt">"direct"</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="w">
+        </span><span class="p">},</span><span class="w">
+        </span><span class="nt">"permissions"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+          </span><span class="nt">"edit"</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span><span class="w">
+          </span><span class="nt">"view"</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span><span class="w">
+          </span><span class="nt">"change_permissions"</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="w">
+        </span><span class="p">}</span><span class="w">
+    </span><span class="p">},</span><span class="w">
+    </span><span class="nt">"https://app.crunch.io/api/datasets/a2c4b2/"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+        </span><span class="nt">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"responses dataset"</span><span class="p">,</span><span class="w">
+        </span><span class="nt">"last_access_time"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2016-11-09"</span><span class="p">,</span><span class="w">
+        </span><span class="nt">"access_type"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+            </span><span class="nt">"teams"</span><span class="p">:</span><span class="w"> </span><span class="p">[],</span><span class="w">
+            </span><span class="nt">"project"</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span><span class="w">
+            </span><span class="nt">"direct"</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="w">
+        </span><span class="p">},</span><span class="w">
+        </span><span class="nt">"permissions"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+          </span><span class="nt">"edit"</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="p">,</span><span class="w">
+          </span><span class="nt">"view"</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span><span class="w">
+          </span><span class="nt">"change_permissions"</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="w">
+        </span><span class="p">}</span><span class="w">
+    </span><span class="p">}</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre>
+
+<p>The tuples contain information of the type of access the user has to each 
+dataset via the <code class="prettyprint">access_type</code> attribute. It includes:</p>
+
+<ul>
+<li>The list of teams that provide access to this dataset</li>
+<li>The project that provides access to this dataset or null</li>
+<li>If the user has a direct share to this dataset</li>
+</ul>
+
+<p>The <code class="prettyprint">permissions</code> attribute indicates the final coalesced permissions this 
+user enjoys on the given dataset.</p>
 
           <h2 id="variables">Variables</h2>
 
