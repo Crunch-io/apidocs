@@ -3754,9 +3754,11 @@ to avoid such conflicts.</p>
 troubling variables from the append.</p>
 
 <ul>
-<li>Exclude different arrays that may share subvariables by alias. 
-This is currently not allowed and would reject the append operation.</li>
+<li>Exclude different arrays that may share subvariables by alias. </li>
+<li>Exclude variables with matching aliases but different types.</li>
 </ul>
+
+<p>Those are currently not allowed and would reject the append operation.</p>
 
 <p>To use this endpoint, the client needs to provide a list of variables they wish
 to line up together as a list of lists.</p>
@@ -3815,8 +3817,12 @@ on the append <code class="prettyprint">/batches/</code> endpoint.</p>
 </span><span class="p">}</span><span class="w">
 </span></code></pre>
 
-<p>The response will be a <code class="prettyprint">shoji:view</code> containing the <code class="prettyprint">where</code> expression used for
-each dataset:</p>
+<p>The response will be a 202 with a Progress resource in it; 
+poll that URL for updates on the completion and follow <code class="prettyprint">Location</code> once it completed.
+See <a href="#progress">Progress</a>.</p>
+
+<p>On completion the align response will be a <code class="prettyprint">shoji:view</code> containing the
+<code class="prettyprint">where</code> expression used for each dataset:</p>
 <pre class="highlight json"><code><span class="p">{</span><span class="w">
   </span><span class="nt">"element"</span><span class="p">:</span><span class="w"> </span><span class="s2">"shoji:view"</span><span class="p">,</span><span class="w">
   </span><span class="nt">"value"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
