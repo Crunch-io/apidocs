@@ -1,6 +1,6 @@
 ## Projects
 
-Projects represent groups of users that share a common set of datasets. Any user
+Projects represent groups of users or teams that share a common set of datasets. Any user
 can belong to none or many projects.
 
 They live under /projects/ and will list the projects that the authenticated user
@@ -227,7 +227,7 @@ Use this endpoint to manage the users that have access to this project.
 
 #### Members permissions
 
-Members of a project can be wither viewers or editors. By default all members
+Members of a project can be either viewers or editors. By default all members
 will be viewers and a selected group of them (at least one) will be editor.
 
 These permissions are available on the members catalog under the `permissions` 
@@ -245,10 +245,16 @@ Project editors have edit privileges on all datasets as well as permissions to
 make changes on the project itself such as changing its name, icon, members 
 management or change members' permissions.
 
+A project can have users or teams as members. Teams represent groups of users
+to be handled together. When a team gets access to a group, all members of
+the team inherit those permissions. In the case that a user has access
+to a project through several teams or direct access, the final permissions
+will be added together.
+
 #### GET
 
-Returns a catalog with all users that have access to this project and their 
-project permissions in the following format:
+Returns a catalog with all users and tea,sthat have access to this project and 
+their project permissions in the following format:
 
 ```http
 GET /projects/abcd/members/ HTTP/1.1
@@ -262,6 +268,7 @@ GET /projects/abcd/members/ HTTP/1.1
     "http://app.crunch.io/api/users/00002/": {
       "name": "Jean-Luc Picard",
       "email": "captain@crunch.io",
+      "collaborator": false,
       "permissions": {
         "edit": true,
         "view": true
@@ -274,6 +281,7 @@ GET /projects/abcd/members/ HTTP/1.1
     "http://app.crunch.io/api/users/00005/": {
       "name": "William Riker",
       "email": "firstofficer@crunch.io",
+      "collaborator": false,
       "permissions": {
         "edit": false,
         "view": true
@@ -282,12 +290,19 @@ GET /projects/abcd/members/ HTTP/1.1
         "edit": false,
         "view": true
       }
+    },
+    "http://app.crunch.io/api/teams/000a5/": {
+      "name": "Viewers teams",
+      "permissions": {
+        "edit": false,
+        "view": true
+      }
     }
   }
 }
 ```
 
-The catalog will be indexed by each user's entity URL and its tuple will contain
+The catalog will be indexed by each entity's URL and its tuple will contain
 basic information (name and email) as well as the permissions each user has
 on the given project.
 
@@ -334,6 +349,7 @@ PATCH /projects/abcd/members/ HTTP/1.1
   "self": "http://app.crunch.io/api/projects/6c01/members/",
   "index": {
     "http://app.crunch.io/api/users/001/": {},
+    "http://app.crunch.io/api/teams/00a/": {},
     "http://app.crunch.io/api/users/002/": {
       "permissions": {
         "edit": true
@@ -372,6 +388,51 @@ Additionally, to indicate the URL of the project, the client can provide a
 part that the server will replace with the project's ID.
 
 This behavior is the same as described for [inviting new users when sharing a dataset](#inviting-new-users)
+
+
+### Users
+
+A read only endpoint that lists all the individual users that have access to
+this project, independent from their access type (via team or direct project 
+membership).
+
+The payload shares a similar shape as the members endpoint, but this catalog
+contains only users.
+
+
+```http
+GET /projects/abcd/users/ HTTP/1.1
+```
+
+```json
+{
+  "element": "shoji:catalog",
+  "self": "http://app.crunch.io/api/projects/6c01/members/",
+  "index": {
+    "http://app.crunch.io/api/users/00002/": {
+      "name": "Jean-Luc Picard",
+      "email": "captain@crunch.io",
+      "collaborator": false,
+      "allowed_dataset_permissions": {
+        "edit": true,
+        "view": true
+      },
+      "teams": []
+    },
+    "http://app.crunch.io/api/users/00005/": {
+      "name": "William Riker",
+      "email": "firstofficer@crunch.io",
+      "collaborator": false,
+      "allowed_dataset_permissions": {
+        "edit": false,
+        "view": true
+      },
+      "teams": ["http://app.crunch.io/api/teams/000a5/"]
+    }
+  }
+}
+```
+
 
 
 ### Datasets
