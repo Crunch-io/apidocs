@@ -42,11 +42,11 @@ location | uri | Location of crunch-curated geojson/topojson file. Users may nee
 description | string | Any additional information about the geodatum
 metadata | object | Information regarding the actual data provided by the location.  For now, the properties in the geodata features are extracted for the purpose of matching geodata to variable categories.
 
-### Catalog
-
-`/geodata/id/`
+### Entity
 
 #### GET
+
+`GET /geodata/{geodata_id}/`
 
 Crunch maintains a few geojson/topojson resources and publishes them on CDN.
 Most of their properties, with the exception of `metadata`, are present on the catalog
@@ -83,6 +83,11 @@ resources. For other formats, users may supply relevant metadata for the geodatu
 }
 ```
 
+#### DELETE
+
+`DELETE /geodata/{geodata_id}/`
+
+Deletes the geodata entity. Returns 204.
 
 ### Geodata for common applications
 
