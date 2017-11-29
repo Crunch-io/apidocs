@@ -253,7 +253,7 @@ will be added together.
 
 #### GET
 
-Returns a catalog with all users and tea,sthat have access to this project and 
+Returns a catalog with all users and teams that have access to this project and 
 their project permissions in the following format:
 
 ```http
