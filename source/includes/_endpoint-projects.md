@@ -246,7 +246,7 @@ make changes on the project itself such as changing its name, icon, members
 management or change members' permissions.
 
 A project can have users or teams as members. Teams represent groups of users
-to be handled together. When a team gets access to a group, all members of
+to be handled together. When a team gets access to a project, all members of
 the team inherit those permissions. In the case that a user has access
 to a project through several teams or direct access, the final permissions
 will be added together.
